@@ -20,5 +20,5 @@ func Load() (*Config, error) {
 	defer file.Close()
 	err = configFile.LoadFromReader(file)
 
-	return nil, err
+	return configFile, err
 }

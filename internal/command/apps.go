@@ -28,7 +28,7 @@ func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 			return
 		}
 		if len(user.Applications) < 1 {
-			fmt.Println("You does not have any application active")
+			fmt.Println("You don't have any application active")
 			return
 		}
 

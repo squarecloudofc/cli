@@ -19,8 +19,10 @@ func NewSquareCli() (squareCli *SquareCli) {
 		panic("could not load config file")
 	}
 
+	restClient := rest.NewClient(config.AuthToken)
 	squareCli = &SquareCli{
 		Config: config,
+		Rest:   restClient,
 	}
 
 	return
