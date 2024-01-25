@@ -13,7 +13,7 @@ import (
 func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:              "squarecloud COMMAND",
-		Short:            "A runtime to manage your Square Cloud applications",
+		Short:            "A command line application to manage your Square Cloud applications",
 		SilenceErrors:    true,
 		SilenceUsage:     true,
 		TraverseChildren: true,
