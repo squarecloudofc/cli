@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-var UserAgent = "Square Cloud CLI (v2.0.0)"
+var UserAgent = "Square Cloud CLI (v1.0.0)"
 
 type ApiResponse[T any] struct {
 	Status   string `json:"status"`
@@ -73,7 +73,7 @@ func (c *RestClient) ServiceStatistics(options ...RequestOption) (result *Respon
 	}
 
 	var r ApiResponse[ResponseServiceStatistics]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -95,7 +95,7 @@ func (c *RestClient) Application(appId string, options ...RequestOption) (result
 	}
 
 	var r ApiResponse[ResponseApplicationInformation]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -106,7 +106,7 @@ func (c *RestClient) ApplicationStatus(appId string, options ...RequestOption) (
 	}
 
 	var r ApiResponse[ResponseApplicationStatus]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -117,7 +117,7 @@ func (c *RestClient) AllApplicationStatus(options ...RequestOption) (result *Res
 	}
 
 	var r ApiResponse[ResponseApplicationStatus]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -128,7 +128,7 @@ func (c *RestClient) ApplicationLogs(appId string, options ...RequestOption) (re
 	}
 
 	var r ApiResponse[ResponseApplicationLogs]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -139,7 +139,7 @@ func (c *RestClient) ApplicationStart(appId string, options ...RequestOption) (_
 	}
 
 	var r ApiResponse[any]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return r.Status == "success", err
 }
 
@@ -150,7 +150,7 @@ func (c *RestClient) ApplicationStop(appId string, options ...RequestOption) (_ 
 	}
 
 	var r ApiResponse[any]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return r.Status == "success", err
 }
 
@@ -161,7 +161,7 @@ func (c *RestClient) ApplicationRestart(appId string, options ...RequestOption) 
 	}
 
 	var r ApiResponse[any]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return r.Status == "success", err
 }
 
@@ -172,7 +172,7 @@ func (c *RestClient) ApplicationBackup(appId string, options ...RequestOption) (
 	}
 
 	var r ApiResponse[ResponseApplicationBackup]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -183,7 +183,7 @@ func (c *RestClient) UploadApplication(options ...RequestOption) (result *Respon
 	}
 
 	var r ApiResponse[ResponseUploadApplication]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -194,7 +194,7 @@ func (c *RestClient) ApplicationFiles(appId string, path string, options ...Requ
 	}
 
 	var r ApiResponse[ResponseApplicationFiles]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -205,7 +205,7 @@ func (c *RestClient) ApplicationFile(appId string, path string, options ...Reque
 	}
 
 	var r ApiResponse[ResponseApplicationFile]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -216,7 +216,7 @@ func (c *RestClient) ApplicationDeploys(appId string, options ...RequestOption) 
 	}
 
 	var r ApiResponse[ResponseApplicationFile]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -236,7 +236,7 @@ func (c *RestClient) ApplicationGithubWebhook(appId string, accessToken string, 
 	}
 
 	var r ApiResponse[ResponseApplicationGithubWebhook]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
@@ -247,6 +247,6 @@ func (c *RestClient) ApplicationNetwork(appId string, options ...RequestOption) 
 	}
 
 	var r ApiResponse[ResponseApplicationNetwork]
-	err = unmarshal(body, r)
+	err = unmarshal(body, &r)
 	return &r.Response, err
 }
