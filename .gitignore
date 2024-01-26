@@ -20,3 +20,6 @@ target/
 
 # Go workspace file
 go.work
+
+squarecloud.config
+squarecloud.app
