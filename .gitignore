@@ -23,3 +23,6 @@ go.work
 
 squarecloud.config
 squarecloud.app
+
+dist/
+completions/

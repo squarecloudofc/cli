@@ -1,0 +1,60 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+version: 1
+
+project_name: squarecloud
+
+before:
+  hooks:
+    - go mod tidy
+    - bash ./scripts/completions.sh
+
+builds:
+  - main: ./cmd/squarecloud
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - "386"
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - "7"
+    ignore:
+      - goos: windows
+        goarch: arm
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X github.com/squarecloudofc/cli/internal/build.Version={{.Version}} -X github.com/squarecloudofc/cli/internal/build.Commit={{.Commit}} -X github.com/squarecloudofc/cli/internal/build.CommitDate={{ .CommitDate }}
+
+archives:
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - completions/*
+      - LICENSE
+      - README.md
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-preview"
+
+checksum:
+  name_template: "checksums.txt"
+
+nfpms:
+  - vendor: Square Cloud
+    maintainer: "richaardev <me@richaar.dev>"
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - termux.deb
+    bindir: /usr/bin
