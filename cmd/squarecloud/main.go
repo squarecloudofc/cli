@@ -12,11 +12,12 @@ import (
 
 func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:              "squarecloud COMMAND",
-		Short:            "A command line application to manage your Square Cloud applications",
-		SilenceErrors:    true,
-		SilenceUsage:     true,
-		TraverseChildren: true,
+		Use:               "squarecloud COMMAND",
+		Short:             "A command line application to manage your Square Cloud applications",
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		TraverseChildren:  true,
+		ValidArgsFunction: cobra.NoFileCompletions,
 		CompletionOptions: cobra.CompletionOptions{
 			DisableDefaultCmd:   false,
 			HiddenDefaultCmd:    true,
@@ -28,7 +29,7 @@ func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 			}
 			return fmt.Errorf("%s is not a command. See 'squarecloud --help'", args[0])
 		},
-		Version: fmt.Sprintf("%s, commit %s, built at %s", build.Version, build.GitCommit, build.BuildTime),
+		Version: fmt.Sprintf("%s, commit %s, commited at %s", build.Version, build.Commit, build.CommitDate),
 	}
 
 	cmd.SetOut(squareCli.Out())
