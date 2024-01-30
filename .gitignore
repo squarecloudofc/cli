@@ -2,7 +2,10 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
+*.zip
 target/
+dist/
+completions/
 *.exe
 *.exe~
 *.dll
@@ -23,6 +26,3 @@ go.work
 
 squarecloud.config
 squarecloud.app
-
-dist/
-completions/
