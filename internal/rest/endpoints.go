@@ -17,17 +17,17 @@ var (
 	EndpointUser = func() string { return "/user" }
 
 	// Application
-	EndpointApplicationInformation = func(appId string) string { return fmt.Sprintf("/apps/%s", appId) }
-	EndpointApplicationStatus      = func(appId string) string { return fmt.Sprintf("/apps/%s/status", appId) }
-	EndpointApplicationsStatus     = func() string { return "/apps/all/status" }
-	EndpointApplicationLogs        = func(appId string) string { return fmt.Sprintf("/apps/%s/logs", appId) }
-	EndpointApplicationStart       = func(appId string) string { return fmt.Sprintf("/apps/%s/start", appId) }
-	EndpointApplicationRestart     = func(appId string) string { return fmt.Sprintf("/apps/%s/restart", appId) }
-	EndpointApplicationStop        = func(appId string) string { return fmt.Sprintf("/apps/%s/stop", appId) }
-	EndpointApplicationBackup      = func(appId string) string { return fmt.Sprintf("/apps/%s/backup", appId) }
-	EndpointApplicationCommit      = func(appId string) string { return fmt.Sprintf("/apps/%s/commit", appId) }
-	EndpointApplication            = func(appId string) string { return fmt.Sprintf("/apps/%s", appId) }
-	EndpointApplicationUpload      = func() string { return "/apps/upload" }
+	EndpointApplication        = func(appId string) string { return fmt.Sprintf("/apps/%s", appId) }
+	EndpointApplicationStatus  = func(appId string) string { return fmt.Sprintf("/apps/%s/status", appId) }
+	EndpointApplicationLogs    = func(appId string) string { return fmt.Sprintf("/apps/%s/logs", appId) }
+	EndpointApplicationStart   = func(appId string) string { return fmt.Sprintf("/apps/%s/start", appId) }
+	EndpointApplicationRestart = func(appId string) string { return fmt.Sprintf("/apps/%s/restart", appId) }
+	EndpointApplicationStop    = func(appId string) string { return fmt.Sprintf("/apps/%s/stop", appId) }
+	EndpointApplicationBackup  = func(appId string) string { return fmt.Sprintf("/apps/%s/backup", appId) }
+	EndpointApplicationCommit  = func(appId string) string { return fmt.Sprintf("/apps/%s/commit", appId) }
+	EndpointApplicationDelete  = func(appId string) string { return fmt.Sprintf("/apps/%s/delete", appId) }
+	EndpointApplicationsStatus = func() string { return "/apps/all/status" }
+	EndpointApplicationUpload  = func() string { return "/apps/upload" }
 
 	// Application File Manager
 	EndpointApplicationFiles      = func(appId, path string) string { return fmt.Sprintf("/apps/%s/files/list?path=%s", appId, path) }

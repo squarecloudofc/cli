@@ -3,8 +3,12 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
+	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 var UserAgent = "Square Cloud CLI (v1.0.0)"
@@ -50,6 +54,7 @@ func (c *RestClient) Request(method, url string, b []byte, options ...RequestOpt
 	}
 
 	response, err = io.ReadAll(resp.Body)
+	fmt.Println(string(response))
 	if err != nil {
 		return
 	}
@@ -89,7 +94,7 @@ func (c *RestClient) SelfUser(options ...RequestOption) (result *ResponseUser, e
 }
 
 func (c *RestClient) Application(appId string, options ...RequestOption) (result *ResponseApplicationInformation, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationInformation(appId)), nil, options...)
+	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplication(appId)), nil, options...)
 	if err != nil {
 		return
 	}
@@ -249,4 +254,49 @@ func (c *RestClient) ApplicationNetwork(appId string, options ...RequestOption) 
 	var r ApiResponse[ResponseApplicationNetwork]
 	err = unmarshal(body, &r)
 	return &r.Response, err
+}
+
+func (c *RestClient) ApplicationDelete(appId string, options ...RequestOption) (bool, error) {
+	body, err := c.Request(http.MethodDelete, MakeURL(EndpointApplicationDelete(appId)), nil, options...)
+	if err != nil {
+		return false, err
+	}
+
+	var r ApiResponse[any]
+	err = unmarshal(body, &r)
+	return r.Status == "success", err
+}
+
+func (c *RestClient) ApplicationCommit(appId string, filep string, options ...RequestOption) (bool, error) {
+	bodyBuffer := &bytes.Buffer{}
+	writer := multipart.NewWriter(bodyBuffer)
+
+	file, err := os.Open(filep)
+	if err != nil {
+		return false, err
+	}
+	defer file.Close()
+
+	part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
+
+	if _, err := io.Copy(part, file); err != nil {
+		return false, err
+	}
+
+	if err := writer.Close(); err != nil {
+		return false, err
+	}
+
+	options = append(options, WithHeader("Content-Type", writer.FormDataContentType()))
+
+	body, err := c.Request(http.MethodPost, MakeURL(EndpointApplicationCommit(appId)), bodyBuffer.Bytes(), options...)
+	if err != nil {
+		return false, err
+	}
+
+	var r ApiResponse[any]
+	err = unmarshal(body, &r)
+
+	fmt.Println(body)
+	return r.Status == "success", err
 }
