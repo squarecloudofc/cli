@@ -2,6 +2,7 @@ package squareconfig
 
 import (
 	"os"
+	"runtime"
 	"sync"
 )
 
@@ -11,7 +12,15 @@ var (
 	filename             = ""
 )
 
-func ConfigFile() string {
+func GetDefaultConfig() string {
+	if runtime.GOOS == "darwin" {
+		return SquareConfigNames[0]
+	}
+
+	return SquareConfigNames[1]
+}
+
+func GetConfigFile() string {
 	readSquareConfigFile.Do(func() {
 		for _, name := range SquareConfigNames {
 			_, err := os.Lstat(name)
@@ -23,7 +32,7 @@ func ConfigFile() string {
 		}
 
 		if filename == "" {
-			filename = SquareConfigNames[0]
+			filename = GetDefaultConfig()
 		}
 	})
 

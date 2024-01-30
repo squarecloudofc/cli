@@ -23,6 +23,9 @@ type SquareConfig struct {
 	AutoRestart string `properties:"AUTO_RESTART"`
 
 	filename string `properties:"-"`
+
+	// we will use this created property to check if the file exists or not (internal use only)
+	created bool `properties:"-"`
 }
 
 func New(path string) *SquareConfig {
@@ -37,12 +40,13 @@ func Load() (*SquareConfig, error) {
 		return nil, err
 	}
 
-	filepath := path.Join(cwd, ConfigFile())
+	filepath := path.Join(cwd, GetConfigFile())
 	squareconfig := New(filepath)
 
 	file, err := os.Open(filepath)
 	if err != nil {
 		if os.IsNotExist(err) {
+			squareconfig.created = true
 			return squareconfig, nil
 		}
 
@@ -51,7 +55,12 @@ func Load() (*SquareConfig, error) {
 	defer file.Close()
 	err = squareconfig.LoadFromReader(file)
 
+	squareconfig.created = false
 	return squareconfig, err
+}
+
+func (c *SquareConfig) IsCreated() bool {
+	return c.created
 }
 
 func (c *SquareConfig) LoadFromReader(reader io.Reader) error {
