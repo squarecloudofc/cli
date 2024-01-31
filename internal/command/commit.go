@@ -25,10 +25,20 @@ func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
 
 func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		config, err := squareconfig.Load()
+		self, err := squareCli.Rest.SelfUser()
 		if err != nil {
 			return err
 		}
+
+		if self == nil || self.User.Tag == "" {
+			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
+			return
+		}
+
+		config, err := squareconfig.Load()
+		if err != nil {
+			return err
+		} 
 
 		if config.IsCreated() {
 			fmt.Fprintln(squareCli.Out(), "seems you don't have a squarecloud.config file, please create one")

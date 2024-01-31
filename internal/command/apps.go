@@ -23,11 +23,17 @@ func NewAppsCommand(squareCli *cli.SquareCli) *cobra.Command {
 
 func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		user, err := squareCli.Rest.SelfUser()
+		self, err := squareCli.Rest.SelfUser()
 		if err != nil {
 			return
 		}
-		if len(user.Applications) < 1 {
+
+		if self == nil || self.User.Tag == "" {
+			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
+			return
+		}
+
+		if len(self.Applications) < 1 {
 			fmt.Fprintln(squareCli.Out(), "You don't have any application active")
 			return
 		}
@@ -38,7 +44,7 @@ func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 		tags := []string{"NAME", "App ID", "MEMORY", "CLUSTER", "LANG", "WEBSITE"}
 		fmt.Fprintln(w, strings.Join(tags, " \t "))
 
-		for _, app := range user.Applications {
+		for _, app := range self.Applications {
 			values := []string{
 				app.Tag,
 				app.ID,
