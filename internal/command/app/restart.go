@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui"
 )
 
 func NewRestartCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -40,9 +41,9 @@ func runRestartCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args [
 		}
 
 		if success {
-			fmt.Fprintln(squareCli.Out(), "Your application has been successfuly restarted")
+			fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly restarted\n", ui.CheckMark)
 		} else {
-			fmt.Fprintln(squareCli.Out(), "Failed to restart your application")
+			fmt.Fprintf(squareCli.Out(), "%s Failed to restart your application\n", ui.XMark)
 		}
 
 		return nil

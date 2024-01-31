@@ -3,7 +3,6 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -54,7 +53,6 @@ func (c *RestClient) Request(method, url string, b []byte, options ...RequestOpt
 	}
 
 	response, err = io.ReadAll(resp.Body)
-	fmt.Println(string(response))
 	if err != nil {
 		return
 	}
@@ -297,6 +295,5 @@ func (c *RestClient) ApplicationCommit(appId string, filep string, options ...Re
 	var r ApiResponse[any]
 	err = unmarshal(body, &r)
 
-	fmt.Println(body)
 	return r.Status == "success", err
 }

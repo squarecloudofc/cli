@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui"
 )
 
 func NewDeleteCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -40,9 +41,9 @@ func runDeleteCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 		}
 
 		if success {
-			fmt.Fprintln(squareCli.Out(), "Your application has been successfuly deleted")
+			fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly deleted\n", ui.CheckMark)
 		} else {
-			fmt.Fprintln(squareCli.Out(), "Failed to delete your application")
+			fmt.Fprintf(squareCli.Out(), "%s Failed to delete your application\n", ui.XMark)
 		}
 
 		return nil

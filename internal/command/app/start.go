@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui"
 )
 
 func NewStartCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -40,9 +41,9 @@ func runStartCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []s
 		}
 
 		if success {
-			fmt.Fprintln(squareCli.Out(), "Your application has been successfuly started")
+			fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly started", ui.CheckMark)
 		} else {
-			fmt.Fprintln(squareCli.Out(), "Failed to start your application")
+			fmt.Fprintf(squareCli.Out(), "%s Failed to start your application", ui.XMark)
 		}
 
 		return nil

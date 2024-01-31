@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui"
 )
 
 func NewWhoamiCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -25,7 +26,9 @@ func runWhoamiCommand(squareCli *cli.SquareCli) RunEFunc {
 			return err
 		}
 
-		fmt.Fprintf(squareCli.Out(), "currently logged as \x1b[32m%s\x1b[30m\n", self.User.Tag)
+		username := ui.GreenText.SetString(self.User.Tag)
+
+		fmt.Fprintf(squareCli.Out(), "currently logged as %s\n", username)
 		return
 	}
 }

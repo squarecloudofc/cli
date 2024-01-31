@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/squareconfig"
+	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
@@ -19,7 +20,6 @@ func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
 		RunE:  runCommitCommand(squareCli),
 	}
 
-	cmd.PersistentFlags().StringP("search", "s", "", "Search for an application")
 	return cmd
 }
 
@@ -39,7 +39,6 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 			fmt.Fprintln(squareCli.Out(), "your squarecloud.config file don't have ID property")
 		}
 
-		fmt.Fprintln(squareCli.Out(), "zipping your aplication")
 		workDir, err := os.Getwd()
 		if err != nil {
 			return err
@@ -58,16 +57,15 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 			return err
 		}
 
-		fmt.Fprintf(squareCli.Out(), "sending to square cloud")
 		success, err := squareCli.Rest.ApplicationCommit(config.ID, file.Name())
 		if err != nil {
 			return err
 		}
 
 		if success {
-			fmt.Fprintln(squareCli.Out(), "Your application has been commited")
+			fmt.Fprintf(squareCli.Out(), "%s Your application has been commited\n", ui.CheckMark)
 		} else {
-			fmt.Fprintln(squareCli.Out(), "Unable to commit your application")
+			fmt.Fprintf(squareCli.Out(), "%s Unable to commit your application\n", ui.XMark)
 		}
 		return nil
 	}

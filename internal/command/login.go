@@ -15,7 +15,6 @@ func NewLoginCommand(squareCli *cli.SquareCli) *cobra.Command {
 		RunE:  runLoginCommand(squareCli),
 	}
 
-	cmd.PersistentFlags().StringP("search", "s", "", "Search for an application")
 	return cmd
 }
 

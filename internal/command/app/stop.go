@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui"
 )
 
 func NewStopCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -40,9 +41,9 @@ func runStopCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []st
 		}
 
 		if success {
-			fmt.Fprintln(squareCli.Out(), "Your application has been successfuly stopped")
+			fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly stopped", ui.CheckMark)
 		} else {
-			fmt.Fprintln(squareCli.Out(), "Failed to stop your application")
+			fmt.Fprintf(squareCli.Out(), "%s Failed to stop your application", ui.XMark)
 		}
 
 		return nil
