@@ -47,6 +47,7 @@ func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
 		NewStartCommand(squareCli),
 		NewRestartCommand(squareCli),
 		NewStopCommand(squareCli),
+		NewStatusCommand(squareCli),
 	)
 
 	return cmd
