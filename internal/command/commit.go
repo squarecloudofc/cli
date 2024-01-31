@@ -30,6 +30,11 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 			return err
 		}
 
+		if self == nil || self.User.Tag == "" {
+			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
+			return
+		}
+
 		if config.IsCreated() {
 			fmt.Fprintln(squareCli.Out(), "seems you don't have a squarecloud.config file, please create one")
 			return

@@ -26,6 +26,11 @@ func runWhoamiCommand(squareCli *cli.SquareCli) RunEFunc {
 			return err
 		}
 
+		if self == nil || self.User.Tag == "" {
+			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
+			return
+		}
+
 		username := ui.GreenText.SetString(self.User.Tag)
 
 		fmt.Fprintf(squareCli.Out(), "currently logged as %s\n", username)

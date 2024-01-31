@@ -58,6 +58,12 @@ func runAppCommand(squareCli *cli.SquareCli) RunEFunc {
 		if err != nil {
 			return
 		}
+
+		if self == nil || self.User.Tag == "" {
+			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
+			return
+		}
+
 		if len(user.Applications) < 1 {
 			fmt.Fprintln(squareCli.Out(), "You does not have any application active")
 			return
