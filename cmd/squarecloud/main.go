@@ -62,7 +62,7 @@ func main() {
 
 	client := github.NewClient(nil)
 
-	if release, _, err := client.Repositories.GetLatestRelease(context.Background(), "squarecloudofc", "cli"); err != nil {
+	if release, _, err := client.Repositories.GetLatestRelease(context.Background(), "squarecloudofc", "cli"); err == nil {
 		if build.Version != *release.TagName {
 			version := ui.GreenText.SetString(*release.TagName)
 
