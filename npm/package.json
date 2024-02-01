@@ -1,6 +1,6 @@
 {
   "name": "@squarecloud/cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "richaardev <me@richaar.dev>",
   "license": "LGPL-3.0-only",
   "description": "A command line application to manage your Square Cloud applications.",
@@ -23,8 +23,8 @@
     "url": "https://github.com/squarecloudofc/cli/issues"
   },
   "dependencies": {
-    "tar-fs": "^3.0.4",
-    "unzipper": "^0.10.14"
+    "adm-zip": "^0.5.10",
+    "tar-fs": "^3.0.4"
   },
   "keywords": [
     "squarecloud",

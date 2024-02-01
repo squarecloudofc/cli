@@ -2,7 +2,7 @@ Square Cloud CLI.
 This package provides a direct way to interact with the official Square Cloud API.
 
 ## Installation
-Formerly: https://cli.squarecloud.app/install.sh
+Formerly: https://cli.squarecloud.app/install
 
 To install the Square Cloud CLI, use the following npm command:
 ```bash

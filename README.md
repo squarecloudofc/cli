@@ -6,13 +6,15 @@ To install the CLI, just run the following command in your terminal:
 
 macOS, Linux, and WSL:
 ```bash
-curl -fsSL https://cli.squarecloud.app/install.sh | sh
+curl -fsSL https://cli.squarecloud.app/install | sh
 ```
 
 Windows | need [npm](https://www.npmjs.com/) installed:
 ```bash
 npm install -g @squarecloud/cli
 ```
+
+Or access the @squarecloud/cli [npm page](https://www.npmjs.com/package/@squarecloud/cli) for more information.
 
 ### Commands 
 List of all commands available in the CLI:
