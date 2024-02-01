@@ -44,6 +44,7 @@ func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		NewDeleteCommand(squareCli),
 		NewStartCommand(squareCli),
 		NewRestartCommand(squareCli),
 		NewStopCommand(squareCli),
