@@ -38,16 +38,16 @@ func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 
 		restClient := rest.NewClient(token)
 
-        self, err := restClient.SelfUser()
+		self, err := restClient.SelfUser()
 
-        if err != nil {
-            return
-        }
+		if err != nil {
+			return
+		}
 
-        if self == nil || self.User.Tag == "" {
-            fmt.Fprintf(squareCli.Out(), "No user associated for this Square Cloud Token\n")
-            return
-        }
+		if self == nil || self.User.Tag == "" {
+			fmt.Fprintf(squareCli.Out(), "No user associated for this Square Cloud Token\n")
+			return
+		}
 
 		squareCli.Config.AuthToken = token
 		squareCli.Config.Save()
