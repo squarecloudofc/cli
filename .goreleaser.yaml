@@ -48,13 +48,3 @@ snapshot:
 
 checksum:
   name_template: "checksums.txt"
-
-nfpms:
-  - vendor: Square Cloud
-    maintainer: "richaardev <me@richaar.dev>"
-    license: MIT
-    formats:
-      - deb
-      - rpm
-      - termux.deb
-    bindir: /usr/bin
