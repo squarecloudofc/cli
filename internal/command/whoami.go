@@ -15,7 +15,6 @@ func NewWhoamiCommand(squareCli *cli.SquareCli) *cobra.Command {
 		RunE:  runWhoamiCommand(squareCli),
 	}
 
-	cmd.PersistentFlags().StringP("search", "s", "", "Search for an application")
 	return cmd
 }
 
