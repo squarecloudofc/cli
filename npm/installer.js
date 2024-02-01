@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const zlib = require("node:zlib");
 const { stdout } = require("node:process");
-const { execFileSync } = require("node:child_process");
+const { execFileSync, execFile, spawnSync } = require("node:child_process");
 
 const tar = require("tar-fs");
 const { createHash } = require("node:crypto");
@@ -45,13 +45,13 @@ async function getCurrentRelease() {
 }
 
 async function extractFileZip(path, destination) {
-  const zip = new AdmZip(path)
+  const zip = new AdmZip(path);
   return new Promise((resolve, reject) => zip.extractAllToAsync(destination, true, false, (err) => (err ? reject(err) : resolve())));
 }
 
 async function extractFile(path, destination) {
   if (path.endsWith(".zip")) {
-    return extractFileZip(path, destination)  
+    return extractFileZip(path, destination);
   } else if (path.endsWith(".tar.gz")) {
     const extract = tar.extract(destination);
     fs.createReadStream(path).pipe(zlib.createGunzip()).pipe(extract);
@@ -69,13 +69,13 @@ async function installBinaries(destination) {
   const asset = release.assets.filter((a) => regex.test(a.name))[0];
   if (!asset) throw new Error(`Cannot find an asset for ${PLATFORM} - ${ARCH}`);
 
-  const checksumAsset = release.assets.find(a => a.name === "checksums.txt")
+  const checksumAsset = release.assets.find(a => a.name === "checksums.txt");
   try {
-    console.log("Downloading checksums...")
+    console.log("Downloading checksums...");
     const cres = await fetch(checksumAsset.browser_download_url);
-    const checksumText = await cres.text()
-    const checksumList = checksumText.split(/\n/g).map(c => c.split(/\s+/g))
-    const [checksum, checksumFilename] = checksumList.find(c => asset.browser_download_url.includes(c[1]))
+    const checksumText = await cres.text();
+    const checksumList = checksumText.split(/\n/g).map(c => c.split(/\s+/g));
+    const [checksum] = checksumList.find(c => asset.browser_download_url.includes(c[1]));
 
     console.log("Downloading binaries from github release...");
     console.log(asset.browser_download_url);
@@ -104,15 +104,15 @@ async function installBinaries(destination) {
     });
 
     stream.once("close", async () => {
-      console.log("Validating file...")
-      const file = fs.readFileSync(filepath)
-      const hash = createHash("sha256").update(file).digest("hex")
-      
+      console.log("Validating file...");
+      const file = fs.readFileSync(filepath);
+      const hash = createHash("sha256").update(file).digest("hex");
+
       if (hash != checksum) {
-        throw new Error("The file checksum does not match with checksums.txt")
+        throw new Error("The file checksum does not match with checksums.txt");
       }
 
-      console.log("Extracting file...");
+      console.log(`Extracting file to ${destination}`);
       await extractFile(filepath, destination);
       fs.unlinkSync(filepath);
 
@@ -145,13 +145,23 @@ function getExecFile() {
 
 (async () => {
   const binDir = getBinDir();
-  const execfile = getExecFile();
+  const binfile = getExecFile();
 
   const argv = process.argv;
-  if (argv[2] === "update" || !fs.existsSync(execfile)) {
+  if (argv[2] === "update" || !fs.existsSync(binfile)) {
     installBinaries(binDir);
     return;
   }
 
-  stdout.write(execFileSync(execfile, argv.slice(2)));
+  const result = spawnSync(binfile, process.argv.slice(2), {
+    stdio: "inherit",
+    cwd: process.cwd()
+  });
+
+  if (result.error) {
+    console.error(result.error);
+    process.exit(1);
+  }
+
+  process.exit(result.status);
 })();
