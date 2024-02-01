@@ -4,9 +4,11 @@ This package provides a direct way to interact with the official Square Cloud AP
 ### Installation
 To install the CLI, just run the following command in your terminal:
 
+![cli install in linux gif](https://cdn.squarecloud.app/blog/posts/changelog/01-02-2024/square-cli-install.gif)
+
 macOS, Linux, and WSL:
 ```bash
-curl -fsSL https://cli.squarecloud.app/install | sh
+curl -fsSL https://cli.squarecloud.app/install | bash
 ```
 
 Windows | need [npm](https://www.npmjs.com/) installed:
