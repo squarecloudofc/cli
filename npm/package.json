@@ -1,21 +1,35 @@
 {
   "name": "@squarecloud/cli",
-  "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
+  "version": "1.0.0",
+  "author": "richaardev <me@richaar.dev>",
+  "license": "LGPL-3.0-only",
+  "description": "A command line application to manage your Square Cloud applications.",
+  "preferGlobal": true,
+  "homepage": "https://squarecloud.app/",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "node installer.js update"
+  },
+  "bin": {
+    "squarecloud": "./installer.js"
   },
   "repository": {
     "type": "git",
     "url": "git@github:squarecloud/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/squarecloudofc/cli/issues"
+  },
+  "dependencies": {
+    "tar-fs": "^3.0.4",
+    "unzipper": "^0.10.14"
   },
   "keywords": [
     "squarecloud",
     "cli",
     "square",
     "cloud"
-  ],
-  "author": "richaardev <me@richaar.dev>",
-  "license": "LGPL-3.0-only"
+  ]
 }
