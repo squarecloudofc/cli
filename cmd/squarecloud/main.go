@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
+	"github.com/google/go-github/v58/github"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/command"
+	"github.com/squarecloudofc/cli/internal/ui"
 )
 
 func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -55,5 +58,17 @@ func main() {
 	if err := run(squareCli); err != nil {
 		fmt.Fprintln(squareCli.Err(), err)
 		os.Exit(1)
+	}
+
+	client := github.NewClient(nil)
+
+	if release, _, err := client.Repositories.GetLatestRelease(context.Background(), "squarecloudofc", "cli"); err != nil {
+		if build.Version != *release.TagName {
+			version := ui.GreenText.SetString(*release.TagName)
+
+			fmt.Fprintln(squareCli.Out(), "")
+			fmt.Fprintln(squareCli.Out(), ui.YellowText.SetString("You're using a old version of Square Cloud CLI"))
+			fmt.Fprintf(squareCli.Out(), " Please update to %s\n", version)
+		}
 	}
 }

@@ -20,7 +20,7 @@ type SquareConfig struct {
 	Memory      string `properties:"MEMORY"`
 	Subdomain   string `properties:"SUBDOMAIN"`
 	Start       string `properties:"START"`
-	AutoRestart string `properties:"AUTO_RESTART"`
+	AutoRestart string `properties:"AUTORESTART"`
 
 	filename string `properties:"-"`
 

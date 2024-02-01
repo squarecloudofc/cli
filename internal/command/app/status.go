@@ -6,8 +6,9 @@ import (
 
 	"strings"
 	"text/tabwriter"
-	"github.com/spf13/cobra"
+
 	"github.com/rvflash/elapsed"
+	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 )
 
@@ -53,7 +54,7 @@ func runStatusCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 			uptime_elapsed = elapsed.Time(time.Unix(0, (data.Uptime * int64(time.Millisecond))))
 		}
 
-		tags := []string{"APP ID", "CPU %", "MEM", "DISK", "STATUS", "UPTIME" }
+		tags := []string{"APP ID", "CPU %", "MEM", "DISK", "STATUS", "UPTIME"}
 		fmt.Fprintln(w, strings.Join(tags, " \t "))
 
 		fmt.Fprintf(w, "%s \t %s \t %s \t %s \t %s \t %s \t\n", appId, data.CPU, data.RAM, data.Storage, data.Status, uptime_elapsed)

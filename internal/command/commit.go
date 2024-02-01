@@ -38,7 +38,7 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 		config, err := squareconfig.Load()
 		if err != nil {
 			return err
-		} 
+		}
 
 		if config.IsCreated() {
 			fmt.Fprintln(squareCli.Out(), "seems you don't have a squarecloud.config file, please create one")
