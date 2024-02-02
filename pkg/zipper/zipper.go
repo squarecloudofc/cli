@@ -47,11 +47,7 @@ func ZipFolder(folder string, file *os.File) error {
 		}
 
 		absolutepath, _ := strings.CutPrefix(path, fmt.Sprintf("%s/", wd))
-		// r := shouldIgnoreFile(absolutepath, info)
-
-		// fmt.Printf("Should ignore %s? %t\n", absolutepath, r)
 		if shouldIgnoreFile(absolutepath, info) {
-			fmt.Println("Ignoring " + absolutepath)
 			return nil
 		}
 
