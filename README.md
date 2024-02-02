@@ -37,6 +37,7 @@ List of all commands available in the app command:
 | Command | Description                         |
 | ------- | ----------------------------------- |
 | delete  | Delete your application             |
+| logs    | See your application logs           |
 | restart | Restart your application            |
 | start   | Start your application              |
 | status  | Show the status of your application |
