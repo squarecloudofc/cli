@@ -23,11 +23,11 @@ func Load() ([]string, error) {
 		return nil, err
 	}
 
-	trimmed := strings.TrimSpace(string(file))
 	var filtered []string
-	for _, e := range strings.Split(trimmed, "\n") {
-		if e != "" {
-			filtered = append(filtered, e)
+	for _, e := range strings.Split(string(file), "\n") {
+		entry := strings.TrimSpace(e)
+		if entry != "" {
+			filtered = append(filtered, entry)
 		}
 	}
 
