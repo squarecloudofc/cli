@@ -13,15 +13,14 @@ GREEN="$(tput setaf 2 2>/dev/null || printf '')"
 YELLOW="$(tput setaf 3 2>/dev/null || printf '')"
 NO_COLOR="$(tput sgr0 2>/dev/null || printf '')"
 
-base_path=$(pwd)
-version=v2.0.0
-platform="$(uname -s | tr '[:upper:]' '[:lower:]')"
-arch="$(uname -m | tr '[:upper:]' '[:lower:]')"
-case "${arch}" in
-  x86_64) arch="amd64" ;;
-  aarch64) arch="arm64" ;;
-esac
+REPO='squarecloudofc/cli'
 
+PLATFORM="$(uname -s | tr '[:upper:]' '[:lower:]')"
+ARCH="$(uname -m | tr '[:upper:]' '[:lower:]')"
+case "${ARCH}" in
+  x86_64) ARCH="amd64" ;;
+  aarch64) ARCH="arm64" ;;
+esac
 
 has() {
   command -v "$1" 1>/dev/null 2>&1
@@ -47,11 +46,26 @@ completed() {
   printf '%s\n' "${GREEN}✓${NO_COLOR} $*"
 }
 
+get_latest_tag(){
+  url="https://api.github.com/repos/${REPO}/releases/latest"
+
+  if has curl; then
+    curl -sL $url | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+  elif has wget; then
+    wget -q -O- $url | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+  else
+    error "Unable to find a latest release in github"
+    return 1
+  fi
+}
+
+VERSION=$(get_latest_tag)
+
 download_release() {
   out=$1
   file=$2
 
-  url="https://github.com/squarecloudofc/cli/releases/download/$version/${file}"
+  url="https://github.com/${REPO}/releases/download/$VERSION/${file}"
   
   if has curl; then
     curl -sL -o "${out}" "${url}"
@@ -85,7 +99,7 @@ untar() {
 execute() {
   tmpdir=$(mktemp -d)
 
-  filename="squarecloud_${platform}_${arch}.tar.gz"
+  filename="squarecloud_${PLATFORM}_${ARCH}.tar.gz"
 
   info "Installing Square Cloud CLI, please wait..."
   download_release "${tmpdir}/${filename}" $filename
@@ -94,7 +108,7 @@ execute() {
   untar "${tmpdir}/${filename}" "${tmpdir}/bin"
 
   sudo cp -f "${tmpdir}/bin/squarecloud" "/usr/local/bin"
-  completed "Successfuly installed Square Cloud CLI!"
+  completed "Successfuly installed Square Cloud CLI $VERSION!"
 
   rm -rf "${tmpdir}"
 }
