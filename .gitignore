@@ -12,6 +12,7 @@ bin/
 *.dll
 *.so
 *.dylib
+*.zip
 
 # Test binary, built with `go test -c`
 *.test
@@ -28,3 +29,4 @@ go.work
 squarecloud.config
 squarecloud.app
 node_modules/
+.squareignore
