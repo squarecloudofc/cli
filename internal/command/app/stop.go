@@ -21,6 +21,7 @@ func NewStopCommand(squareCli *cli.SquareCli) *cobra.Command {
 func runStopCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
+		rest := squareCli.Rest()
 
 		if len(args) > 0 {
 			appId = args[0]
@@ -35,7 +36,7 @@ func runStopCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []st
 			appId = id
 		}
 
-		success, err := squareCli.Rest.ApplicationStop(appId)
+		success, err := rest.ApplicationStop(appId)
 		if err != nil {
 			return
 		}

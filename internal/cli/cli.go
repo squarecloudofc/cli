@@ -9,23 +9,24 @@ import (
 )
 
 type SquareCli struct {
-	Rest   *rest.RestClient
 	Config *config.Config
 }
 
-func NewSquareCli() (squareCli *SquareCli) {
+func NewSquareCli() *SquareCli {
 	config, err := config.Load()
 	if err != nil {
 		panic("could not load config file")
 	}
 
-	restClient := rest.NewClient(config.AuthToken)
-	squareCli = &SquareCli{
+	squareCli := &SquareCli{
 		Config: config,
-		Rest:   restClient,
 	}
 
-	return
+	return squareCli
+}
+
+func (squareCli *SquareCli) Rest() *rest.RestClient {
+	return rest.NewClient(squareCli.Config.AuthToken)
 }
 
 func (squareCli *SquareCli) Err() io.Writer {

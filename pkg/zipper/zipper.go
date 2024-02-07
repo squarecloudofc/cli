@@ -13,8 +13,7 @@ var (
 	DefaultIgnoredFiles = []string{"node_modules/", ".git/", ".vscode/", ".github/", ".cache/", "package-lock.json"}
 )
 
-func shouldIgnoreFile(filedir string, file os.FileInfo) bool {
-	var ignoreEntries []string
+func shouldIgnoreFile(filedir string, file os.FileInfo, ignoreEntries []string) bool {
 	ignoreEntries = append(ignoreEntries, DefaultIgnoredFiles...)
 
 	for _, entry := range ignoreEntries {
@@ -32,13 +31,13 @@ func shouldIgnoreFile(filedir string, file os.FileInfo) bool {
 	return false
 }
 
-func ZipFolder(folder string, file *os.File) error {
+func ZipFolder(folder string, destination *os.File, ignoreFiles []string) error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	w := zip.NewWriter(file)
+	w := zip.NewWriter(destination)
 	defer w.Close()
 
 	return filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
@@ -47,7 +46,7 @@ func ZipFolder(folder string, file *os.File) error {
 		}
 
 		absolutepath, _ := strings.CutPrefix(path, fmt.Sprintf("%s/", wd))
-		if shouldIgnoreFile(absolutepath, info) {
+		if shouldIgnoreFile(absolutepath, info, ignoreFiles) {
 			return nil
 		}
 

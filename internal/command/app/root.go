@@ -12,7 +12,8 @@ import (
 type RunEFunc func(cmd *cobra.Command, args []string) error
 
 func CreateApplicationSelection(squareCli *cli.SquareCli) (string, error) {
-	rapps, err := squareCli.Rest.SelfUser()
+	rest := squareCli.Rest()
+	rapps, err := rest.SelfUser()
 	if err != nil {
 		return "", err
 	}
@@ -42,6 +43,7 @@ func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		NewBackupCommand(squareCli),
 		NewDeleteCommand(squareCli),
 		NewLogsCommand(squareCli),
 		NewStartCommand(squareCli),

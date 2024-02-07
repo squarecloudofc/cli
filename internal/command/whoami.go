@@ -20,7 +20,8 @@ func NewWhoamiCommand(squareCli *cli.SquareCli) *cobra.Command {
 
 func runWhoamiCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		self, err := squareCli.Rest.SelfUser()
+		rest := squareCli.Rest()
+		self, err := rest.SelfUser()
 		if err != nil {
 			return err
 		}

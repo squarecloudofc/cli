@@ -21,6 +21,7 @@ func NewRestartCommand(squareCli *cli.SquareCli) *cobra.Command {
 func runRestartCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
+		rest := squareCli.Rest()
 
 		if len(args) > 0 {
 			appId = args[0]
@@ -35,7 +36,7 @@ func runRestartCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args [
 			appId = id
 		}
 
-		success, err := squareCli.Rest.ApplicationRestart(appId)
+		success, err := rest.ApplicationRestart(appId)
 		if err != nil {
 			return err
 		}

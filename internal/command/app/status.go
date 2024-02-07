@@ -25,6 +25,7 @@ func NewStatusCommand(squareCli *cli.SquareCli) *cobra.Command {
 func runStatusCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
+		rest := squareCli.Rest()
 
 		if len(args) > 0 {
 			appId = args[0]
@@ -39,7 +40,7 @@ func runStatusCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 			appId = id
 		}
 
-		data, err := squareCli.Rest.ApplicationStatus(appId)
+		data, err := rest.ApplicationStatus(appId)
 
 		if err != nil {
 			return err

@@ -20,6 +20,7 @@ func NewLogsCommand(squareCli *cli.SquareCli) *cobra.Command {
 func runLogsCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
+		rest := squareCli.Rest()
 
 		if len(args) > 0 {
 			appId = args[0]
@@ -34,7 +35,7 @@ func runLogsCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []st
 			appId = id
 		}
 
-		result, err := squareCli.Rest.ApplicationLogs(appId)
+		result, err := rest.ApplicationLogs(appId)
 		if err != nil {
 			return err
 		}

@@ -23,7 +23,8 @@ func NewAppsCommand(squareCli *cli.SquareCli) *cobra.Command {
 
 func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		self, err := squareCli.Rest.SelfUser()
+		rest := squareCli.Rest()
+		self, err := rest.SelfUser()
 		if err != nil {
 			return
 		}

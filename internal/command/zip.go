@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/squareignore"
+	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
@@ -22,27 +25,40 @@ func NewZipCommand(squareCli *cli.SquareCli) *cobra.Command {
 
 func runZipCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		fmt.Fprintln(squareCli.Out(), "zipping your aplication")
 		workDir, err := os.Getwd()
 		if err != nil {
 			return err
 		}
 
-		zipfilename := path.Join(workDir, "source.zip")
+		workDirName := filepath.Base(workDir)
+
+		zipfilename := path.Join(workDir, workDirName+".zip")
+		if _, err := os.Lstat(zipfilename); err == nil {
+			err := os.Remove(zipfilename)
+			if err != nil {
+				fmt.Fprintln(squareCli.Err(), "source.zip already exists and its not possible to delete it")
+			}
+		}
+
 		file, err := os.CreateTemp("", "*.zip")
 		if err != nil {
 			return err
 		}
 		defer file.Close()
 
-		err = zipper.ZipFolder(workDir, file)
+		ignoreFiles, err := squareignore.Load()
+		if err != nil {
+			ignoreFiles = []string{}
+		}
+
+		err = zipper.ZipFolder(workDir, file, ignoreFiles)
 		if err != nil {
 			return err
 		}
 
 		os.Rename(file.Name(), zipfilename)
 
-		fmt.Fprintf(squareCli.Out(), "your source has successfuly zipped")
+		fmt.Fprintf(squareCli.Out(), "%s Your source has successfuly zipped to %s.zip\n", ui.CheckMark, workDirName)
 		return nil
 	}
 }
