@@ -42,6 +42,9 @@ func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 	cmd.SetVersionTemplate("Square Cloud CLI version {{.Version}}\n")
 	cmd.Flags().BoolP("version", "v", false, "Print CLI version")
 
+	cmd.Flags().BoolP("debug", "d", false, "Debug Mode")
+	cmd.Flags().MarkHidden("debug")
+
 	command.AddCommands(cmd, squareCli)
 	return cmd
 }
