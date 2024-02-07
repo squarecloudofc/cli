@@ -10,6 +10,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/command"
+	"github.com/squarecloudofc/cli/internal/rest"
 	"github.com/squarecloudofc/cli/internal/ui"
 )
 
@@ -59,8 +60,14 @@ func main() {
 	squareCli := cli.NewSquareCli()
 
 	if err := run(squareCli); err != nil {
-		fmt.Fprintln(squareCli.Err(), err)
-		os.Exit(1)
+		switch err.(type) {
+		case rest.RestError:
+			fmt.Fprintln(squareCli.Err(), err)
+			os.Exit(0)
+		default:
+			fmt.Fprintln(squareCli.Err(), err)
+			os.Exit(1)
+		}
 	}
 
 	client := github.NewClient(nil)

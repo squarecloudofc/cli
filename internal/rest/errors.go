@@ -5,17 +5,19 @@ import (
 	"fmt"
 )
 
+type RestError error
+
 var (
-	ErrAppNotFound   = errors.New("application not found, verify your application ID and try again")
-	ErrAccessDenied  = errors.New("your access is denied, make login with your api token using \"squarecloud login\" or verify if you have access for this action")
-	ErrUserNotFound  = errors.New("user not found, verify your user ID and try again")
-	ErrInvalidBuffer = errors.New("unable to send buffer")
-	ErrInvalidFile   = errors.New("unable to send the file")
-	ErrCommitError   = errors.New("unable to commit to your application")
-	ErrDelayNow      = errors.New("you are in rate limit, try again later")
+	ErrAppNotFound   RestError = errors.New("application not found, verify your application ID and try again")
+	ErrAccessDenied  RestError = errors.New("your access is denied, make login with your api token using \"squarecloud login\" or verify if you have access for this action")
+	ErrUserNotFound  RestError = errors.New("user not found, verify your user ID and try again")
+	ErrInvalidBuffer RestError = errors.New("unable to send buffer")
+	ErrInvalidFile   RestError = errors.New("unable to send the file")
+	ErrCommitError   RestError = errors.New("unable to commit to your application")
+	ErrDelayNow      RestError = errors.New("you are in rate limit, try again later")
 )
 
-func ParseError[T any](e *ApiResponse[T]) (err error) {
+func ParseError(e *ApiResponse[any]) (err error) {
 	switch e.Code {
 	case "APP_NOT_FOUND":
 		err = ErrAppNotFound
@@ -29,7 +31,7 @@ func ParseError[T any](e *ApiResponse[T]) (err error) {
 		err = ErrInvalidBuffer
 	case "COMMIT_ERROR":
 		err = ErrCommitError
-	case "DELAY_NOW":
+	case "DELAY_NOW", "RATELIMIT":
 		err = ErrDelayNow
 	default:
 		err = fmt.Errorf("square cloud retorned error %s", e.Code)

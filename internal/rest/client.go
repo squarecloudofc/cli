@@ -5,7 +5,13 @@ type RestClient struct {
 }
 
 func NewClient(token string) *RestClient {
-	return &RestClient{
+	rest := &RestClient{
 		token: token,
 	}
+
+	return rest
+}
+
+func (c *RestClient) Token() string {
+	return c.token
 }

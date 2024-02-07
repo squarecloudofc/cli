@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -30,10 +31,10 @@ func newRequestConfig(req *http.Request) *RequestConfig {
 	}
 }
 
-func (c *RestClient) Request(method, url string, b []byte, options ...RequestOption) (response []byte, err error) {
-	req, err := http.NewRequest(method, url, bytes.NewBuffer(b))
+func (c *RestClient) Request(method, url string, body []byte, respBody interface{}, options ...RequestOption) error {
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(body))
 	if err != nil {
-		return
+		return err
 	}
 
 	cfg := newRequestConfig(req)
@@ -42,226 +43,187 @@ func (c *RestClient) Request(method, url string, b []byte, options ...RequestOpt
 	}
 	req = cfg.Request
 
-	if c != nil {
-		req.Header.Set("Authorization", c.token)
+	if c.Token() != "" {
+		req.Header.Set("Authorization", c.Token())
 	}
+
 	req.Header.Set("User-Agent", UserAgent)
 
 	resp, err := cfg.Client.Do(req)
 	if err != nil {
-		return
-	}
-
-	response, err = io.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
-	return
-}
-
-func unmarshal(data []byte, v interface{}) error {
-	err := json.Unmarshal(data, v)
-	if err != nil {
 		return err
 	}
 
-	return nil
-}
-
-func (c *RestClient) ServiceStatistics(options ...RequestOption) (result *ResponseServiceStatistics, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointServiceStatistics()), nil, options...)
-	if err != nil {
-		return
+	var rawResponse []byte
+	if rawResponse, err = io.ReadAll(resp.Body); err != nil {
+		return fmt.Errorf("error reading response body: %w", err)
 	}
 
+	if err := json.Unmarshal(rawResponse, respBody); err != nil {
+		return fmt.Errorf("error unmarshalling response body: %w", err)
+	}
+
+	switch resp.StatusCode {
+	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
+		return nil
+	default:
+		var r ApiResponse[any]
+		if err := json.Unmarshal(rawResponse, &r); err != nil {
+			return fmt.Errorf("error unmarshalling response body: %w", err)
+		}
+		return ParseError(&r)
+	}
+
+}
+
+func (c *RestClient) ServiceStatistics(options ...RequestOption) (*ResponseServiceStatistics, error) {
 	var r ApiResponse[ResponseServiceStatistics]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointServiceStatistics()), nil, &r, options...)
 	return &r.Response, err
 }
 
-func (c *RestClient) SelfUser(options ...RequestOption) (result *ResponseUser, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointUser()), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) SelfUser(options ...RequestOption) (*ResponseUser, error) {
 	var r ApiResponse[ResponseUser]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointUser()), nil, &r, options...)
 	return &r.Response, err
 }
 
-func (c *RestClient) Application(appId string, options ...RequestOption) (result *ResponseApplicationInformation, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplication(appId)), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) Application(appId string, options ...RequestOption) (*ResponseApplicationInformation, error) {
 	var r ApiResponse[ResponseApplicationInformation]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplication(appId)), nil, &r, options...)
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationStatus(appId string, options ...RequestOption) (result *ResponseApplicationStatus, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationStatus(appId)), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) ApplicationStatus(appId string, options ...RequestOption) (*ResponseApplicationStatus, error) {
 	var r ApiResponse[ResponseApplicationStatus]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationStatus(appId)), nil, &r, options...)
 	return &r.Response, err
 }
 
-func (c *RestClient) AllApplicationStatus(options ...RequestOption) (result *ResponseApplicationStatus, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationsStatus()), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) AllApplicationStatus(options ...RequestOption) (*ResponseApplicationStatus, error) {
 	var r ApiResponse[ResponseApplicationStatus]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationsStatus()), nil, &r, options...)
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationLogs(appId string, options ...RequestOption) (result *ResponseApplicationLogs, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationLogs(appId)), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) ApplicationLogs(appId string, options ...RequestOption) (*ResponseApplicationLogs, error) {
 	var r ApiResponse[ResponseApplicationLogs]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationLogs(appId)), nil, &r, options...)
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationStart(appId string, options ...RequestOption) (_ bool, err error) {
-	body, err := c.Request(http.MethodPost, MakeURL(EndpointApplicationStart(appId)), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) ApplicationStart(appId string, options ...RequestOption) (bool, error) {
 	var r ApiResponse[any]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodPost, MakeURL(EndpointApplicationStart(appId)), nil, &r, options...)
 	return r.Status == "success", err
 }
 
-func (c *RestClient) ApplicationStop(appId string, options ...RequestOption) (_ bool, err error) {
-	body, err := c.Request(http.MethodPost, MakeURL(EndpointApplicationStop(appId)), nil, options...)
+func (c *RestClient) ApplicationStop(appId string, options ...RequestOption) (bool, error) {
+	var r ApiResponse[ResponseServiceStatistics]
+	err := c.Request(http.MethodPost, MakeURL(EndpointApplicationStop(appId)), nil, &r, options...)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	var r ApiResponse[any]
-	err = unmarshal(body, &r)
 	return r.Status == "success", err
 }
 
-func (c *RestClient) ApplicationRestart(appId string, options ...RequestOption) (_ bool, err error) {
-	body, err := c.Request(http.MethodPost, MakeURL(EndpointApplicationRestart(appId)), nil, options...)
+func (c *RestClient) ApplicationRestart(appId string, options ...RequestOption) (bool, error) {
+	var r ApiResponse[ResponseServiceStatistics]
+	err := c.Request(http.MethodPost, MakeURL(EndpointApplicationRestart(appId)), nil, &r, options...)
 	if err != nil {
-		return
+		return false, err
 	}
 
-	var r ApiResponse[any]
-	err = unmarshal(body, &r)
 	return r.Status == "success", err
 }
 
-func (c *RestClient) ApplicationBackup(appId string, options ...RequestOption) (result *ResponseApplicationBackup, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationBackup(appId)), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) ApplicationBackup(appId string, options ...RequestOption) (*ResponseApplicationBackup, error) {
 	var r ApiResponse[ResponseApplicationBackup]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationBackup(appId)), nil, &r, options...)
+	if err != nil {
+		return nil, err
+	}
+
 	return &r.Response, err
 }
 
-func (c *RestClient) UploadApplication(options ...RequestOption) (result *ResponseUploadApplication, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationUpload()), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) UploadApplication(options ...RequestOption) (*ResponseUploadApplication, error) {
 	var r ApiResponse[ResponseUploadApplication]
-	err = unmarshal(body, &r)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationUpload()), nil, &r, options...)
+	if err != nil {
+		return nil, err
+	}
+
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationFiles(appId string, path string, options ...RequestOption) (result *ResponseApplicationFiles, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationFiles(appId, path)), nil, options...)
-	if err != nil {
-		return
-	}
-
+func (c *RestClient) ApplicationFiles(appId string, path string, options ...RequestOption) (*ResponseApplicationFiles, error) {
 	var r ApiResponse[ResponseApplicationFiles]
-	err = unmarshal(body, &r)
-	return &r.Response, err
-}
-
-func (c *RestClient) ApplicationFile(appId string, path string, options ...RequestOption) (result *ResponseApplicationFile, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationFile(appId, path)), nil, options...)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationFiles(appId, path)), nil, &r, options...)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	var r ApiResponse[ResponseApplicationFile]
-	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationDeploys(appId string, options ...RequestOption) (result *ResponseApplicationFile, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationDeploys(appId)), nil, options...)
+func (c *RestClient) ApplicationFile(appId string, path string, options ...RequestOption) (*ResponseApplicationFile, error) {
+	var r ApiResponse[ResponseApplicationFile]
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationFile(appId, path)), nil, &r, options...)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	var r ApiResponse[ResponseApplicationFile]
-	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationGithubWebhook(appId string, accessToken string, options ...RequestOption) (result *ResponseApplicationGithubWebhook, err error) {
+func (c *RestClient) ApplicationDeploys(appId string, options ...RequestOption) (*ResponseApplicationFile, error) {
+	var r ApiResponse[ResponseApplicationFile]
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationDeploys(appId)), nil, &r, options...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &r.Response, err
+}
+
+func (c *RestClient) ApplicationGithubWebhook(appId string, accessToken string, options ...RequestOption) (*ResponseApplicationGithubWebhook, error) {
 	mapData := map[string]string{
 		accessToken: accessToken,
 	}
 
 	data, err := json.Marshal(mapData)
 	if err != nil {
-		return
-	}
-
-	body, err := c.Request(http.MethodPost, MakeURL(EndpointApplicationGithubIntegration(appId)), data, options...)
-	if err != nil {
-		return
+		return nil, err
 	}
 
 	var r ApiResponse[ResponseApplicationGithubWebhook]
-	err = unmarshal(body, &r)
+	err = c.Request(http.MethodPost, MakeURL(EndpointApplicationGithubIntegration(appId)), data, &r, options...)
+	if err != nil {
+		return nil, err
+	}
+
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationNetwork(appId string, options ...RequestOption) (result *ResponseApplicationNetwork, err error) {
-	body, err := c.Request(http.MethodGet, MakeURL(EndpointApplicationNetwork(appId)), nil, options...)
+func (c *RestClient) ApplicationNetwork(appId string, options ...RequestOption) (*ResponseApplicationNetwork, error) {
+	var r ApiResponse[ResponseApplicationNetwork]
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationNetwork(appId)), nil, &r, options...)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	var r ApiResponse[ResponseApplicationNetwork]
-	err = unmarshal(body, &r)
 	return &r.Response, err
 }
 
 func (c *RestClient) ApplicationDelete(appId string, options ...RequestOption) (bool, error) {
-	body, err := c.Request(http.MethodDelete, MakeURL(EndpointApplicationDelete(appId)), nil, options...)
+	var r ApiResponse[any]
+	err := c.Request(http.MethodDelete, MakeURL(EndpointApplicationDelete(appId)), nil, &r, options...)
 	if err != nil {
 		return false, err
 	}
 
-	var r ApiResponse[any]
-	err = unmarshal(body, &r)
 	return r.Status == "success", err
 }
 
@@ -287,13 +249,11 @@ func (c *RestClient) ApplicationCommit(appId string, filep string, options ...Re
 
 	options = append(options, WithHeader("Content-Type", writer.FormDataContentType()))
 
-	body, err := c.Request(http.MethodPost, MakeURL(EndpointApplicationCommit(appId)), bodyBuffer.Bytes(), options...)
+	var r ApiResponse[any]
+	err = c.Request(http.MethodPost, MakeURL(EndpointApplicationCommit(appId)), bodyBuffer.Bytes(), &r, options...)
 	if err != nil {
 		return false, err
 	}
-
-	var r ApiResponse[any]
-	err = unmarshal(body, &r)
 
 	return r.Status == "success", err
 }
