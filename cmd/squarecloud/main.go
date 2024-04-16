@@ -50,16 +50,29 @@ func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func run(squareCli *cli.SquareCli) (err error) {
+func run(context context.Context, squareCli *cli.SquareCli) (err error) {
 	cmd := newSquareCloudCommand(squareCli)
 
-	return cmd.Execute()
+	return cmd.ExecuteContext(context)
 }
 
 func main() {
 	squareCli := cli.NewSquareCli()
 
-	if err := run(squareCli); err != nil {
+	ctx := context.Background()
+
+	updateContext, updateCancel := context.WithCancel(ctx)
+	defer updateCancel()
+
+	updateMessageChannel := make(chan *github.RepositoryRelease)
+	go func() {
+		client := github.NewClient(nil)
+		release, _, _ := client.Repositories.GetLatestRelease(updateContext, "squarecloudofc", "cli")
+
+		updateMessageChannel <- release
+	}()
+
+	if err := run(ctx, squareCli); err != nil {
 		switch err.(type) {
 		case rest.RestError:
 			fmt.Fprintln(squareCli.Err(), err)
@@ -70,15 +83,13 @@ func main() {
 		}
 	}
 
-	client := github.NewClient(nil)
+	updateCancel()
+	release := <-updateMessageChannel
+	if release != nil && build.Version != *release.TagName {
+		version := ui.GreenText.SetString(*release.TagName)
 
-	if release, _, err := client.Repositories.GetLatestRelease(context.Background(), "squarecloudofc", "cli"); err == nil {
-		if build.Version != *release.TagName {
-			version := ui.GreenText.SetString(*release.TagName)
-
-			fmt.Fprintln(squareCli.Out(), "")
-			fmt.Fprintln(squareCli.Out(), ui.YellowText.SetString("You're using a old version of Square Cloud CLI: "+build.Version))
-			fmt.Fprintf(squareCli.Out(), " Please update to %s\n", version)
-		}
+		fmt.Fprintln(squareCli.Out(), "")
+		fmt.Fprintln(squareCli.Out(), ui.YellowText.SetString("You're using a old version of Square Cloud CLI: "+build.Version))
+		fmt.Fprintf(squareCli.Out(), " Please update to %s\n", version)
 	}
 }

@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/squareignore"
 	"github.com/squarecloudofc/cli/internal/ui"
+	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 

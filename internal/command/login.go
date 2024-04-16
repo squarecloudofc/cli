@@ -16,30 +16,42 @@ func NewLoginCommand(squareCli *cli.SquareCli) *cobra.Command {
 		RunE:  runLoginCommand(squareCli),
 	}
 
+	cmd.Flags().String("token", "", "")
 	return cmd
 }
 
 func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
+		var token string
+		tkn, err := cmd.Flags().GetString("token")
 
-		input := textinput.New("Your API Token:")
-		input.Placeholder = "Insert your square cloud api token"
-		input.Hidden = true
-		input.Template = `
+		if tkn == "" {
+			input := textinput.New("Your API Token:")
+			input.Placeholder = "Insert your square cloud api token"
+			input.Hidden = true
+			input.Template = `
 		{{- Bold .Prompt }} {{ "\n" }}
 		{{- ">" }} {{ .Input }}
 		`
-		input.ResultTemplate = ""
+			input.ResultTemplate = ""
 
-		token, err := input.RunPrompt()
-		if err != nil {
-			return
+			token, err = input.RunPrompt()
+			if err != nil {
+				return
+			}
+		}
+
+		if tkn != "" {
+			if err != nil {
+				return err
+			}
+
+			token = tkn
 		}
 
 		restClient := rest.NewClient(token)
 
 		self, err := restClient.SelfUser()
-
 		if err != nil {
 			return
 		}

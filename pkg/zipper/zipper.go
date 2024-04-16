@@ -23,7 +23,8 @@ func shouldIgnoreFile(filedir string, file os.FileInfo, ignoreEntries []string) 
 			}
 		}
 
-		if strings.Contains(filedir, entry) {
+		if strings.HasPrefix(filedir, entry) {
+			fmt.Println(filedir, entry)
 			return true
 		}
 	}

@@ -8,9 +8,9 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/squareconfig"
-	"github.com/squarecloudofc/cli/internal/squareignore"
 	"github.com/squarecloudofc/cli/internal/ui"
+	"github.com/squarecloudofc/cli/pkg/squareconfig"
+	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
@@ -21,12 +21,20 @@ func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
 		RunE:  runCommitCommand(squareCli),
 	}
 
+	cmd.PersistentFlags().BoolP("restart", "r", false, "Restart your application when commit")
+	cmd.PersistentFlags().StringP("file", "f", "", "File name you want to commit")
 	return cmd
 }
 
 func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
+
+		fileaa, err := cmd.Flags().GetString("file")
+		if err != nil {
+			return err
+		}
+		fmt.Println(fileaa)
 
 		self, err := rest.SelfUser()
 		if err != nil {
