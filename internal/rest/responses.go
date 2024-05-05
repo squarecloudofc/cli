@@ -14,6 +14,16 @@ type ResponseServiceStatistics struct {
 }
 
 type ResponseUser struct {
+	Applications []struct {
+		ID        string `json:"id"`
+		Tag       string `json:"tag"`
+		Lang      string `json:"lang"`
+		Cluster   string `json:"cluster"`
+		Avatar    string `json:"avatar"`
+		RAM       int    `json:"ram"`
+		IsWebsite bool   `json:"isWebsite"`
+	} `json:"applications"`
+
 	User struct {
 		ID     string `json:"id"`
 		Tag    string `json:"tag"`
@@ -29,15 +39,6 @@ type ResponseUser struct {
 			Duration int64 `json:"duration"`
 		} `json:"plan"`
 	} `json:"user"`
-	Applications []struct {
-		ID        string `json:"id"`
-		Tag       string `json:"tag"`
-		RAM       int    `json:"ram"`
-		Lang      string `json:"lang"`
-		Cluster   string `json:"cluster"`
-		IsWebsite bool   `json:"isWebsite"`
-		Avatar    string `json:"avatar"`
-	} `json:"applications"`
 }
 
 // Application
@@ -48,26 +49,26 @@ type ResponseApplicationInformation struct {
 	Avatar         string `json:"avatar"`
 	Owner          string `json:"owner"`
 	Cluster        string `json:"cluster"`
-	RAM            int    `json:"ram"`
 	Language       string `json:"language"`
 	Domain         string `json:"domain"`
 	Custom         string `json:"custom"`
+	RAM            int    `json:"ram"`
 	IsWebsite      bool   `json:"isWebsite"`
 	GitIntegration bool   `json:"gitIntegration"`
 }
 
 type ResponseApplicationStatus struct {
-	CPU     string `json:"cpu"`
-	RAM     string `json:"ram"`
-	Status  string `json:"status"`
-	Running bool   `json:"running"`
-	Storage string `json:"storage"`
 	Network struct {
 		Total string `json:"total"`
 		Now   string `json:"now"`
 	} `json:"network"`
-	Requests int   `json:"requests"`
-	Uptime   int64 `json:"uptime"`
+	CPU      string `json:"cpu"`
+	RAM      string `json:"ram"`
+	Status   string `json:"status"`
+	Storage  string `json:"storage"`
+	Requests int    `json:"requests"`
+	Uptime   int64  `json:"uptime"`
+	Running  bool   `json:"running"`
 }
 
 type ResponseApplicationsStatus []struct {
@@ -86,17 +87,18 @@ type ResponseApplicationBackup struct {
 }
 
 type ResponseUploadApplication struct {
-	ID          string `json:"id"`
-	Tag         string `json:"tag"`
-	Description string `json:"description"`
-	Subdomain   any    `json:"subdomain"`
-	Avatar      string `json:"avatar"`
-	RAM         int    `json:"ram"`
-	CPU         int    `json:"cpu"`
-	Language    struct {
+	Language struct {
 		Name    string `json:"name"`
 		Version string `json:"version"`
 	} `json:"language"`
+
+	ID          string `json:"id"`
+	Tag         string `json:"tag"`
+	Description string `json:"description"`
+	Subdomain   string `json:"subdomain"`
+	Avatar      string `json:"avatar"`
+	RAM         int    `json:"ram"`
+	CPU         int    `json:"cpu"`
 }
 
 // Application File Manager
@@ -116,9 +118,9 @@ type ResponseApplicationFile struct {
 // Application Deploy
 
 type ResponseApplicationDeploys [][]struct {
+	Date  time.Time `json:"date"`
 	ID    string    `json:"id"`
 	State string    `json:"state"`
-	Date  time.Time `json:"date"`
 }
 
 type ResponseApplicationGithubWebhook struct {
@@ -128,64 +130,64 @@ type ResponseApplicationGithubWebhook struct {
 // ApplicationNetwork
 
 type ResponseApplicationNetwork struct {
-	Hostname string `json:"hostname"`
-	Total    struct {
-		Visits    int    `json:"visits"`
-		Megabytes string `json:"megabytes"`
-		Bytes     int    `json:"bytes"`
-	} `json:"total"`
+	Hostname  string `json:"hostname"`
 	Countries []struct {
 		Country   string `json:"country"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"countries"`
 	Methods []struct {
 		Method    string `json:"method"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"methods"`
 	Referers []struct {
 		Referer   string `json:"referer"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"referers"`
 	Browsers []struct {
 		Browser   string `json:"browser"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"browsers"`
 	DeviceTypes []struct {
 		Device    string `json:"device"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"deviceTypes"`
 	OperatingSystems []struct {
 		Os        string `json:"os"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"operatingSystems"`
 	Agents []struct {
 		Agent     string `json:"agent"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"agents"`
 	Hosts []struct {
 		Host      string `json:"host"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"hosts"`
 	Paths []struct {
 		Path      string `json:"path"`
-		Visits    int    `json:"visits"`
 		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
 		Bytes     int    `json:"bytes"`
 	} `json:"paths"`
+	Total struct {
+		Megabytes string `json:"megabytes"`
+		Visits    int    `json:"visits"`
+		Bytes     int    `json:"bytes"`
+	} `json:"total"`
 }
