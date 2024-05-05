@@ -258,3 +258,34 @@ func (c *RestClient) ApplicationCommit(appId string, filep string, options ...Re
 
 	return r.Status == "success", err
 }
+
+func (c *RestClient) ApplicationUpload(appId string, filep string, options ...RequestOption) (*ResponseUploadApplication, error) {
+	bodyBuffer := &bytes.Buffer{}
+	writer := multipart.NewWriter(bodyBuffer)
+
+	file, err := os.Open(filep)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
+
+	if _, err := io.Copy(part, file); err != nil {
+		return nil, err
+	}
+
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
+
+	options = append(options, WithHeader("Content-Type", writer.FormDataContentType()))
+
+	var r ApiResponse[ResponseUploadApplication]
+	err = c.Request(http.MethodPost, MakeURL(EndpointApplicationUpload()), bodyBuffer.Bytes(), &r, options...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &r.Response, err
+}
