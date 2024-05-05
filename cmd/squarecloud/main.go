@@ -89,7 +89,7 @@ func main() {
 		version := ui.GreenText.SetString(*release.TagName)
 
 		fmt.Fprintln(squareCli.Out(), "")
-		fmt.Fprintln(squareCli.Out(), ui.YellowText.SetString("You're using a old version of Square Cloud CLI: "+build.Version))
+		fmt.Fprintln(squareCli.Out(), ui.YellowText.SetString("You're using an old version of Square Cloud CLI: "+build.Version))
 		fmt.Fprintf(squareCli.Out(), " Please update to %s\n", version)
 	}
 }

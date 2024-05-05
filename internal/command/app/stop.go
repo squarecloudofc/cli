@@ -11,7 +11,7 @@ import (
 func NewStopCommand(squareCli *cli.SquareCli) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop",
-		Short: "stop your application",
+		Short: "Stop your application",
 		RunE:  runStopCommand(squareCli),
 	}
 
