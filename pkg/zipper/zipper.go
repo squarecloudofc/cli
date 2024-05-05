@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var DefaultIgnoredFiles = []string{"node_modules/", ".git/", ".vscode/", ".github/", ".cache/", "package-lock.json"}
+var DefaultIgnoredFiles = []string{"node_modules/", ".git/", ".gitignore", ".squareignore", ".vscode/", ".github/", "package-lock.json"}
 
 func shouldIgnoreFile(filedir string, file os.FileInfo, ignoreEntries []string) bool {
 	ignoreEntries = append(ignoreEntries, DefaultIgnoredFiles...)
