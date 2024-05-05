@@ -33,6 +33,15 @@ func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 			}
 			return fmt.Errorf("%s is not a command. See 'squarecloud --help'", args[0])
 		},
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			if cmd.Parent() != nil {
+				if cli.ShouldCheckAuth(squareCli, cmd) && !cli.CheckAuth(squareCli) {
+					return fmt.Errorf("you must be logged to execute this command, try to execute: squarecloud login")
+				}
+			}
+
+			return nil
+		},
 		Version: fmt.Sprintf("%s, commit %s, commited at %s", build.Version, build.Commit, build.CommitDate),
 	}
 

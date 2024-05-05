@@ -30,21 +30,10 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
 
-		fileaa, err := cmd.Flags().GetString("file")
-		if err != nil {
-			return err
-		}
-		fmt.Println(fileaa)
-
-		self, err := rest.SelfUser()
-		if err != nil {
-			return err
-		}
-
-		if self == nil || self.User.Tag == "" {
-			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
-			return
-		}
+		// fileaa, err := cmd.Flags().GetString("file")
+		// if err != nil {
+		// 	return err
+		// }
 
 		config, err := squareconfig.Load()
 		if err != nil {
