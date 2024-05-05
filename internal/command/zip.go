@@ -36,11 +36,12 @@ func runZipCommand(squareCli *cli.SquareCli) RunEFunc {
 		if _, err := os.Lstat(zipfilename); err == nil {
 			err := os.Remove(zipfilename)
 			if err != nil {
-				fmt.Fprintln(squareCli.Err(), "source.zip already exists and its not possible to delete it")
+				fmt.Fprintf(squareCli.Err(), "%s.zip already exists and its not possible to delete it\n", workDirName)
+				return nil
 			}
 		}
 
-		file, err := os.CreateTemp("", "*.zip")
+		file, err := os.CreateTemp(workDir, "*.zip")
 		if err != nil {
 			return err
 		}
@@ -50,6 +51,7 @@ func runZipCommand(squareCli *cli.SquareCli) RunEFunc {
 		if err != nil {
 			ignoreFiles = []string{}
 		}
+		ignoreFiles = append(ignoreFiles, filepath.Base(file.Name()))
 
 		err = zipper.ZipFolder(workDir, file, ignoreFiles)
 		if err != nil {
