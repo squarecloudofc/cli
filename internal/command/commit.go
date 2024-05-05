@@ -22,7 +22,8 @@ func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
 	}
 
 	cmd.PersistentFlags().BoolP("restart", "r", false, "Restart your application when commit")
-	cmd.PersistentFlags().StringP("file", "f", "", "File name you want to commit")
+	// TODO: Future
+	//  cmd.PersistentFlags().StringP("file", "f", "", "File name you want to commit")
 	return cmd
 }
 
@@ -30,23 +31,21 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
 
-		// fileaa, err := cmd.Flags().GetString("file")
-		// if err != nil {
-		// 	return err
-		// }
+		var appId string
 
-		config, err := squareconfig.Load()
-		if err != nil {
-			return err
-		}
+		if len(args) < 1 {
+			config, er := squareconfig.Load()
+			if er != nil {
+				return er
+			}
 
-		if config.IsCreated() {
-			fmt.Fprintln(squareCli.Out(), "Seems you don't have a squarecloud.config file, please create one")
-			return
-		}
-
-		if config.ID == "" {
-			fmt.Fprintln(squareCli.Out(), "Your squarecloud.config file don't have ID property")
+			if !config.IsCreated() && config.ID == "" {
+				fmt.Fprintln(squareCli.Out(), "You not specified your application ID in command arguments")
+				fmt.Fprintln(squareCli.Out(), "You can also specify an ID parameter in your squarecloud.app")
+				return
+			}
+		} else {
+			appId = args[0]
 		}
 
 		workDir, err := os.Getwd()
@@ -72,7 +71,7 @@ func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
 			return err
 		}
 
-		success, err := rest.ApplicationCommit(config.ID, file.Name())
+		success, err := rest.ApplicationCommit(appId, file.Name())
 		if err != nil {
 			return err
 		}

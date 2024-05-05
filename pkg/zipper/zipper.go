@@ -9,9 +9,7 @@ import (
 	"strings"
 )
 
-var (
-	DefaultIgnoredFiles = []string{"node_modules/", ".git/", ".vscode/", ".github/", ".cache/", "package-lock.json"}
-)
+var DefaultIgnoredFiles = []string{"node_modules/", ".git/", ".vscode/", ".github/", ".cache/", "package-lock.json"}
 
 func shouldIgnoreFile(filedir string, file os.FileInfo, ignoreEntries []string) bool {
 	ignoreEntries = append(ignoreEntries, DefaultIgnoredFiles...)
@@ -24,7 +22,6 @@ func shouldIgnoreFile(filedir string, file os.FileInfo, ignoreEntries []string) 
 		}
 
 		if strings.HasPrefix(filedir, entry) {
-			fmt.Println(filedir, entry)
 			return true
 		}
 	}

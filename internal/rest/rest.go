@@ -9,14 +9,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/squarecloudofc/cli/internal/build"
 )
 
-var UserAgent = "Square Cloud CLI (v1.0.0)"
+var UserAgent = fmt.Sprintf("Square Cloud CLI (%s)", build.Version)
 
 type ApiResponse[T any] struct {
+	Response T      `json:"response"`
 	Status   string `json:"status"`
 	Code     string `json:"code"`
-	Response T      `json:"response"`
 }
 
 type RequestConfig struct {
@@ -73,7 +75,6 @@ func (c *RestClient) Request(method, url string, body []byte, respBody interface
 		}
 		return ParseError(&r)
 	}
-
 }
 
 func (c *RestClient) ServiceStatistics(options ...RequestOption) (*ResponseServiceStatistics, error) {
