@@ -66,6 +66,9 @@ func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
 			fmt.Fprintln(squareCli.Out(), "Unable to zip the working directory")
 			return err
 		}
+
+		defer file.Close()
+		defer os.Remove(file.Name())
 	}
 
 	success, err := rest.ApplicationUpload(appId, file.Name())
@@ -95,8 +98,6 @@ func zipWorkdir(wd string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer file.Close()
-	defer os.Remove(file.Name())
 
 	ignoreFiles, err := squareignore.Load()
 	if err != nil {
