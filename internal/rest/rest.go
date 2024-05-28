@@ -17,6 +17,7 @@ var UserAgent = fmt.Sprintf("Square Cloud CLI (%s)", build.Version)
 
 type ApiResponse[T any] struct {
 	Response T      `json:"response"`
+	Message  string `json:"message"`
 	Status   string `json:"status"`
 	Code     string `json:"code"`
 }
@@ -61,12 +62,11 @@ func (c *RestClient) Request(method, url string, body []byte, respBody interface
 		return fmt.Errorf("error reading response body: %w", err)
 	}
 
-	if err := json.Unmarshal(rawResponse, respBody); err != nil {
-		return fmt.Errorf("error unmarshalling response body: %w", err)
-	}
-
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
+		if err := json.Unmarshal(rawResponse, respBody); err != nil {
+			return fmt.Errorf("error unmarshalling response body: %w", err)
+		}
 		return nil
 	default:
 		var r ApiResponse[any]
@@ -228,7 +228,7 @@ func (c *RestClient) ApplicationDelete(appId string, options ...RequestOption) (
 	return r.Status == "success", err
 }
 
-func (c *RestClient) ApplicationCommit(appId string, filep string, options ...RequestOption) (bool, error) {
+func (c *RestClient) ApplicationCommit(appId string, restart bool, filep string, options ...RequestOption) (bool, error) {
 	bodyBuffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(bodyBuffer)
 
@@ -238,7 +238,10 @@ func (c *RestClient) ApplicationCommit(appId string, filep string, options ...Re
 	}
 	defer file.Close()
 
-	part, _ := writer.CreateFormFile("file", filepath.Base(file.Name()))
+	part, err := writer.CreateFormFile("file", filepath.Base(file.Name()))
+	if err != nil {
+		return false, err
+	}
 
 	if _, err := io.Copy(part, file); err != nil {
 		return false, err
@@ -251,7 +254,7 @@ func (c *RestClient) ApplicationCommit(appId string, filep string, options ...Re
 	options = append(options, WithHeader("Content-Type", writer.FormDataContentType()))
 
 	var r ApiResponse[any]
-	err = c.Request(http.MethodPost, MakeURL(EndpointApplicationCommit(appId)), bodyBuffer.Bytes(), &r, options...)
+	err = c.Request(http.MethodPost, MakeURL(EndpointApplicationCommit(appId, restart)), bodyBuffer.Bytes(), &r, options...)
 	if err != nil {
 		return false, err
 	}

@@ -34,7 +34,7 @@ func ParseError(e *ApiResponse[any]) (err error) {
 	case "DELAY_NOW", "RATELIMIT":
 		err = ErrDelayNow
 	default:
-		err = fmt.Errorf("square cloud returned error %s", e.Code)
+		err = fmt.Errorf("square cloud returned error %s %s", e.Code, e.Message)
 	}
 
 	return

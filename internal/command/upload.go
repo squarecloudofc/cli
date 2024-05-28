@@ -15,8 +15,8 @@ import (
 )
 
 type UploadOptions struct {
-	File       string
 	ConfigFile *squareconfig.SquareConfig
+	File       string
 }
 
 func NewUploadCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -38,8 +38,6 @@ func NewUploadCommand(squareCli *cli.SquareCli) *cobra.Command {
 	}
 
 	cmd.Flags().StringVar(&options.File, "file", "", "File you want to upload to square cloud")
-	// TODO: Future
-	//  cmd.PersistentFlags().StringP("file", "f", "", "Zip of the application you want to commit")
 	return cmd
 }
 
@@ -87,7 +85,7 @@ func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
 			fmt.Fprint(squareCli.Out(), "Unable to save your application id into squarecloud.app config file\n")
 		}
 	} else {
-		fmt.Fprintf(squareCli.Out(), "%s Unable to commit your application\n", ui.XMark)
+		fmt.Fprintf(squareCli.Out(), "%s Unable to upload your application\n", ui.XMark)
 	}
 	return nil
 }

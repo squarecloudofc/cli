@@ -14,73 +14,80 @@ import (
 	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
+type CommitOptions struct {
+	ConfigFile    *squareconfig.SquareConfig
+	ApplicationID string
+	Restart       bool
+}
+
 func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
+	options := CommitOptions{}
+
 	cmd := &cobra.Command{
 		Use:   "commit",
 		Short: "Commit your application to Square Cloud",
-		RunE:  runCommitCommand(squareCli),
-	}
-
-	cmd.PersistentFlags().BoolP("restart", "r", false, "Restart your application when commit")
-	// TODO: Future
-	//  cmd.PersistentFlags().StringP("file", "f", "", "File name you want to commit")
-	return cmd
-}
-
-func runCommitCommand(squareCli *cli.SquareCli) RunEFunc {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		rest := squareCli.Rest()
-
-		var appId string
-
-		if len(args) < 1 {
+		RunE: func(cmd *cobra.Command, args []string) error {
 			config, er := squareconfig.Load()
 			if er != nil {
 				return er
 			}
 
-			if !config.IsCreated() && config.ID == "" {
-				fmt.Fprintln(squareCli.Out(), "You not specified your application ID in command arguments")
-				fmt.Fprintln(squareCli.Out(), "You can also specify an ID parameter in your squarecloud.app")
-				return
+			if len(args) > 0 {
+				options.ApplicationID = args[0]
+			} else {
+				if config.ID == "" {
+					fmt.Fprintln(squareCli.Out(), "You not specified your application ID in command arguments")
+					fmt.Fprintln(squareCli.Out(), "You can also specify an ID parameter in your squarecloud.app")
+					return nil
+				}
+
+				options.ApplicationID = config.ID
 			}
-		} else {
-			appId = args[0]
-		}
 
-		workDir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-
-		zipfilename := path.Join(workDir, "*.zip")
-		file, err := os.CreateTemp("", filepath.Base(zipfilename))
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-		defer os.Remove(file.Name())
-
-		ignoreFiles, err := squareignore.Load()
-		if err != nil {
-			ignoreFiles = []string{}
-		}
-
-		err = zipper.ZipFolder(workDir, file, ignoreFiles)
-		if err != nil {
-			return err
-		}
-
-		success, err := rest.ApplicationCommit(appId, file.Name())
-		if err != nil {
-			return err
-		}
-
-		if success {
-			fmt.Fprintf(squareCli.Out(), "%s Your application has been commited\n", ui.CheckMark)
-		} else {
-			fmt.Fprintf(squareCli.Out(), "%s Unable to commit your application\n", ui.XMark)
-		}
-		return nil
+			options.ConfigFile = config
+			return runCommitCommand(squareCli, &options)
+		},
 	}
+
+	cmd.Flags().BoolVarP(&options.Restart, "restart", "r", false, "Restart your application when commit")
+	return cmd
+}
+
+func runCommitCommand(squareCli *cli.SquareCli, options *CommitOptions) error {
+	rest := squareCli.Rest()
+
+	workDir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	zipfilename := path.Join(workDir, "*.zip")
+	file, err := os.CreateTemp("", filepath.Base(zipfilename))
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	defer os.Remove(file.Name())
+
+	ignoreFiles, err := squareignore.Load()
+	if err != nil {
+		ignoreFiles = []string{}
+	}
+
+	err = zipper.ZipFolder(workDir, file, ignoreFiles)
+	if err != nil {
+		return err
+	}
+
+	success, err := rest.ApplicationCommit(options.ApplicationID, options.Restart, file.Name())
+	if err != nil {
+		return err
+	}
+
+	if success {
+		fmt.Fprintf(squareCli.Out(), "%s Your source has successfuly commited to Square Cloud\n", ui.CheckMark)
+	} else {
+		fmt.Fprintf(squareCli.Out(), "%s Unable to commit your application\n", ui.XMark)
+	}
+	return nil
 }

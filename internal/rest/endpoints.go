@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	"strconv"
 )
 
 var (
@@ -24,7 +25,9 @@ var (
 	EndpointApplicationRestart = func(appId string) string { return fmt.Sprintf("/apps/%s/restart", appId) }
 	EndpointApplicationStop    = func(appId string) string { return fmt.Sprintf("/apps/%s/stop", appId) }
 	EndpointApplicationBackup  = func(appId string) string { return fmt.Sprintf("/apps/%s/backup", appId) }
-	EndpointApplicationCommit  = func(appId string) string { return fmt.Sprintf("/apps/%s/commit", appId) }
+	EndpointApplicationCommit  = func(appId string, restart bool) string {
+		return fmt.Sprintf("/apps/%s/commit?restart=%s", appId, strconv.FormatBool(restart))
+	}
 	EndpointApplicationDelete  = func(appId string) string { return fmt.Sprintf("/apps/%s/delete", appId) }
 	EndpointApplicationsStatus = func() string { return "/apps/all/status" }
 	EndpointApplicationUpload  = func() string { return "/apps/upload" }
