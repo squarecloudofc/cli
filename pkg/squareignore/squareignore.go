@@ -1,8 +1,8 @@
 package squareignore
 
 import (
-	"errors"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -11,20 +11,24 @@ var SquareIgnoreFiles = []string{".squarecloudignore", ".squareignore", "square.
 func Load() ([]string, error) {
 	var fileContent []byte
 
+	path, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, filename := range SquareIgnoreFiles {
-		_, err := os.Lstat(filename)
+		ignorefilepath := filepath.Join(path, filename)
+		_, err := os.Lstat(ignorefilepath)
 		if err != nil {
-			if os.IsNotExist(err) {
-				return nil, errors.New(".squareignore file does not exists")
-			}
-
-			return nil, err
+			continue
 		}
 
-		fileContent, err = os.ReadFile(filename)
+		fileContent, err = os.ReadFile(ignorefilepath)
 		if err != nil {
 			return nil, err
 		}
+
+		break
 	}
 
 	var filtered []string
