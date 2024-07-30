@@ -57,7 +57,7 @@ func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 			return
 		}
 
-		if self == nil || self.User.Tag == "" {
+		if self == nil || self.User.Name == "" {
 			fmt.Fprintf(squareCli.Out(), "No user associated for this Square Cloud Token\n")
 			return
 		}
@@ -65,7 +65,7 @@ func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 		squareCli.Config.AuthToken = token
 		squareCli.Config.Save()
 
-		fmt.Fprintf(squareCli.Out(), "Your API Token has successfuly changed! You are now logged in a %s\n", self.User.Tag)
+		fmt.Fprintf(squareCli.Out(), "Your API Token has successfuly changed! You are now logged in a %s\n", self.User.Name)
 		fmt.Fprintln(squareCli.Out(), "\nWith great power comes great responsibility!")
 		return
 	}

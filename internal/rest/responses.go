@@ -26,7 +26,7 @@ type ResponseUser struct {
 
 	User struct {
 		ID     string `json:"id"`
-		Tag    string `json:"tag"`
+		Name   string `json:"name"`
 		Locale string `json:"locale"`
 		Email  string `json:"email"`
 		Plan   struct {

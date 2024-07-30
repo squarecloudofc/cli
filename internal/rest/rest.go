@@ -61,6 +61,7 @@ func (c *RestClient) Request(method, url string, body []byte, respBody interface
 	if rawResponse, err = io.ReadAll(resp.Body); err != nil {
 		return fmt.Errorf("error reading response body: %w", err)
 	}
+	println(string(rawResponse))
 
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
