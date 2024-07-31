@@ -21,7 +21,7 @@ func CreateApplicationSelection(squareCli *cli.SquareCli) (string, error) {
 	var apps []string
 
 	for _, app := range rapps.Applications {
-		apps = append(apps, fmt.Sprintf("%s (%s)", app.Tag, app.ID))
+		apps = append(apps, fmt.Sprintf("%s (%s)", app.Name, app.ID))
 	}
 
 	sp := selection.New("Which application do you want to use for this action?", apps)

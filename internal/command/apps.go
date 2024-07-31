@@ -42,7 +42,7 @@ func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 
 		for _, app := range self.Applications {
 			values := []string{
-				app.Tag,
+				app.Name,
 				app.ID,
 				strconv.Itoa(app.RAM) + "mb",
 				app.Cluster,

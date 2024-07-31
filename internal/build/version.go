@@ -1,6 +1,9 @@
 package build
 
-var Version = "unknown"
-var Commit = "unknown"
-var CommitDate = "unknown"
+import "time"
 
+var (
+	Version    = "development"
+	Commit     = "development"
+	CommitDate = time.Now()
+)

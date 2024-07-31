@@ -16,7 +16,7 @@ type ResponseServiceStatistics struct {
 type ResponseUser struct {
 	Applications []struct {
 		ID        string `json:"id"`
-		Tag       string `json:"tag"`
+		Name      string `json:"name"`
 		Lang      string `json:"lang"`
 		Cluster   string `json:"cluster"`
 		Avatar    string `json:"avatar"`
