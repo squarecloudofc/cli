@@ -37,7 +37,7 @@ func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 		w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
 		defer w.Flush()
 
-		tags := []string{"NAME", "App ID", "MEMORY", "CLUSTER", "LANG", "WEBSITE"}
+		tags := []string{"NAME", "App ID", "MEMORY", "CLUSTER", "LANG"}
 		fmt.Fprintln(w, strings.Join(tags, " \t "))
 
 		for _, app := range self.Applications {
@@ -47,7 +47,6 @@ func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 				strconv.Itoa(app.RAM) + "mb",
 				app.Cluster,
 				app.Lang,
-				strconv.FormatBool(app.IsWebsite),
 			}
 			fmt.Fprintln(w, strings.Join(values, " \t "))
 		}

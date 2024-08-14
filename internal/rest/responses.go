@@ -15,13 +15,12 @@ type ResponseServiceStatistics struct {
 
 type ResponseUser struct {
 	Applications []struct {
-		ID        string `json:"id"`
-		Name      string `json:"name"`
-		Lang      string `json:"lang"`
-		Cluster   string `json:"cluster"`
-		Avatar    string `json:"avatar"`
-		RAM       int    `json:"ram"`
-		IsWebsite bool   `json:"isWebsite"`
+		ID      string `json:"id"`
+		Name    string `json:"name"`
+		Lang    string `json:"lang"`
+		Cluster string `json:"cluster"`
+		Avatar  string `json:"avatar"`
+		RAM     int    `json:"ram"`
 	} `json:"applications"`
 
 	User struct {
@@ -44,17 +43,15 @@ type ResponseUser struct {
 // Application
 
 type ResponseApplicationInformation struct {
-	ID             string `json:"id"`
-	Name           string `json:"name"`
-	Avatar         string `json:"avatar"`
-	Owner          string `json:"owner"`
-	Cluster        string `json:"cluster"`
-	Language       string `json:"language"`
-	Domain         string `json:"domain"`
-	Custom         string `json:"custom"`
-	RAM            int    `json:"ram"`
-	IsWebsite      bool   `json:"isWebsite"`
-	GitIntegration bool   `json:"gitIntegration"`
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Avatar   string `json:"avatar"`
+	Owner    string `json:"owner"`
+	Cluster  string `json:"cluster"`
+	Language string `json:"language"`
+	Domain   string `json:"domain"`
+	Custom   string `json:"custom"`
+	RAM      int    `json:"ram"`
 }
 
 type ResponseApplicationStatus struct {
