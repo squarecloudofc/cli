@@ -65,6 +65,7 @@ func ZipFolder(folder string, destination *os.File, ignoreFiles []string) error 
 				return err
 			}
 
+			header.Method = zip.Deflate
 			header.Name = path[len(folder)+1:]
 			writer, err := w.CreateHeader(header)
 			if err != nil {
