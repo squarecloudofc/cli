@@ -62,6 +62,7 @@ func (c *RestClient) Request(method, url string, body []byte, respBody interface
 		return fmt.Errorf("error reading response body: %w", err)
 	}
 
+	println(string(rawResponse))
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if err := json.Unmarshal(rawResponse, respBody); err != nil {
@@ -169,15 +170,15 @@ func (c *RestClient) ApplicationFiles(appId string, path string, options ...Requ
 	return &r.Response, err
 }
 
-func (c *RestClient) ApplicationFile(appId string, path string, options ...RequestOption) (*ResponseApplicationFile, error) {
-	var r ApiResponse[ResponseApplicationFile]
-	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationFile(appId, path)), nil, &r, options...)
-	if err != nil {
-		return nil, err
-	}
-
-	return &r.Response, err
-}
+// func (c *RestClient) ApplicationFile(appId string, path string, options ...RequestOption) (*ResponseApplicationFile, error) {
+// 	var r ApiResponse[ResponseApplicationFile]
+// 	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationFile(appId, path)), nil, &r, options...)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	return &r.Response, err
+// }
 
 func (c *RestClient) ApplicationDeploys(appId string, options ...RequestOption) (*ResponseApplicationFile, error) {
 	var r ApiResponse[ResponseApplicationFile]
