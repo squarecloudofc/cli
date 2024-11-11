@@ -3,21 +3,19 @@ package command
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
-	"github.com/squarecloudofc/cli/pkg/squareignore"
-	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
 type CommitOptions struct {
 	ConfigFile    *squareconfig.SquareConfig
 	ApplicationID string
 	Restart       bool
+	File          string
 }
 
 func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -50,6 +48,7 @@ func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
 	}
 
 	cmd.Flags().BoolVarP(&options.Restart, "restart", "r", false, "Restart your application when commit")
+	cmd.Flags().StringVar(&options.File, "file", "", "File you want to upload to square cloud")
 	return cmd
 }
 
@@ -61,22 +60,22 @@ func runCommitCommand(squareCli *cli.SquareCli, options *CommitOptions) error {
 		return err
 	}
 
-	zipfilename := path.Join(workDir, "*.zip")
-	file, err := os.CreateTemp("", filepath.Base(zipfilename))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	defer os.Remove(file.Name())
+	var file *os.File
+	if options.File != "" {
+		file, err = os.Open(filepath.Join(workDir, options.File))
+		if err != nil {
+			fmt.Fprintln(squareCli.Out(), "Unable to open the zip file")
+			return err
+		}
+	} else {
+		file, err = zipWorkdir(workDir)
+		if err != nil {
+			fmt.Fprintln(squareCli.Out(), "Unable to zip the working directory")
+			return err
+		}
 
-	ignoreFiles, err := squareignore.Load()
-	if err != nil {
-		ignoreFiles = []string{}
-	}
-
-	err = zipper.ZipFolder(workDir, file, ignoreFiles)
-	if err != nil {
-		return err
+		defer file.Close()
+		defer os.Remove(file.Name())
 	}
 
 	success, err := rest.ApplicationCommit(options.ApplicationID, options.Restart, file.Name())

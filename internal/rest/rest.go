@@ -62,7 +62,6 @@ func (c *RestClient) Request(method, url string, body []byte, respBody interface
 		return fmt.Errorf("error reading response body: %w", err)
 	}
 
-	println(string(rawResponse))
 	switch resp.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusNoContent:
 		if err := json.Unmarshal(rawResponse, respBody); err != nil {
@@ -92,7 +91,7 @@ func (c *RestClient) SelfUser(options ...RequestOption) (*ResponseUser, error) {
 
 func (c *RestClient) Application(appId string, options ...RequestOption) (*ResponseApplicationInformation, error) {
 	var r ApiResponse[ResponseApplicationInformation]
-	err := c.Request(http.MethodGet, MakeURL(EndpointApplication(appId)), nil, &r, options...)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationInformation(appId)), nil, &r, options...)
 	return &r.Response, err
 }
 
@@ -152,7 +151,7 @@ func (c *RestClient) ApplicationBackup(appId string, options ...RequestOption) (
 
 func (c *RestClient) UploadApplication(options ...RequestOption) (*ResponseUploadApplication, error) {
 	var r ApiResponse[ResponseUploadApplication]
-	err := c.Request(http.MethodGet, MakeURL(EndpointApplicationUpload()), nil, &r, options...)
+	err := c.Request(http.MethodGet, MakeURL(EndpointApplication()), nil, &r, options...)
 	if err != nil {
 		return nil, err
 	}
@@ -286,7 +285,7 @@ func (c *RestClient) ApplicationUpload(appId string, filep string, options ...Re
 	options = append(options, WithHeader("Content-Type", writer.FormDataContentType()))
 
 	var r ApiResponse[ResponseUploadApplication]
-	err = c.Request(http.MethodPost, MakeURL(EndpointApplicationUpload()), bodyBuffer.Bytes(), &r, options...)
+	err = c.Request(http.MethodPost, MakeURL(EndpointApplication()), bodyBuffer.Bytes(), &r, options...)
 	if err != nil {
 		return nil, err
 	}
