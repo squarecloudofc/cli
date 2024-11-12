@@ -78,15 +78,11 @@ func runCommitCommand(squareCli *cli.SquareCli, options *CommitOptions) error {
 		defer os.Remove(file.Name())
 	}
 
-	success, err := rest.ApplicationCommit(options.ApplicationID, options.Restart, file.Name())
-	if err != nil {
+	if err := rest.PostApplicationCommit(options.ApplicationID, file); err != nil {
+		fmt.Fprintf(squareCli.Out(), "%s Unable to commit your application\n", ui.XMark)
 		return err
 	}
 
-	if success {
-		fmt.Fprintf(squareCli.Out(), "%s Your source has successfuly commited to Square Cloud\n", ui.CheckMark)
-	} else {
-		fmt.Fprintf(squareCli.Out(), "%s Unable to commit your application\n", ui.XMark)
-	}
+	fmt.Fprintf(squareCli.Out(), "%s Your source has successfuly commited to Square Cloud\n", ui.CheckMark)
 	return nil
 }

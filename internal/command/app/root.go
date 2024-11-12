@@ -13,14 +13,14 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 
 func CreateApplicationSelection(squareCli *cli.SquareCli) (string, error) {
 	rest := squareCli.Rest()
-	rapps, err := rest.SelfUser()
+	rapps, err := rest.GetApplications()
 	if err != nil {
 		return "", err
 	}
 
 	var apps []string
 
-	for _, app := range rapps.Applications {
+	for _, app := range rapps {
 		apps = append(apps, fmt.Sprintf("%s (%s)", app.Name, app.ID))
 	}
 
@@ -55,7 +55,7 @@ func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runAppCommand(squareCli *cli.SquareCli) RunEFunc {
+func runAppCommand(_ *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		cmd.Help()
 

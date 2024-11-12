@@ -36,17 +36,13 @@ func runDeleteCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 			appId = id
 		}
 
-		success, err := rest.ApplicationDelete(appId)
+		err = rest.DeleteApplication(appId)
 		if err != nil {
+			fmt.Fprintf(squareCli.Out(), "%s Failed to delete your application\n", ui.XMark)
 			return err
 		}
 
-		if success {
-			fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly deleted\n", ui.CheckMark)
-		} else {
-			fmt.Fprintf(squareCli.Out(), "%s Failed to delete your application\n", ui.XMark)
-		}
-
+		fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly deleted\n", ui.CheckMark)
 		return nil
 	}
 }

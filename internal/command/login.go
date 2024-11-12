@@ -6,7 +6,7 @@ import (
 	"github.com/erikgeiser/promptkit/textinput"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/rest"
+	"github.com/squarecloudofc/cli/pkg/squarego/rest"
 )
 
 func NewLoginCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -50,14 +50,10 @@ func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 			token = tkn
 		}
 
-		restClient := rest.NewClient(token)
+		// restClient := rest.NewClient(token)
 
-		self, err := restClient.SelfUser()
-		if err != nil {
-			return
-		}
-
-		if self == nil || self.User.Name == "" {
+		self, err := squareCli.Rest().SelfUser(rest.WithToken(token))
+		if err != nil || self.User.Name == "" {
 			fmt.Fprintf(squareCli.Out(), "No user associated for this Square Cloud Token\n")
 			return
 		}

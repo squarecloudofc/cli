@@ -2,10 +2,9 @@ package app
 
 import (
 	"fmt"
-	"time"
-
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/rvflash/elapsed"
 	"github.com/spf13/cobra"
@@ -40,8 +39,7 @@ func runStatusCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 			appId = id
 		}
 
-		data, err := rest.ApplicationStatus(appId)
-
+		data, err := rest.GetApplicationStatus(appId)
 		if err != nil {
 			return err
 		}

@@ -24,12 +24,12 @@ func NewAppsCommand(squareCli *cli.SquareCli) *cobra.Command {
 func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
-		self, err := rest.SelfUser()
+		applications, err := rest.GetApplications()
 		if err != nil {
 			return
 		}
 
-		if len(self.Applications) < 1 {
+		if len(applications) < 1 {
 			fmt.Fprintln(squareCli.Out(), "You don't have any application active")
 			return
 		}
@@ -40,7 +40,7 @@ func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
 		tags := []string{"NAME", "App ID", "MEMORY", "CLUSTER", "LANG"}
 		fmt.Fprintln(w, strings.Join(tags, " \t "))
 
-		for _, app := range self.Applications {
+		for _, app := range applications {
 			values := []string{
 				app.Name,
 				app.ID,

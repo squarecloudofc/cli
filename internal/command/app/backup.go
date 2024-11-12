@@ -40,12 +40,12 @@ func runBackupCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 			appId = id
 		}
 
-		result, err := rest.ApplicationBackup(appId)
+		result, err := rest.CreateApplicationBackup(appId)
 		if err != nil {
 			return err
 		}
 
-		if result.DownloadURL == "" {
+		if result.URL == "" {
 			fmt.Fprintf(squareCli.Out(), "%s It's not possible to download your backup, please try again later...\n", ui.XMark)
 		}
 
@@ -54,7 +54,7 @@ func runBackupCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []
 		time := time.Now().Format("2006-01-02 15:04:05")
 		filename := fmt.Sprintf("Square Cloud - Backup %s.zip", time)
 
-		err = downloadBackup(filename, result.DownloadURL)
+		err = downloadBackup(filename, result.URL)
 		if err != nil {
 			fmt.Fprintf(squareCli.Out(), "%s It's not possible to download your backup, please try again later...\n", ui.XMark)
 			return

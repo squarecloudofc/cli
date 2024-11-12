@@ -44,8 +44,6 @@ func NewUploadCommand(squareCli *cli.SquareCli) *cobra.Command {
 func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
 	rest := squareCli.Rest()
 
-	var appId string
-
 	workDir, err := os.Getwd()
 	if err != nil {
 		return err
@@ -69,14 +67,14 @@ func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
 		defer os.Remove(file.Name())
 	}
 
-	success, err := rest.ApplicationUpload(appId, file.Name())
+	uploaded, err := rest.PostApplications(file)
 	if err != nil {
 		return err
 	}
 
-	if success.ID != "" {
+	if uploaded.ID != "" {
 		if !options.ConfigFile.IsCreated() {
-			options.ConfigFile.ID = success.ID
+			options.ConfigFile.ID = uploaded.ID
 			err = options.ConfigFile.Save()
 		}
 

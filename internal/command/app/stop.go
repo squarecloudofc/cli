@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
+	"github.com/squarecloudofc/cli/pkg/squarego/square"
 )
 
 func NewStopCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -36,17 +37,13 @@ func runStopCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []st
 			appId = id
 		}
 
-		success, err := rest.ApplicationStop(appId)
+		err = rest.PostApplicationSignal(appId, square.ApplicationSignalStop)
 		if err != nil {
+			fmt.Fprintf(squareCli.Out(), "%s Failed to stop your application", ui.XMark)
 			return
 		}
 
-		if success {
-			fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly stopped", ui.CheckMark)
-		} else {
-			fmt.Fprintf(squareCli.Out(), "%s Failed to stop your application", ui.XMark)
-		}
-
+		fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly stopped", ui.CheckMark)
 		return nil
 	}
 }

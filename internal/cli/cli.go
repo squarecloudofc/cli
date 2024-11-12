@@ -1,11 +1,13 @@
 package cli
 
 import (
+	"fmt"
 	"io"
 	"os"
 
+	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/cli/internal/rest"
+	"github.com/squarecloudofc/cli/pkg/squarego/rest"
 )
 
 type SquareCli struct {
@@ -25,8 +27,9 @@ func NewSquareCli() *SquareCli {
 	return squareCli
 }
 
-func (squareCli *SquareCli) Rest() *rest.RestClient {
-	return rest.NewClient(squareCli.Config.AuthToken)
+func (squareCli *SquareCli) Rest() rest.Rest {
+	restClient := rest.NewClient(squareCli.Config.AuthToken, rest.WithUserAgent(fmt.Sprintf("Square Cloud CLI (%s)", build.Version)))
+	return rest.New(restClient)
 }
 
 func (squareCli *SquareCli) Err() io.Writer {

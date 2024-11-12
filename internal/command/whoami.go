@@ -22,18 +22,15 @@ func runWhoamiCommand(squareCli *cli.SquareCli) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
 		self, err := rest.SelfUser()
-		if err != nil {
-			return err
-		}
-
-		if self == nil || self.User.Name == "" {
+		if err != nil || self.User.Name == "" {
 			fmt.Fprintf(squareCli.Out(), "No user associated with current Square Cloud Token\n")
-			return
+			return err
 		}
 
 		username := ui.GreenText.SetString(self.User.Name)
 
 		fmt.Fprintf(squareCli.Out(), "Currently logged as %s\n", username)
+		fmt.Fprintf(squareCli.Out(), "Currently logged as asdn")
 		return
 	}
 }

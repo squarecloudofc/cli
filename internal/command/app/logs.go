@@ -35,7 +35,7 @@ func runLogsCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []st
 			appId = id
 		}
 
-		result, err := rest.ApplicationLogs(appId)
+		result, err := rest.GetApplicationLogs(appId)
 		if err != nil {
 			return err
 		}
