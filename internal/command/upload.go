@@ -63,9 +63,9 @@ func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
 			return err
 		}
 
-		defer file.Close()
 		defer os.Remove(file.Name())
 	}
+	defer file.Close()
 
 	uploaded, err := rest.PostApplications(file)
 	if err != nil {
@@ -101,6 +101,15 @@ func zipWorkdir(wd string) (*os.File, error) {
 	}
 
 	err = zipper.ZipFolder(wd, file, ignoreFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := file.Close(); err != nil {
+		return nil, err
+	}
+
+	file, err = os.Open(file.Name())
 	if err != nil {
 		return nil, err
 	}

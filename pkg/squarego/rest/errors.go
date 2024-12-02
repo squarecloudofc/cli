@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/squarecloudofc/cli/pkg/squarego/square"
+	"github.com/squarecloudofc/cli/pkg/squarego/squarecloud"
 )
 
 type RestError error
@@ -19,7 +19,7 @@ var (
 	ErrDelayNow      RestError = errors.New("you are in rate limit, try again later")
 )
 
-func ParseError(e *square.APIResponse[any]) (err error) {
+func ParseError(e *squarecloud.APIResponse[any]) (err error) {
 	switch e.Code {
 	case "APP_NOT_FOUND":
 		err = ErrAppNotFound

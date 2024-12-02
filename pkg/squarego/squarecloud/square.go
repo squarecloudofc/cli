@@ -1,4 +1,4 @@
-package square
+package squarecloud
 
 type APIResponse[T any] struct {
 	Response T      `json:"response"`

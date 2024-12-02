@@ -14,8 +14,8 @@ import (
 type CommitOptions struct {
 	ConfigFile    *squareconfig.SquareConfig
 	ApplicationID string
-	Restart       bool
 	File          string
+	Restart       bool
 }
 
 func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {

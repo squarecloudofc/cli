@@ -8,12 +8,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/squarecloudofc/cli/pkg/squarego/square"
+	"github.com/squarecloudofc/cli/pkg/squarego/squarecloud"
 )
 
 type Client interface {
 	HTTPClient() *http.Client
-	Request(method, url string, rqBody any, rsBody any, options ...RequestOpt) error
+	Request(method, url string, rqBody []byte, rsBody any, options ...RequestOpt) error
 
 	Close()
 }
@@ -41,10 +41,8 @@ func (c *clientImpl) Close() {
 	c.config.HTTPClient.CloseIdleConnections()
 }
 
-func (c *clientImpl) Request(method, url string, rqBody any, rsBody any, options ...RequestOpt) error {
-	var rawRqBody []byte
-
-	req, err := http.NewRequest(method, c.config.URL+url, bytes.NewReader(rawRqBody))
+func (c *clientImpl) Request(method, url string, rqBody []byte, rsBody any, options ...RequestOpt) error {
+	req, err := http.NewRequest(method, c.config.URL+url, bytes.NewReader(rqBody))
 	if err != nil {
 		return err
 	}
@@ -82,7 +80,7 @@ func (c *clientImpl) Request(method, url string, rqBody any, rsBody any, options
 
 		return nil
 	default:
-		var r square.APIResponse[any]
+		var r squarecloud.APIResponse[any]
 		if err := json.Unmarshal(rawResponseBody, &r); err != nil {
 			return fmt.Errorf("error unmarshalling response body: %w", err)
 		}

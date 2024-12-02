@@ -9,7 +9,7 @@ import (
 func DefaultConfig() *Config {
 	return &Config{
 		Logger:     slog.Default(),
-		HTTPClient: &http.Client{Timeout: 20 * time.Second},
+		HTTPClient: &http.Client{Timeout: 25 * time.Second},
 		URL:        ApiURL,
 	}
 }

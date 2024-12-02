@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/cli/pkg/squarego/square"
+	"github.com/squarecloudofc/cli/pkg/squarego/squarecloud"
 )
 
 func NewRestartCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -37,7 +37,7 @@ func runRestartCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args [
 			appId = id
 		}
 
-		err = rest.PostApplicationSignal(appId, square.ApplicationSignalRestart)
+		err = rest.PostApplicationSignal(appId, squarecloud.ApplicationSignalRestart)
 		if err != nil {
 			fmt.Fprintf(squareCli.Out(), "%s Failed to restart your application\n", ui.XMark)
 			return err

@@ -1,18 +1,18 @@
-package square
+package squarecloud
 
 import "time"
 
-type ResponseApplicationDeploys [][]struct {
+type ApplicationDeploys [][]struct {
 	Date  time.Time `json:"date"`
 	ID    string    `json:"id"`
 	State string    `json:"state"`
 }
 
-type ResponseApplicationGithubWebhook struct {
+type ApplicationGithubWebhook struct {
 	Webhook string `json:"webhook"`
 }
 
-type ResponseApplicationNetwork struct {
+type ApplicaitonNetworkData struct {
 	Hostname  string `json:"hostname"`
 	Countries []struct {
 		Country   string `json:"country"`

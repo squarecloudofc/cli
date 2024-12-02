@@ -3,13 +3,13 @@ package rest
 import (
 	"net/http"
 
-	"github.com/squarecloudofc/cli/pkg/squarego/square"
+	"github.com/squarecloudofc/cli/pkg/squarego/squarecloud"
 )
 
 var _ Rest = (*restImpl)(nil)
 
 type Rest interface {
-	SelfUser(opts ...RequestOpt) (square.User, error)
+	SelfUser(opts ...RequestOpt) (squarecloud.User, error)
 
 	Applications
 }
@@ -26,9 +26,14 @@ func New(client Client) Rest {
 	}
 }
 
-func (s *restImpl) SelfUser(opts ...RequestOpt) (square.User, error) {
-	var r square.APIResponse[square.User]
-	err := s.Request(http.MethodGet, EndpointUser(), nil, &r)
+type responseUser struct {
+	Applications []squarecloud.UserApplication `json:"applications"`
+	User         squarecloud.User              `json:"user"`
+}
 
-	return r.Response, err
+func (s *restImpl) SelfUser(opts ...RequestOpt) (squarecloud.User, error) {
+	var r squarecloud.APIResponse[responseUser]
+	err := s.Request(http.MethodGet, EndpointUser(), nil, &r, opts...)
+
+	return r.Response.User, err
 }

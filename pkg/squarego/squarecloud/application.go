@@ -1,6 +1,14 @@
-package square
+package squarecloud
 
 import "time"
+
+type ApplicationSignal string
+
+const (
+	ApplicationSignalStart   ApplicationSignal = "START"
+	ApplicationSignalStop    ApplicationSignal = "STOP"
+	ApplicationSignalRestart ApplicationSignal = "RESTART"
+)
 
 type Application struct {
 	ID       string `json:"id"`
@@ -13,14 +21,6 @@ type Application struct {
 	Custom   string `json:"custom"`
 	RAM      int    `json:"ram"`
 }
-
-type ApplicationSignal string
-
-const (
-	ApplicationSignalStart   ApplicationSignal = "START"
-	ApplicationSignalStop    ApplicationSignal = "STOP"
-	ApplicationSignalRestart ApplicationSignal = "RESTART"
-)
 
 type ApplicationStatus struct {
 	Network struct {
@@ -48,15 +48,15 @@ type ApplicationLogs struct {
 }
 
 type ApplicationBackup struct {
-	Name     string    `json:"name"`
-	Size     int       `json:"size"`
 	Modified time.Time `json:"modified"`
+	Name     string    `json:"name"`
 	Key      string    `json:"key"`
+	Size     int       `json:"size"`
 }
 
 type ApplicationBackupCreated struct {
 	URL string `json:"url"`
-	key string `json:"key"`
+	Key string `json:"key"`
 }
 
 type ApplicationUploaded struct {
