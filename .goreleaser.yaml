@@ -7,7 +7,6 @@ before:
 
 builds:
   - main: ./cmd/squarecloud
-    binary: bin/squarecloud
     goos: [linux, darwin, windows]
     goarch: ["386", amd64, arm, arm64]
     goarm: ["7"]
