@@ -1,13 +1,9 @@
 # yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-
-version: 1
-
 project_name: squarecloud
 
 before:
   hooks:
-    - go mod tidy
-    - bash ./scripts/completions.sh
+    - make completions
 
 builds:
   - main: ./cmd/squarecloud
