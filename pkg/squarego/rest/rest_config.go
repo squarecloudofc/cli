@@ -1,9 +1,12 @@
 package rest
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/squarecloudofc/cli/internal/build"
 )
 
 func DefaultConfig() *Config {
@@ -11,6 +14,7 @@ func DefaultConfig() *Config {
 		Logger:     slog.Default(),
 		HTTPClient: &http.Client{Timeout: 25 * time.Second},
 		URL:        ApiURL,
+		UserAgent:  fmt.Sprintf("Square Cloud CLI (v%s)", build.Version),
 	}
 }
 
