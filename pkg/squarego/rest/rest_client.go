@@ -49,12 +49,12 @@ func (c *clientImpl) Request(method, url string, rqBody []byte, rsBody any, opti
 
 	req.Header.Set("User-Agent", c.config.UserAgent)
 
-	cfg := DefaultRequestConfig(req)
-	cfg.Apply(options)
-
 	if c.token != "" {
 		req.Header.Set("Authorization", c.token)
 	}
+
+	cfg := DefaultRequestConfig(req)
+	cfg.Apply(options)
 
 	response, err := c.HTTPClient().Do(cfg.Request)
 	if err != nil {
