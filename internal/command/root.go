@@ -11,6 +11,7 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 func AddCommands(cmd *cobra.Command, squareCli *cli.SquareCli) {
 	cmd.AddCommand(
 		NewLoginCommand(squareCli),
+		NewLogoutCommand(squareCli),
 		NewWhoamiCommand(squareCli),
 
 		NewAppsCommand(squareCli),
