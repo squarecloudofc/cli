@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-var SquareIgnoreFiles = []string{".squarecloudignore", ".squareignore", "square.ignore"}
+var SquareIgnoreFiles = []string{".squarecloudignore", ".squareignore", "square.ignore", "squarecloud.ignore"}
 
 func Load() ([]string, error) {
 	var fileContent []byte
