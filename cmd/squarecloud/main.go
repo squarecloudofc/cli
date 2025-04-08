@@ -35,7 +35,8 @@ func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			if cmd.Parent() != nil {
 				if cmd.Parent().Name() != "completion" && cli.ShouldCheckAuth(squareCli, cmd) && !cli.CheckAuth(squareCli) {
-					return fmt.Errorf("you must be logged to execute this command, try to execute: squarecloud login")
+					fmt.Printf("%s You must be logged to execute this command, try to execute: squarecloud login", ui.XMark)
+					return nil
 				}
 			}
 

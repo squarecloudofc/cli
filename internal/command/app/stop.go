@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/cli/pkg/squarego/squarecloud"
+	"github.com/squarecloudofc/squarego/squarecloud"
 )
 
 func NewStopCommand(squareCli *cli.SquareCli) *cobra.Command {

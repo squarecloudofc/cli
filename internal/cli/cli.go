@@ -7,7 +7,7 @@ import (
 
 	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/cli/pkg/squarego/rest"
+	"github.com/squarecloudofc/squarego/rest"
 )
 
 type SquareCli struct {

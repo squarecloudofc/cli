@@ -1,4 +1,4 @@
-package command
+package auth
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"github.com/erikgeiser/promptkit/textinput"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/pkg/squarego/rest"
+	"github.com/squarecloudofc/squarego/rest"
 )
 
 func NewLoginCommand(squareCli *cli.SquareCli) *cobra.Command {
