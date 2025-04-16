@@ -41,19 +41,8 @@ func runZipCommand(squareCli *cli.SquareCli) RunEFunc {
 			}
 		}
 
-		file, err := os.CreateTemp(workDir, "*.zip")
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		ignoreFiles, err := squareignore.Load()
-		if err != nil {
-			ignoreFiles = []string{}
-		}
-		ignoreFiles = append(ignoreFiles, filepath.Base(file.Name()))
-
-		err = zipper.ZipFolder(workDir, file, ignoreFiles)
+		ignoreFiles, _ := squareignore.Load()
+		file, err := zipper.ZipFolder(workDir, ignoreFiles)
 		if err != nil {
 			return err
 		}

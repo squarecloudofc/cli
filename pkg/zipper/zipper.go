@@ -31,11 +31,17 @@ func shouldIgnoreFile(info os.FileInfo, ignoreEntries []string) bool {
 	return false
 }
 
-func ZipFolder(folder string, destination *os.File, ignoreFiles []string) error {
+func ZipFolder(folder string, ignoreFiles []string) (*os.File, error) {
+	destination, err := os.CreateTemp("", "*.zip")
+	if err != nil {
+		return nil, err
+	}
+	defer destination.Close()
+
 	w := zip.NewWriter(destination)
 	defer w.Close()
 
-	return filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -80,4 +86,9 @@ func ZipFolder(folder string, destination *os.File, ignoreFiles []string) error 
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	return destination, err
 }

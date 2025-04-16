@@ -10,6 +10,8 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
+	"github.com/squarecloudofc/cli/pkg/squareignore"
+	"github.com/squarecloudofc/cli/pkg/zipper"
 	"github.com/squarecloudofc/squarego/squarecloud"
 )
 
@@ -165,7 +167,8 @@ func (m *model) nextStep() tea.Cmd {
 	return func() tea.Msg {
 		switch m.currentStep {
 		case CompressStep:
-			file, err := zipWorkdir(m.workDir)
+			ignoreFiles, _ := squareignore.Load()
+			file, err := zipper.ZipFolder(m.workDir, ignoreFiles)
 			m.zipFile = file
 
 			return StepCompleted{

@@ -9,6 +9,8 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
+	"github.com/squarecloudofc/cli/pkg/squareignore"
+	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
 type CommitOptions struct {
@@ -68,13 +70,12 @@ func runCommitCommand(squareCli *cli.SquareCli, options *CommitOptions) error {
 			return err
 		}
 	} else {
-		file, err = zipWorkdir(workDir)
+		ignoreFiles, _ := squareignore.Load()
+		file, err := zipper.ZipFolder(workDir, ignoreFiles)
 		if err != nil {
-			fmt.Fprintln(squareCli.Out(), "Unable to zip the working directory")
 			return err
 		}
 
-		defer file.Close()
 		defer os.Remove(file.Name())
 	}
 

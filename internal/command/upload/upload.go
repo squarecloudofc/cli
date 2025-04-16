@@ -2,16 +2,11 @@ package upload
 
 import (
 	"fmt"
-	"os"
-	"path"
-	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
-	"github.com/squarecloudofc/cli/pkg/squareignore"
-	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
 type UploadOptions struct {
@@ -53,33 +48,4 @@ func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
 	}
 
 	return nil
-}
-
-func zipWorkdir(wd string) (*os.File, error) {
-	zipfilename := path.Join(wd, "*.zip")
-	file, err := os.CreateTemp("", filepath.Base(zipfilename))
-	if err != nil {
-		return nil, err
-	}
-
-	ignoreFiles, err := squareignore.Load()
-	if err != nil {
-		ignoreFiles = []string{}
-	}
-
-	err = zipper.ZipFolder(wd, file, ignoreFiles)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := file.Close(); err != nil {
-		return nil, err
-	}
-
-	file, err = os.Open(file.Name())
-	if err != nil {
-		return nil, err
-	}
-
-	return file, nil
 }

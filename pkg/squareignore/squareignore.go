@@ -13,7 +13,7 @@ func Load() ([]string, error) {
 
 	path, err := os.Getwd()
 	if err != nil {
-		return nil, err
+		return []string{}, err
 	}
 
 	for _, filename := range SquareIgnoreFiles {
@@ -25,14 +25,14 @@ func Load() ([]string, error) {
 
 		fileContent, err = os.ReadFile(ignorefilepath)
 		if err != nil {
-			return nil, err
+			return []string{}, err
 		}
 
 		break
 	}
 
 	var filtered []string
-	for _, e := range strings.Split(string(fileContent), "\n") {
+	for e := range strings.SplitSeq(string(fileContent), "\n") {
 		entry := strings.TrimSpace(e)
 		if entry != "" {
 			filtered = append(filtered, entry)
