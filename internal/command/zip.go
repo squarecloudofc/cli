@@ -46,6 +46,7 @@ func runZipCommand(squareCli *cli.SquareCli) RunEFunc {
 		if err != nil {
 			return err
 		}
+		defer file.Close()
 
 		os.Rename(file.Name(), zipfilename)
 
