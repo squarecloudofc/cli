@@ -3,9 +3,9 @@ package auth
 import (
 	"fmt"
 
-	"github.com/erikgeiser/promptkit/textinput"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui/textinput"
 	"github.com/squarecloudofc/squarego/rest"
 )
 
@@ -30,10 +30,6 @@ func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 			input := textinput.New("Your API Token:")
 			input.Placeholder = "Insert your square cloud api token"
 			input.Hidden = true
-			input.Template = `
-		{{- Bold .Prompt }} {{ "\n" }}
-		{{- ">" }} {{ .Input }}
-		`
 			input.ResultTemplate = ""
 
 			token, err = input.RunPrompt()

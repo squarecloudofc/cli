@@ -15,7 +15,6 @@ func AddCommands(cmd *cobra.Command, squareCli *cli.SquareCli) {
 		NewAppsCommand(squareCli),
 		NewCommitCommand(squareCli),
 		upload.NewCommand(squareCli),
-		NewUpdateCommand(squareCli),
 		NewZipCommand(squareCli),
 
 		app.NewAppCommand(squareCli),
