@@ -11,6 +11,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/command"
 	"github.com/squarecloudofc/cli/internal/ui"
+	"github.com/squarecloudofc/cli/internal/updater"
 )
 
 func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
@@ -75,26 +76,18 @@ func main() {
 
 	updateMessageChannel := make(chan *github.RepositoryRelease)
 	go func() {
-		client := github.NewClient(nil)
-		release, _, _ := client.Repositories.GetLatestRelease(updateContext, "squarecloudofc", "cli")
-
+		release, _ := updater.GetLatestRelease(updateContext)
 		updateMessageChannel <- release
 	}()
 
 	if err := run(ctx, squareCli); err != nil {
-		// switch err.(type) {
-		// case rest.RestError:
-		// 	fmt.Fprintln(squareCli.Err(), err)
-		// 	os.Exit(0)
-		// default:
-		// }
 		fmt.Fprintln(squareCli.Err(), err)
 		os.Exit(1)
 	}
 
 	updateCancel()
 	release := <-updateMessageChannel
-	if release != nil && build.Version != *release.TagName {
+	if release != nil {
 		version := ui.GreenText.SetString(*release.TagName)
 
 		fmt.Fprintln(squareCli.Out(), "")
