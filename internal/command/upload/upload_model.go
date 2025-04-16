@@ -169,6 +169,7 @@ func (m *model) nextStep() tea.Cmd {
 		case CompressStep:
 			ignoreFiles, _ := squareignore.Load()
 			file, err := zipper.ZipFolder(m.workDir, ignoreFiles)
+			defer file.Close()
 			m.zipFile = file
 
 			return StepCompleted{
@@ -177,17 +178,24 @@ func (m *model) nextStep() tea.Cmd {
 			}
 
 		case UploadStep:
-			uploaded, err := m.cli.Rest().PostApplications(m.zipFile)
+			step := StepCompleted{
+				Message: stepMessages[m.currentStep],
+			}
+
+			file, err := os.Open(m.zipFile.Name())
+			if err != nil {
+				step.err = err
+				return step
+			}
+			uploaded, err := m.cli.Rest().PostApplications(file)
 			if err == nil && uploaded.ID != "" {
 				m.config.ID = uploaded.ID
 				err = m.config.Save()
 			}
+			step.err = err
 
 			m.uploadedApplication = uploaded
-			return StepCompleted{
-				Message: stepMessages[m.currentStep],
-				err:     err,
-			}
+			return step
 
 		default:
 			return StepCompleted{}
