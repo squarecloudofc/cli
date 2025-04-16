@@ -1,4 +1,4 @@
-package command
+package upload
 
 import (
 	"fmt"
@@ -6,9 +6,9 @@ import (
 	"path"
 	"path/filepath"
 
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
 	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
@@ -19,7 +19,7 @@ type UploadOptions struct {
 	File       string
 }
 
-func NewUploadCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewCommand(squareCli *cli.SquareCli) *cobra.Command {
 	options := UploadOptions{}
 
 	cmd := &cobra.Command{
@@ -42,49 +42,16 @@ func NewUploadCommand(squareCli *cli.SquareCli) *cobra.Command {
 }
 
 func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
-	rest := squareCli.Rest()
-
-	workDir, err := os.Getwd()
+	m, err := NewModel(squareCli, options.ConfigFile)
 	if err != nil {
+		fmt.Fprint(squareCli.Out(), "Unable to send application to Square Cloud due to: ", err.Error())
+		return nil
+	}
+
+	if _, err := tea.NewProgram(m).Run(); err != nil {
 		return err
 	}
 
-	var file *os.File
-	if options.File != "" {
-		file, err = os.Open(filepath.Join(workDir, options.File))
-		if err != nil {
-			fmt.Fprintln(squareCli.Out(), "Unable to open the zip file")
-			return err
-		}
-	} else {
-		file, err = zipWorkdir(workDir)
-		if err != nil {
-			fmt.Fprintln(squareCli.Out(), "Unable to zip the working directory")
-			return err
-		}
-
-		defer os.Remove(file.Name())
-	}
-	defer file.Close()
-
-	uploaded, err := rest.PostApplications(file)
-	if err != nil {
-		return err
-	}
-
-	if uploaded.ID != "" {
-		if !options.ConfigFile.IsCreated() {
-			options.ConfigFile.ID = uploaded.ID
-			err = options.ConfigFile.Save()
-		}
-
-		fmt.Fprintf(squareCli.Out(), "%s Your application has been uploaded\n", ui.CheckMark)
-		if err != nil {
-			fmt.Fprint(squareCli.Out(), "Unable to save your application id into squarecloud.app config file\n")
-		}
-	} else {
-		fmt.Fprintf(squareCli.Out(), "%s Unable to upload your application\n", ui.XMark)
-	}
 	return nil
 }
 

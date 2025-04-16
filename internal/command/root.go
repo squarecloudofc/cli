@@ -5,6 +5,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/command/app"
 	"github.com/squarecloudofc/cli/internal/command/auth"
+	"github.com/squarecloudofc/cli/internal/command/upload"
 )
 
 type RunEFunc func(cmd *cobra.Command, args []string) error
@@ -13,7 +14,8 @@ func AddCommands(cmd *cobra.Command, squareCli *cli.SquareCli) {
 	cmd.AddCommand(
 		NewAppsCommand(squareCli),
 		NewCommitCommand(squareCli),
-		NewUploadCommand(squareCli),
+		upload.NewCommand(squareCli),
+		NewUpdateCommand(squareCli),
 		NewZipCommand(squareCli),
 
 		app.NewAppCommand(squareCli),
