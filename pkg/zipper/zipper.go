@@ -36,7 +36,6 @@ func ZipFolder(folder string, ignoreFiles []string) (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer destination.Close()
 
 	w := zip.NewWriter(destination)
 	defer w.Close()
