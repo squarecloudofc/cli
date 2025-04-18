@@ -8,7 +8,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/ui"
 )
 
-func NewWhoamiCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewWhoamiCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "whoami",
 		Short: "Print the user informations associated with current Square Cloud Token",
@@ -18,7 +18,7 @@ func NewWhoamiCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runWhoamiCommand(squareCli *cli.SquareCli) RunEFunc {
+func runWhoamiCommand(squareCli cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
 		self, err := rest.SelfUser()

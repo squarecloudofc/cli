@@ -12,7 +12,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/ui"
 )
 
-func NewBackupCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewBackupCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "backup",
 		Short: "Create a backup of you application",
@@ -22,7 +22,7 @@ func NewBackupCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runBackupCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
+func runBackupCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
 		rest := squareCli.Rest()

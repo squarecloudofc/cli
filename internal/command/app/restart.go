@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/squarego/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/squarecloud"
 )
 
-func NewRestartCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewRestartCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "restart",
 		Short: "Restart your application",
@@ -19,7 +19,7 @@ func NewRestartCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runRestartCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
+func runRestartCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
 		rest := squareCli.Rest()

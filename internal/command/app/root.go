@@ -7,11 +7,12 @@ import (
 	"github.com/erikgeiser/promptkit/selection"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/command/app/upload"
 )
 
 type RunEFunc func(cmd *cobra.Command, args []string) error
 
-func CreateApplicationSelection(squareCli *cli.SquareCli) (string, error) {
+func CreateApplicationSelection(squareCli cli.SquareCLI) (string, error) {
 	rest := squareCli.Rest()
 	rapps, err := rest.GetApplications()
 	if err != nil {
@@ -35,7 +36,7 @@ func CreateApplicationSelection(squareCli *cli.SquareCli) (string, error) {
 	return id, nil
 }
 
-func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "app",
 		Short: "Do some actions with your applications",
@@ -43,6 +44,9 @@ func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
 	}
 
 	cmd.AddCommand(
+		upload.NewCommand(squareCli),
+		NewCommitCommand(squareCli),
+
 		NewBackupCommand(squareCli),
 		NewDeleteCommand(squareCli),
 		NewLogsCommand(squareCli),
@@ -50,12 +54,13 @@ func NewAppCommand(squareCli *cli.SquareCli) *cobra.Command {
 		NewRestartCommand(squareCli),
 		NewStopCommand(squareCli),
 		NewStatusCommand(squareCli),
+		NewListCommand(squareCli),
 	)
 
 	return cmd
 }
 
-func runAppCommand(_ *cli.SquareCli) RunEFunc {
+func runAppCommand(_ cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		cmd.Help()
 

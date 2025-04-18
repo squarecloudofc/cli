@@ -8,7 +8,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/ui"
 )
 
-func NewDeleteCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete",
 		Short: "Delete your application",
@@ -18,7 +18,7 @@ func NewDeleteCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runDeleteCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
+func runDeleteCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
 		rest := squareCli.Rest()

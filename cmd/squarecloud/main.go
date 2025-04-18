@@ -14,7 +14,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/updater"
 )
 
-func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
+func newSquareCloudCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:               "squarecloud COMMAND",
 		Short:             "A command line application to manage your Square Cloud applications",
@@ -60,7 +60,7 @@ func newSquareCloudCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func run(context context.Context, squareCli *cli.SquareCli) (err error) {
+func run(context context.Context, squareCli cli.SquareCLI) (err error) {
 	cmd := newSquareCloudCommand(squareCli)
 
 	return cmd.ExecuteContext(context)

@@ -2,19 +2,18 @@ module github.com/squarecloudofc/cli
 
 go 1.24.2
 
-replace github.com/squarecloudofc/squarego => ../squarego
-
 require (
 	github.com/charmbracelet/bubbles v0.17.2-0.20240108170749-ec883029c8e6
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v1.1.0
 	github.com/erikgeiser/promptkit v0.9.0
 	github.com/google/go-github/v58 v58.0.0
+	github.com/jeandeaual/go-locale v0.0.0-20241217141322-fcc2cadd6f08
 	github.com/muesli/termenv v0.16.0
 	github.com/rvflash/elapsed v0.4.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	github.com/squarecloudofc/squarego v0.0.0-00010101000000-000000000000
+	github.com/squarecloudofc/sdk-api-go v1.0.0
 )
 
 require (

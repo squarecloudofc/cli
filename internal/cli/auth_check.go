@@ -8,7 +8,7 @@ import (
 )
 
 // thank you https://github.com/cli/cli/blob/trunk/pkg/cmdutil/auth_check.go#L41
-func ShouldCheckAuth(squareCli *SquareCli, cmd *cobra.Command) bool {
+func ShouldCheckAuth(squareCli SquareCLI, cmd *cobra.Command) bool {
 	switch cmd.Name() {
 	case "help", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd:
 		return false
@@ -32,6 +32,6 @@ func ShouldCheckAuth(squareCli *SquareCli, cmd *cobra.Command) bool {
 	return true
 }
 
-func CheckAuth(squareCli *SquareCli) bool {
-	return squareCli.Config.AuthToken != ""
+func CheckAuth(squareCli SquareCLI) bool {
+	return squareCli.Config().AuthToken != ""
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 )
 
-func NewLogoutCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewLogoutCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logout",
 		Short: "Logout from your Square Cloud account",
@@ -18,10 +18,11 @@ func NewLogoutCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runLogoutCommand(squareCli *cli.SquareCli) RunEFunc {
+func runLogoutCommand(squareCli cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
-		squareCli.Config.AuthToken = ""
-		squareCli.Config.Save()
+		configuration := squareCli.Config()
+		configuration.AuthToken = ""
+		configuration.Save()
 
 		fmt.Fprintf(squareCli.Out(), "You have successfully logged out of your Square Cloud account.\n")
 		return

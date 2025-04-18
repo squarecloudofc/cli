@@ -1,4 +1,4 @@
-package command
+package app
 
 import (
 	"fmt"
@@ -10,18 +10,17 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 )
 
-func NewAppsCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "apps",
+		Use:   "list",
 		Short: "List all your Square Cloud applications",
-		RunE:  runAppsCommand(squareCli),
+		RunE:  runAppListCommand(squareCli),
 	}
 
-	cmd.PersistentFlags().StringP("search", "s", "", "Search for an application")
 	return cmd
 }
 
-func runAppsCommand(squareCli *cli.SquareCli) RunEFunc {
+func runAppListCommand(squareCli cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
 		applications, err := rest.GetApplications()

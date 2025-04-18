@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui/textinput"
-	"github.com/squarecloudofc/squarego/rest"
+	"github.com/squarecloudofc/sdk-api-go/rest"
 )
 
-func NewLoginCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewLoginCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "login",
 		Short:       "Login to Square Cloud",
@@ -21,7 +21,7 @@ func NewLoginCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
+func runLoginCommand(squareCli cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var token string
 		tkn, err := cmd.Flags().GetString("token")
@@ -52,8 +52,9 @@ func runLoginCommand(squareCli *cli.SquareCli) RunEFunc {
 			return
 		}
 
-		squareCli.Config.AuthToken = token
-		squareCli.Config.Save()
+		configuration := squareCli.Config()
+		configuration.AuthToken = token
+		configuration.Save()
 
 		fmt.Fprintf(squareCli.Out(), "Your API Token has successfuly changed! You are now logged in a %s\n", self.Name)
 		fmt.Fprintln(squareCli.Out(), "\nWith great power comes great responsibility!")

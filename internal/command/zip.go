@@ -13,7 +13,7 @@ import (
 	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
-func NewZipCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewZipCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "zip",
 		Short: "Zip the current folder",
@@ -23,7 +23,7 @@ func NewZipCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runZipCommand(squareCli *cli.SquareCli) RunEFunc {
+func runZipCommand(squareCli cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		workDir, err := os.Getwd()
 		if err != nil {

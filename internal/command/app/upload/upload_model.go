@@ -12,7 +12,7 @@ import (
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
 	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
-	"github.com/squarecloudofc/squarego/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/squarecloud"
 )
 
 type Step int
@@ -25,13 +25,6 @@ const (
 	UploadStep
 	CompletedStep
 )
-
-var stepMessages = map[Step]string{
-	LoadFile:      "File provided, skipping compression.",
-	CompressStep:  "Compressing the current directory.",
-	UploadStep:    "Uploading the zip file to Square Cloud.",
-	CompletedStep: "Upload completed successfully.",
-}
 
 type StepCompleted struct {
 	Message string
@@ -48,7 +41,7 @@ var (
 var defaultSpinner = spinner.New(spinner.WithStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("69"))), spinner.WithSpinner(spinner.Jump))
 
 type model struct {
-	cli     *cli.SquareCli
+	cli     cli.SquareCLI
 	config  *squareconfig.SquareConfig
 	zipFile *os.File
 	workDir string
@@ -62,7 +55,7 @@ type model struct {
 	done    bool
 }
 
-func NewModel(squarecli *cli.SquareCli, config *squareconfig.SquareConfig) (*model, error) {
+func NewModel(squarecli cli.SquareCLI, config *squareconfig.SquareConfig) (*model, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -146,7 +139,7 @@ func (m *model) View() string {
 	}
 
 	if m.currentStep != 0 && !m.done {
-		s += fmt.Sprintf("%s %s\n", m.spinner.View(), textStyle(stepMessages[m.currentStep]))
+		s += fmt.Sprintf("%s %s\n", m.spinner.View(), textStyle(m.stepMessage(m.currentStep)))
 	}
 
 	if m.err != nil {
@@ -156,8 +149,13 @@ func (m *model) View() string {
 
 	if m.done && m.err == nil {
 		link := linkStyle(fmt.Sprintf("https://squarecloud.app/dashboard/app/%s", m.uploadedApplication.ID))
-		access := fmt.Sprintf("You can access via %s", link)
-		s += fmt.Sprintf("\n%s Application uploaded to Square Cloud!\n  %s", ui.CheckMark, access)
+
+		s += fmt.Sprintf("\n%s %s\n  %s", ui.CheckMark,
+			m.cli.I18n().T("commands.app.upload.success"),
+			m.cli.I18n().T("commands.app.upload.access",
+				map[string]any{"Link": link},
+			),
+		)
 	}
 
 	return lipgloss.NewStyle().Padding(1, 1).Render(s)
@@ -173,13 +171,13 @@ func (m *model) nextStep() tea.Cmd {
 			m.zipFile = file
 
 			return StepCompleted{
-				Message: stepMessages[m.currentStep],
+				Message: m.stepMessage(m.currentStep),
 				err:     err,
 			}
 
 		case UploadStep:
 			step := StepCompleted{
-				Message: stepMessages[m.currentStep],
+				Message: m.stepMessage(m.currentStep),
 			}
 
 			file, err := os.Open(m.zipFile.Name())
@@ -201,4 +199,19 @@ func (m *model) nextStep() tea.Cmd {
 			return StepCompleted{}
 		}
 	}
+}
+
+func (m *model) stepMessage(step Step) string {
+	switch step {
+	case LoadFile:
+		return m.cli.I18n().T("commands.app.upload.states.loading_file")
+	case CompressStep:
+		return m.cli.I18n().T("commands.app.upload.states.compressing")
+	case UploadStep:
+		return m.cli.I18n().T("commands.app.upload.states.uploading")
+	case CompletedStep:
+		return m.cli.I18n().T("commands.app.upload.states.completed")
+	}
+
+	return ""
 }

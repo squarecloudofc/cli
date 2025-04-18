@@ -7,7 +7,7 @@ import (
 
 type RunEFunc func(cmd *cobra.Command, args []string) error
 
-func NewAuthCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewAuthCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: "Manage your authentication with Square Cloud",
@@ -23,7 +23,7 @@ func NewAuthCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runAppCommand(_ *cli.SquareCli) RunEFunc {
+func runAppCommand(_ cli.SquareCLI) RunEFunc {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		cmd.Help()
 

@@ -1,4 +1,4 @@
-package command
+package app
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type CommitOptions struct {
 	Restart       bool
 }
 
-func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewCommitCommand(squareCli cli.SquareCLI) *cobra.Command {
 	options := CommitOptions{}
 
 	cmd := &cobra.Command{
@@ -54,7 +54,12 @@ func NewCommitCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runCommitCommand(squareCli *cli.SquareCli, options *CommitOptions) error {
+func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
+	if true {
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.upload.states.uploading"))
+		return nil
+	}
+
 	rest := squareCli.Rest()
 
 	workDir, err := os.Getwd()

@@ -1,0 +1,17 @@
+{
+  "commands": {
+    "app": {
+      "upload": {
+        "error": "Unable to send application to Square Cloud due to: {{ .Error }}",
+        "states": {
+          "loading_file": "File provided, skipping compression.",
+          "compressing": "Compressing the current directory.",
+          "uploading": "Uploading the zip file to Square Cloud.",
+          "completed": "Upload completed successfully."
+        },
+        "success": "Application uploaded to Square Cloud!",
+        "access": "You can access via {{.Link}}"
+      }
+    }
+  }
+}

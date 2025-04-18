@@ -14,7 +14,7 @@ type UploadOptions struct {
 	File       string
 }
 
-func NewCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 	options := UploadOptions{}
 
 	cmd := &cobra.Command{
@@ -36,10 +36,18 @@ func NewCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runUploadCommand(squareCli *cli.SquareCli, options *UploadOptions) error {
+func runUploadCommand(squareCli cli.SquareCLI, options *UploadOptions) error {
 	m, err := NewModel(squareCli, options.ConfigFile)
 	if err != nil {
-		fmt.Fprint(squareCli.Out(), "Unable to send application to Square Cloud due to: ", err.Error())
+		fmt.Fprint(
+			squareCli.Out(),
+			squareCli.I18n().T(
+				"commands.app.upload.error",
+				map[string]any{
+					"Error": err.Error(),
+				},
+			),
+		)
 		return nil
 	}
 

@@ -11,7 +11,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 )
 
-func NewStatusCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
 		Short: "Show the status of your application",
@@ -21,7 +21,7 @@ func NewStatusCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runStatusCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
+func runStatusCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
 		rest := squareCli.Rest()

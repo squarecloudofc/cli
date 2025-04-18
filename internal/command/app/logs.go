@@ -7,7 +7,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 )
 
-func NewLogsCommand(squareCli *cli.SquareCli) *cobra.Command {
+func NewLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logs",
 		Short: "See your application logs",
@@ -17,7 +17,7 @@ func NewLogsCommand(squareCli *cli.SquareCli) *cobra.Command {
 	return cmd
 }
 
-func runLogsCommand(squareCli *cli.SquareCli) func(cmd *cobra.Command, args []string) error {
+func runLogsCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		var appId string
 		rest := squareCli.Rest()
