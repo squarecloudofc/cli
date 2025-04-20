@@ -27,7 +27,7 @@ func runWhoamiCommand(squareCli cli.SquareCLI) RunEFunc {
 			return err
 		}
 
-		username := ui.GreenText.SetString(self.Name)
+		username := ui.TextGreen.SetString(self.Name)
 
 		fmt.Fprintf(squareCli.Out(), "Currently logged as %s\n", username)
 		return

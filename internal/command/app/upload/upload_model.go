@@ -31,15 +31,6 @@ type StepCompleted struct {
 	err     error
 }
 
-var (
-	hiddenStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("250")).Render
-	textStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("254")).Render
-
-	linkStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("69")).Underline(true).Render
-)
-
-var defaultSpinner = spinner.New(spinner.WithStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("69"))), spinner.WithSpinner(spinner.Jump))
-
 type model struct {
 	cli     cli.SquareCLI
 	config  *squareconfig.SquareConfig
@@ -73,12 +64,7 @@ func NewModel(squarecli cli.SquareCLI, config *squareconfig.SquareConfig) (*mode
 func (m *model) Init() tea.Cmd {
 	m.currentStep = CompressStep
 
-	m.spinner = spinner.New(
-		spinner.WithStyle(
-			lipgloss.NewStyle().Foreground(lipgloss.Color("69")),
-		),
-		spinner.WithSpinner(spinner.Jump),
-	)
+	m.spinner = ui.Spinner
 
 	return tea.Batch(m.spinner.Tick, m.nextStep())
 }
@@ -135,11 +121,11 @@ func (m *model) View() string {
 			emoji = ui.XMark
 		}
 
-		s += fmt.Sprintf("%s %s\n", emoji, hiddenStyle(step.Message))
+		s += fmt.Sprintf("%s %s\n", emoji, ui.TextSecondary.Render(step.Message))
 	}
 
 	if m.currentStep != 0 && !m.done {
-		s += fmt.Sprintf("%s %s\n", m.spinner.View(), textStyle(m.stepMessage(m.currentStep)))
+		s += fmt.Sprintf("%s %s\n", m.spinner.View(), ui.TextPrimary.Render(m.stepMessage(m.currentStep)))
 	}
 
 	if m.err != nil {
@@ -148,7 +134,7 @@ func (m *model) View() string {
 	}
 
 	if m.done && m.err == nil {
-		link := linkStyle(fmt.Sprintf("https://squarecloud.app/dashboard/app/%s", m.uploadedApplication.ID))
+		link := ui.TextLink.Render(fmt.Sprintf("https://squarecloud.app/dashboard/app/%s", m.uploadedApplication.ID))
 
 		s += fmt.Sprintf("\n%s %s\n  %s", ui.CheckMark,
 			m.cli.I18n().T("commands.app.upload.success"),
@@ -188,7 +174,7 @@ func (m *model) nextStep() tea.Cmd {
 			uploaded, err := m.cli.Rest().PostApplications(file)
 			if err == nil && uploaded.ID != "" {
 				m.config.ID = uploaded.ID
-				err = m.config.Save()
+				m.config.Save()
 			}
 			step.err = err
 

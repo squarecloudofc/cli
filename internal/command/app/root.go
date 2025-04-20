@@ -7,6 +7,7 @@ import (
 	"github.com/erikgeiser/promptkit/selection"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/command/app/commit"
 	"github.com/squarecloudofc/cli/internal/command/app/upload"
 )
 
@@ -45,14 +46,15 @@ func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd.AddCommand(
 		upload.NewCommand(squareCli),
-		NewCommitCommand(squareCli),
+		commit.NewCommitCommand(squareCli),
+
+		NewStartCommand(squareCli),
+		NewRestartCommand(squareCli),
+		NewStopCommand(squareCli),
 
 		NewBackupCommand(squareCli),
 		NewDeleteCommand(squareCli),
 		NewLogsCommand(squareCli),
-		NewStartCommand(squareCli),
-		NewRestartCommand(squareCli),
-		NewStopCommand(squareCli),
 		NewStatusCommand(squareCli),
 		NewListCommand(squareCli),
 	)
