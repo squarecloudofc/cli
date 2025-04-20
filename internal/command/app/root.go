@@ -46,7 +46,7 @@ func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd.AddCommand(
 		upload.NewCommand(squareCli),
-		commit.NewCommitCommand(squareCli),
+		commit.NewCommand(squareCli),
 
 		NewStartCommand(squareCli),
 		NewRestartCommand(squareCli),

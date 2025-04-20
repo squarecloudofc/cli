@@ -24,7 +24,7 @@ type CommitOptions struct {
 	Restart       bool
 }
 
-func NewCommitCommand(squareCli cli.SquareCLI) *cobra.Command {
+func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 	options := CommitOptions{}
 
 	cmd := &cobra.Command{
