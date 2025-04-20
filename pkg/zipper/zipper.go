@@ -2,6 +2,7 @@ package zipper
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -37,57 +38,69 @@ func ZipFolder(folder string, ignoreFiles []string) (*os.File, error) {
 		return nil, err
 	}
 
-	w := zip.NewWriter(destination)
+	err = ZipFolderW(destination, folder, ignoreFiles)
+	if err != nil {
+		os.Remove(destination.Name())
+		return nil, err
+	}
+	return destination, err
+}
+
+func ZipFolderW(writer io.Writer, folder string, ignoreFiles []string) error {
+	w := zip.NewWriter(writer)
 	defer w.Close()
 
-	err = filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+	ignoreSet := make(map[string]struct{})
+	for _, f := range ignoreFiles {
+		ignoreSet[f] = struct{}{}
+	}
+
+	baseLen := len(folder) + 1
+
+	return filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
+			return fmt.Errorf("error walking path %s: %w", path, err)
 		}
 
-		if shouldIgnoreFile(info, ignoreFiles) {
+		if _, ignore := ignoreSet[info.Name()]; ignore {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
-
 			return nil
 		}
 
 		if !info.IsDir() {
-			file, err := os.Open(path)
-			if err != nil {
-				return err
+			if err := addFileToZip(w, path, info, baseLen); err != nil {
+				return fmt.Errorf("error adding file %s to zip: %w", path, err)
 			}
-			defer file.Close()
-
-			fileinfo, err := file.Stat()
-			if err != nil {
-				return err
-			}
-
-			header, err := zip.FileInfoHeader(fileinfo)
-			if err != nil {
-				return err
-			}
-
-			header.Method = zip.Deflate
-			header.Name = path[len(folder)+1:]
-
-			writer, err := w.CreateHeader(header)
-			if err != nil {
-				return err
-			}
-
-			if _, err = io.Copy(writer, file); err != nil {
-				return err
-			}
-
 		}
 		return nil
 	})
+}
+
+func addFileToZip(w *zip.Writer, path string, info os.FileInfo, baseLen int) error {
+	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return fmt.Errorf("error opening file %s: %w", path, err)
+	}
+	defer file.Close()
+
+	header, err := zip.FileInfoHeader(info)
+	if err != nil {
+		return fmt.Errorf("error creating file header for %s: %w", path, err)
 	}
 
-	return destination, err
+	header.Method = zip.Deflate
+	header.Name = path[baseLen:]
+
+	writer, err := w.CreateHeader(header)
+	if err != nil {
+		return fmt.Errorf("error creating header for %s: %w", path, err)
+	}
+
+	if _, err = io.Copy(writer, file); err != nil {
+		return fmt.Errorf("error copying file %s to zip: %w", path, err)
+	}
+
+	return nil
 }
