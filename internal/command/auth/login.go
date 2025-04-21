@@ -27,8 +27,8 @@ func runLoginCommand(squareCli cli.SquareCLI) RunEFunc {
 		tkn, err := cmd.Flags().GetString("token")
 
 		if tkn == "" {
-			input := textinput.New("Your API Token:")
-			input.Placeholder = "Insert your square cloud api token"
+			input := textinput.New(squareCli.I18n().T("commands.auth.login.input.label"))
+			input.Placeholder = squareCli.I18n().T("commands.auth.login.input.placeholder")
 			input.Hidden = true
 			input.ResultTemplate = ""
 
@@ -48,7 +48,7 @@ func runLoginCommand(squareCli cli.SquareCLI) RunEFunc {
 
 		self, err := squareCli.Rest().SelfUser(rest.WithToken(token))
 		if err != nil || self.Name == "" {
-			fmt.Fprintf(squareCli.Out(), "No user associated for this Square Cloud Token\n")
+			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.error"))
 			return
 		}
 
@@ -56,8 +56,8 @@ func runLoginCommand(squareCli cli.SquareCLI) RunEFunc {
 		configuration.AuthToken = token
 		configuration.Save()
 
-		fmt.Fprintf(squareCli.Out(), "Your API Token has successfuly changed! You are now logged in a %s\n", self.Name)
-		fmt.Fprintln(squareCli.Out(), "\nWith great power comes great responsibility!")
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.success.0", map[string]any{"User": self.Name}))
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.success.1"))
 		return
 	}
 }

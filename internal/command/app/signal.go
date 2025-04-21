@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
+	"github.com/squarecloudofc/cli/internal/ui/application_selector"
 	"github.com/squarecloudofc/sdk-api-go/squarecloud"
 )
 
@@ -49,12 +50,12 @@ func runSendSignal(squareCli cli.SquareCLI, signal squarecloud.ApplicationSignal
 		}
 
 		if len(args) < 1 {
-			id, err := CreateApplicationSelection(squareCli)
+			m, err := application_selector.RunSelector(squareCli)
 			if err != nil {
 				return err
 			}
 
-			appId = id
+			appId = m.ID
 		}
 
 		err = rest.PostApplicationSignal(appId, signal)

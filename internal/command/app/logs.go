@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui/application_selector"
 )
 
 func NewLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -27,12 +28,12 @@ func runLogsCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []str
 		}
 
 		if len(args) < 1 {
-			id, err := CreateApplicationSelection(squareCli)
+			m, err := application_selector.RunSelector(squareCli)
 			if err != nil {
 				return err
 			}
 
-			appId = id
+			appId = m.ID
 		}
 
 		result, err := rest.GetApplicationLogs(appId)

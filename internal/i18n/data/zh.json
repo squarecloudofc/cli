@@ -1,1 +1,70 @@
-{}
+{
+  "commands": {
+    "app": {
+      "commit": {
+        "arguments": {
+          "missing": "您未在命令参数中指定您的应用程序ID",
+          "missing_2": "您还可以在您的squarecloud.app中指定一个ID参数"
+        },
+        "errors": {
+          "closed_file": "无法打开文件",
+          "unable_commit": "无法提交您的应用程序"
+        },
+        "states": {
+          "loading_file": "正在加载文件 {{ .Filename }}",
+          "compressing": "正在压缩当前目录。",
+          "uploading": "正在向您的应用程序（{{.Appid}}）提交更新"
+        },
+        "success": "已成功提交到您的应用程序"
+      },
+      "upload": {
+        "error": "由于以下原因，无法将应用程序发送到Square Cloud: {{ .Error }}",
+        "states": {
+          "loading_file": "已提供文件，跳过压缩。",
+          "compressing": "正在压缩当前目录。",
+          "uploading": "正在将zip文件上传到Square Cloud。",
+          "completed": "上传成功完成。"
+        },
+        "success": "应用程序已上传到Square Cloud!",
+        "access": "您可以通过 {{.Link}} 访问"
+      },
+      "delete": {
+        "failed": "无法删除您的应用程序",
+        "success": "您的应用程序已成功删除"
+      },
+      "list": {
+        "empty": "您没有任何活动的应用程序"
+      },
+      "signal": {
+        "failed": "无法向您的应用程序发送信号",
+        "sended": "信号 {{.Signal}} 已成功发送到您的应用程序。"
+      },
+      "backup": {
+        "downloading": "正在下载您的备份...",
+        "error": "无法下载您的备份，请稍后再试...",
+        "success": "您的备份已成功下载到 {{.File}}"
+      }
+    },
+    "login": {
+      "input": {
+        "label": "您的API令牌：",
+        "placeholder": "插入您的Square Cloud API令牌"
+      },
+      "error": "没有用户与此Square Cloud令牌关联",
+      "success": {
+        "0": "您的API令牌已成功更改！您现在已登录为 {{.User}}",
+        "1": "能力越大，责任越大！"
+      }
+    },
+    "logout": {
+      "success": "您已成功退出Square Cloud帐户。"
+    },
+    "whoami": {
+      "none": "当前Square Cloud令牌未关联任何用户",
+      "logged": "当前已登录为 {{.User}}"
+    },
+    "zip": {
+      "success": "您的源已成功压缩到 {{.Zip}}"
+    }
+  }
+}

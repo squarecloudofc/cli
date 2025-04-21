@@ -15,7 +15,8 @@ var (
 	TextDanger = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
 
 	TextPrimary   = lipgloss.NewStyle().Foreground(lipgloss.Color("-1"))
-	TextSecondary = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
+	TextSecondary = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
+	TextTertiary  = lipgloss.NewStyle().Foreground(lipgloss.Color("15"))
 
 	TextLink = lipgloss.NewStyle().Foreground(lipgloss.Color("69")).Underline(true)
 

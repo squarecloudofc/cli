@@ -1,6 +1,22 @@
 {
   "commands": {
     "app": {
+      "commit": {
+        "arguments": {
+          "missing": "You not specified your application ID in command arguments",
+          "missing_2": "You can also specify an ID parameter in your squarecloud.app"
+        },
+        "errors": {
+          "closed_file": "Unable to upen the file",
+          "unable_commit": "Unable to commit your application"
+        },
+        "states": {
+          "loading_file": "Loading the file {{ .Filename }}",
+          "compressing": "Compressing the current directory.",
+          "uploading": "Commiting updates to your application ({{.Appid}})"
+        },
+        "success": "Successfully commited to your application"
+      },
       "upload": {
         "error": "Unable to send application to Square Cloud due to: {{ .Error }}",
         "states": {
@@ -11,7 +27,44 @@
         },
         "success": "Application uploaded to Square Cloud!",
         "access": "You can access via {{.Link}}"
+      },
+      "delete": {
+        "failed": "Failed to delete your application",
+        "success": "Your application has been successfuly deleted"
+      },
+      "list": {
+        "empty": "You don't have any application active"
+      },
+      "signal": {
+        "failed": "Failed to send the signal to your application",
+        "sended": "Signal {{.Signal}} has been successfully sent to your application."
+      },
+      "backup": {
+        "downloading": "Downloading your backup...",
+        "error": "It's not possible to download your backup, please try again later...",
+        "success": "Your backup is successfuly downloaded to {{.File}}"
       }
+    },
+    "login": {
+      "input": {
+        "label": "Your API Token:",
+        "placeholder": "Insert your Square Cloud API token"
+      },
+      "error": "No user associated for this Square Cloud Token",
+      "success": {
+        "0": "Your API Token has successfuly changed! You are now logged in a {{.User}}",
+        "1": "With great power comes great responsibility!"
+      }
+    },
+    "logout": {
+      "success": "You have successfully logged out of your Square Cloud account."
+    },
+    "whoami": {
+      "none": "No user associated with current Square Cloud Token",
+      "logged": "Currently logged as {{.User}}"
+    },
+    "zip": {
+      "success": "Your source has successfuly zipped to {{.Zip}}"
     }
   }
 }

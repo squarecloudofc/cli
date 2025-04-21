@@ -43,8 +43,8 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 			if len(args) == 0 {
 				if config.ID == "" {
-					fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.missing"))
-					fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.missing_2"))
+					fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.arguments.missing"))
+					fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.arguments.missing_2"))
 					return nil
 				}
 

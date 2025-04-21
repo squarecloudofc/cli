@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/ui"
+	"github.com/squarecloudofc/cli/internal/ui/application_selector"
 )
 
 func NewDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -28,21 +29,21 @@ func runDeleteCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []s
 		}
 
 		if len(args) < 1 {
-			id, err := CreateApplicationSelection(squareCli)
+			m, err := application_selector.RunSelector(squareCli)
 			if err != nil {
 				return err
 			}
 
-			appId = id
+			appId = m.ID
 		}
 
 		err = rest.DeleteApplication(appId)
 		if err != nil {
-			fmt.Fprintf(squareCli.Out(), "%s Failed to delete your application\n", ui.XMark)
+			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.delete.failed"))
 			return err
 		}
 
-		fmt.Fprintf(squareCli.Out(), "%s Your application has been successfuly deleted\n", ui.CheckMark)
+		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.delete.success"))
 		return nil
 	}
 }

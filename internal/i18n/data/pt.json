@@ -1,1 +1,70 @@
-{}
+{
+  "commands": {
+    "app": {
+      "commit": {
+        "arguments": {
+          "missing": "Você não especificou o ID da sua aplicação nos argumentos do comando",
+          "missing_2": "Você também pode especificar um parâmetro de ID no seu squarecloud.app"
+        },
+        "errors": {
+          "closed_file": "Não foi possível abrir o arquivo",
+          "unable_commit": "Não foi possível realizar o commit da sua aplicação"
+        },
+        "states": {
+          "loading_file": "Carregando o arquivo {{ .Filename }}",
+          "compressing": "Compactando o diretório atual.",
+          "uploading": "Realizando commit das atualizações na sua aplicação ({{.Appid}})"
+        },
+        "success": "Commit realizado com sucesso na sua aplicação"
+      },
+      "upload": {
+        "error": "Não foi possível enviar a aplicação para a Square Cloud devido a: {{ .Error }}",
+        "states": {
+          "loading_file": "Arquivo fornecido, pulando a compressão.",
+          "compressing": "Compactando o diretório atual.",
+          "uploading": "Enviando o arquivo zip para a Square Cloud.",
+          "completed": "Upload concluído com sucesso."
+        },
+        "success": "Aplicação enviada para a Square Cloud!",
+        "access": "Você pode acessar através de {{.Link}}"
+      },
+      "delete": {
+        "failed": "Falha ao excluir sua aplicação",
+        "success": "Sua aplicação foi excluída com sucesso"
+      },
+      "list": {
+        "empty": "Você não possui nenhuma aplicação ativa"
+      },
+      "signal": {
+        "failed": "Falha ao enviar o sinal para sua aplicação",
+        "sended": "O sinal {{.Signal}} foi enviado com sucesso para sua aplicação."
+      },
+      "backup": {
+        "downloading": "Baixando seu backup...",
+        "error": "Não foi possível baixar seu backup, tente novamente mais tarde...",
+        "success": "Seu backup foi baixado com sucesso para {{.File}}"
+      }
+    },
+    "login": {
+      "input": {
+        "label": "Seu Token de API:",
+        "placeholder": "Insira seu token de API da Square Cloud"
+      },
+      "error": "Nenhum usuário associado a este Token da Square Cloud",
+      "success": {
+        "0": "Seu Token de API foi alterado com sucesso! Agora você está logado como {{.User}}",
+        "1": "Com grandes poderes vêm grandes responsabilidades!"
+      }
+    },
+    "logout": {
+      "success": "Você saiu com sucesso da sua conta Square Cloud."
+    },
+    "whoami": {
+      "none": "Nenhum usuário associado ao Token atual da Square Cloud",
+      "logged": "Atualmente logado como {{.User}}"
+    },
+    "zip": {
+      "success": "Sua fonte foi compactada com sucesso para {{.Zip}}"
+    }
+  }
+}

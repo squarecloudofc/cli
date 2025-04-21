@@ -1,41 +1,14 @@
 package app
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/erikgeiser/promptkit/selection"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/command/app/commit"
 	"github.com/squarecloudofc/cli/internal/command/app/upload"
+	"github.com/squarecloudofc/cli/internal/command/backup"
 )
 
 type RunEFunc func(cmd *cobra.Command, args []string) error
-
-func CreateApplicationSelection(squareCli cli.SquareCLI) (string, error) {
-	rest := squareCli.Rest()
-	rapps, err := rest.GetApplications()
-	if err != nil {
-		return "", err
-	}
-
-	var apps []string
-
-	for _, app := range rapps {
-		apps = append(apps, fmt.Sprintf("%s (%s)", app.Name, app.ID))
-	}
-
-	sp := selection.New("Which application do you want to use for this action?", apps)
-	choice, err := sp.RunPrompt()
-	if err != nil {
-		return "", err
-	}
-
-	id := strings.TrimSuffix(strings.Split(choice, "(")[1], ")")
-
-	return id, nil
-}
 
 func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
@@ -52,7 +25,7 @@ func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 		NewRestartCommand(squareCli),
 		NewStopCommand(squareCli),
 
-		NewBackupCommand(squareCli),
+		backup.NewCommand(squareCli),
 		NewDeleteCommand(squareCli),
 		NewLogsCommand(squareCli),
 		NewStatusCommand(squareCli),

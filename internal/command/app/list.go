@@ -29,7 +29,7 @@ func runAppListCommand(squareCli cli.SquareCLI) RunEFunc {
 		}
 
 		if len(applications) < 1 {
-			fmt.Fprintln(squareCli.Out(), "You don't have any application active")
+			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.list.empty"))
 			return
 		}
 

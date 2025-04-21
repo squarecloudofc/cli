@@ -9,6 +9,7 @@ import (
 	"github.com/rvflash/elapsed"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui/application_selector"
 )
 
 func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -31,12 +32,12 @@ func runStatusCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []s
 		}
 
 		if len(args) < 1 {
-			id, err := CreateApplicationSelection(squareCli)
+			m, err := application_selector.RunSelector(squareCli)
 			if err != nil {
 				return err
 			}
 
-			appId = id
+			appId = m.ID
 		}
 
 		data, err := rest.GetApplicationStatus(appId)

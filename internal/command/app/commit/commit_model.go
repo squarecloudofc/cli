@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"math/big"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -53,7 +54,7 @@ func NewModel(squarecli cli.SquareCLI, options *CommitOptions) (*model, error) {
 func (m *model) Init() tea.Cmd {
 	m.spinner = ui.Spinner
 
-	return tea.Batch(m.spinner.Tick, m.runTask("ZIP_WORKDIR"))
+	return tea.Batch(m.spinner.Tick, m.runTask("LOAD_FILE"))
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -125,18 +126,21 @@ func (m *model) runTask(name string) tea.Cmd {
 	return func() tea.Msg {
 		taskId := generateRandomString(6)
 		switch name {
-		case "ZIP_WORKDIR":
+		case "LOAD_FILE":
 			task := &Task{
 				id:      taskId,
 				message: m.cli.I18n().T("commands.app.commit.states.compressing"),
 			}
 
-			m.tasks = append(m.tasks, task)
-			m.Update(nil)
-
 			if m.options.FileName != "" {
 				m.options.File, _ = handleCommitFile(m.cli, m.options)
+				task.message = m.cli.I18n().T("commands.app.commit.states.loading_file", map[string]any{
+					"Filename": filepath.Base(m.options.File.Name()),
+				})
 			}
+
+			m.tasks = append(m.tasks, task)
+			m.Update(nil)
 
 			if m.options.File == nil {
 				m.options.File, task.err = handleCommitWorkingDirectory()
@@ -151,7 +155,7 @@ func (m *model) runTask(name string) tea.Cmd {
 		case "UPLOAD":
 			task := &Task{
 				id:      taskId,
-				message: m.cli.I18n().T("commands.app.commit.states.uploading") + m.options.ApplicationID,
+				message: m.cli.I18n().T("commands.app.commit.states.uploading", map[string]any{"Appid": m.options.ApplicationID}),
 			}
 
 			m.tasks = append(m.tasks, task)
@@ -165,7 +169,6 @@ func (m *model) runTask(name string) tea.Cmd {
 			m.done = true
 
 			return task
-
 		}
 
 		return nil

@@ -50,7 +50,7 @@ func runZipCommand(squareCli cli.SquareCLI) RunEFunc {
 
 		os.Rename(file.Name(), zipfilename)
 
-		fmt.Fprintf(squareCli.Out(), "%s Your source has successfuly zipped to %s.zip\n", ui.CheckMark, workDirName)
+		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.zip.success", map[string]any{"Zip": workDirName}))
 		return nil
 	}
 }
