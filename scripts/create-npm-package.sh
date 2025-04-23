@@ -14,6 +14,7 @@ mkdir -p "$TARGET_DIR"
 
 cp "${SOURCE_DIR}/constants.js" "${TARGET_DIR}/"
 cp "${SOURCE_DIR}/installer.js" "${TARGET_DIR}/"
+cp "${SOURCE_DIR}/lib.js" "${TARGET_DIR}/"
 cp "${SOURCE_DIR}/runner.js" "${TARGET_DIR}/"
 cp "${SOURCE_DIR}/package.json" "${TARGET_DIR}/"
 cp "${SOURCE_DIR}/README.md" "${TARGET_DIR}/"

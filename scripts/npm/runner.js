@@ -12,6 +12,8 @@ async function run() {
     await installBinaries()
   }
 
+  const [, , ...args] = process.argv
+
   let result = spawnSync(binfile, args, {
     cwd: process.cwd(),
     stdio: "inherit",

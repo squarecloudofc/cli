@@ -12,7 +12,9 @@ export async function installBinaries() {
   if (!ARCH) throw UNSUPPORTED_ARCH;
 
   const destination = BIN_DIR;
-  const release = await getRelease(`v${VERSION}`);
+  const release = await getRelease(`v${VERSION}`).catch(err => {
+    throw new Error(`Unable to find release v${VERSION}`);
+  });
   const assetPrefix = `${BIN_NAME}_${PLATFORM}_${ARCH}`
   const asset = release.assets.find((a) => a.name.startsWith(assetPrefix));
   if (!asset) throw new Error(`Cannot find an asset for ${PLATFORM} - ${ARCH} (${assetPrefix})`);
