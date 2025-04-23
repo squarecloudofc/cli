@@ -1,0 +1,58 @@
+# This is an example .goreleaser.yml file with some sensible defaults.
+# Make sure to check the documentation at https://goreleaser.com
+
+# The lines below are called `modelines`. See `:help modeline`
+# Feel free to remove those if you don't want/need to use them.
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 2
+project_name: squarecloud
+
+before:
+  hooks:
+    - go mod tidy
+    - make completions
+
+builds:
+  - main: ./cmd/squarecloud
+    goos: [linux, windows, darwin]
+    goarch: [amd64, arm, arm64]
+    goarm: ["7"]
+    ignore:
+      - goos: windows
+        goarch: arm
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/squarecloudofc/cli/internal/build.Version=v{{.Version}} -X github.com/squarecloudofc/cli/internal/build.Commit={{.Commit}} -X github.com/squarecloudofc/cli/internal/build.CommitDate={{ .CommitDate }}
+
+archives:
+  - formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - completions/*
+      - LICENSE
+      - README.md
+
+snapshot:
+  name_template: "{{ incpatch .Version }}-preview"
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"

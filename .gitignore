@@ -13,6 +13,7 @@ bin/
 *.so
 *.dylib
 *.zip
+package-lock.json
 
 # Test binary, built with `go test -c`
 *.test
