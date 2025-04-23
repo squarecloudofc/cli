@@ -2,16 +2,24 @@
 
 import { getExecFile } from "./constants.js";
 import { spawnSync } from "node:child_process"
+import { installBinaries } from "./lib.js";
+import { existsSync } from "node:fs";
 
-const binfile = getExecFile();
-const result = spawnSync(binfile, process.argv.slice(2), {
-  stdio: "inherit",
-  cwd: process.cwd()
-});
 
-if (result.error) {
-  console.error(result.error);
-  process.exit(1);
+async function run() {
+  const binfile = getExecFile();
+  if (!existsSync(binfile)) {
+    await installBinaries()
+  }
+
+  let result = spawnSync(binfile, args, {
+    cwd: process.cwd(),
+    stdio: "inherit",
+  });
+  if (result.error)
+    console.error(result.error);
+
+  return result.status;
 }
 
-process.exit(result.status);
+run()
