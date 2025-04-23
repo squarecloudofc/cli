@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jeandeaual/go-locale"
+	"github.com/Xuanwo/go-locale"
 	"golang.org/x/text/language"
 )
 
@@ -78,13 +78,9 @@ func init() {
 }
 
 func DetectSystemLanguage() language.Tag {
-	result := language.English
-
-	osLocale, err := locale.GetLanguage()
-	if err == nil {
-		if osLocale, err := language.Parse(osLocale); err == nil {
-			result, _ = language.MatchStrings(matcher, osLocale.String())
-		}
+	result, err := locale.Detect()
+	if err != nil {
+		result = language.English
 	}
 
 	return result
