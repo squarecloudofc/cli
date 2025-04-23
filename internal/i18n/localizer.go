@@ -3,18 +3,16 @@ package i18n
 import (
 	"bytes"
 	"html/template"
-
-	"golang.org/x/text/language"
 )
 
 type Localizer interface {
-	Locale() language.Tag
+	Locale() string
 	LocaleData() map[string]any
 	T(key string, params ...map[string]any) string
 }
 
 type localizerImpl struct {
-	locale language.Tag
+	locale string
 }
 
 func NewLocalizer() Localizer {
@@ -25,7 +23,7 @@ func NewLocalizer() Localizer {
 	}
 }
 
-func (l *localizerImpl) Locale() language.Tag {
+func (l *localizerImpl) Locale() string {
 	return l.locale
 }
 

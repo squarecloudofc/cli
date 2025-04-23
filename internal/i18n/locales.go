@@ -8,22 +8,14 @@ import (
 	"strings"
 
 	"github.com/Xuanwo/go-locale"
-	"golang.org/x/text/language"
 )
 
-var SupportedLanguages = []language.Tag{
-	language.English,
-	language.Portuguese,
-	language.Spanish,
-	language.Chinese,
-}
+var SupportedLanguages = []string{"en", "pt", "es", "zh"}
 
-var matcher = language.NewMatcher(SupportedLanguages)
-
-//go:embed data/*
+//go:embed data/*.json
 var localeData embed.FS
 
-var LocaleContents = make(map[language.Tag]map[string]any)
+var LocaleContents = make(map[string]map[string]any)
 
 func init() {
 	data, err := localeData.ReadDir("data")
@@ -31,16 +23,10 @@ func init() {
 		panic(fmt.Errorf("failed to read locale directory: %w", err))
 	}
 
-	englishLocale := language.English
 	englishData := make(map[string]any)
 
 	for _, d := range data {
 		localeName := strings.Split(d.Name(), ".")[0]
-		tag, err := language.Parse(localeName)
-		if err != nil {
-			fmt.Printf("invalid language tag %s: %v\n", localeName, err)
-			continue
-		}
 
 		lang, err := localeData.ReadFile(filepath.Join("data", d.Name()))
 		if err != nil {
@@ -55,15 +41,15 @@ func init() {
 		}
 
 		flatLangData := toFlatMap(langData)
-		LocaleContents[tag] = flatLangData
+		LocaleContents[localeName] = flatLangData
 
-		if tag == englishLocale {
+		if localeName == "en" {
 			englishData = flatLangData
 		}
 	}
 
-	for tag, langData := range LocaleContents {
-		if tag == englishLocale {
+	for lang, langData := range LocaleContents {
+		if lang == "en" {
 			continue
 		}
 
@@ -73,15 +59,22 @@ func init() {
 			}
 		}
 
-		LocaleContents[tag] = langData
+		LocaleContents[lang] = langData
 	}
 }
 
-func DetectSystemLanguage() language.Tag {
+func DetectSystemLanguage() string {
 	result, err := locale.Detect()
 	if err != nil {
-		result = language.English
+		return "en"
 	}
 
-	return result
+	value, _ := result.Base()
+	for _, lang := range SupportedLanguages {
+		if value.String() == lang {
+			return lang
+		}
+	}
+
+	return "en"
 }
