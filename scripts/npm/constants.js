@@ -1,4 +1,4 @@
-import pkg from "../package.json" with { type: 'json' };
+import pkg from "./package.json" with { type: 'json' };
 import { resolve } from "node:path"
 
 export const ARCH_MAPPING = {
