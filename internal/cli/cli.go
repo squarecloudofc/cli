@@ -44,7 +44,7 @@ func NewSquareCli() SquareCLI {
 		rest.WithUserAgent(fmt.Sprintf("Square Cloud CLI (%s)", build.Version)),
 	)
 
-	i18n := i18n.NewLocalizer()
+	i18n := i18n.NewLocalizer(config.Locale)
 
 	squareCli := &squarecliImpl{
 		config: config,

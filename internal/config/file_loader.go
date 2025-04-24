@@ -3,6 +3,8 @@ package config
 import (
 	"os"
 	"path"
+
+	"github.com/squarecloudofc/cli/internal/i18n"
 )
 
 func Load() (*Config, error) {
@@ -19,6 +21,12 @@ func Load() (*Config, error) {
 	}
 	defer file.Close()
 	err = configFile.LoadFromReader(file)
+
+	if configFile.Locale == "" {
+		lang := i18n.DetectSystemLanguage()
+		configFile.Locale = lang
+		configFile.Save()
+	}
 
 	return configFile, err
 }

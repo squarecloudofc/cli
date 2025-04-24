@@ -15,9 +15,7 @@ type localizerImpl struct {
 	locale string
 }
 
-func NewLocalizer() Localizer {
-	lang := DetectSystemLanguage()
-
+func NewLocalizer(lang string) Localizer {
 	return &localizerImpl{
 		locale: lang,
 	}
