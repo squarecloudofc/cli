@@ -45,19 +45,21 @@
         "success": "Seu backup foi baixado com sucesso para {{.File}}"
       }
     },
-    "login": {
-      "input": {
-        "label": "Seu Token de API:",
-        "placeholder": "Insira seu token de API da Square Cloud"
+    "auth": {
+      "login": {
+        "input": {
+          "label": "Seu Token de API:",
+          "placeholder": "Insira seu token de API da Square Cloud"
+        },
+        "error": "Nenhum usuário associado a este Token da Square Cloud",
+        "success": {
+          "0": "Seu Token de API foi alterado com sucesso! Agora você está logado como {{.User}}",
+          "1": "Com grandes poderes vêm grandes responsabilidades!"
+        }
       },
-      "error": "Nenhum usuário associado a este Token da Square Cloud",
-      "success": {
-        "0": "Seu Token de API foi alterado com sucesso! Agora você está logado como {{.User}}",
-        "1": "Com grandes poderes vêm grandes responsabilidades!"
+      "logout": {
+        "success": "Você saiu com sucesso da sua conta Square Cloud."
       }
-    },
-    "logout": {
-      "success": "Você saiu com sucesso da sua conta Square Cloud."
     },
     "whoami": {
       "none": "Nenhum usuário associado ao Token atual da Square Cloud",

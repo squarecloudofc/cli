@@ -45,19 +45,21 @@
         "success": "您的备份已成功下载到 {{.File}}"
       }
     },
-    "login": {
-      "input": {
-        "label": "您的API令牌：",
-        "placeholder": "插入您的Square Cloud API令牌"
+    "auth": {
+      "login": {
+        "input": {
+          "label": "您的API令牌：",
+          "placeholder": "插入您的Square Cloud API令牌"
+        },
+        "error": "没有用户与此Square Cloud令牌关联",
+        "success": {
+          "0": "您的API令牌已成功更改！您现在已登录为 {{.User}}",
+          "1": "能力越大，责任越大！"
+        }
       },
-      "error": "没有用户与此Square Cloud令牌关联",
-      "success": {
-        "0": "您的API令牌已成功更改！您现在已登录为 {{.User}}",
-        "1": "能力越大，责任越大！"
+      "logout": {
+        "success": "您已成功退出Square Cloud帐户。"
       }
-    },
-    "logout": {
-      "success": "您已成功退出Square Cloud帐户。"
     },
     "whoami": {
       "none": "当前Square Cloud令牌未关联任何用户",
