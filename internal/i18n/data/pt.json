@@ -37,7 +37,7 @@
       },
       "signal": {
         "failed": "Falha ao enviar o sinal para sua aplicação",
-        "sended": "O sinal {{.Signal}} foi enviado com sucesso para sua aplicação."
+        "success": "O sinal {{.Signal}} foi enviado com sucesso para sua aplicação."
       },
       "backup": {
         "downloading": "Baixando seu backup...",
