@@ -87,7 +87,7 @@ func main() {
 
 	updateCancel()
 	release := <-updateMessageChannel
-	if release != nil && *release.TagName != build.Version {
+	if build.Version != "development" && release != nil && *release.TagName != build.Version {
 		version := ui.TextGreen.SetString(*release.TagName)
 
 		fmt.Fprintln(squareCli.Out(), "")

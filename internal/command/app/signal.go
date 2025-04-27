@@ -60,11 +60,11 @@ func runSendSignal(squareCli cli.SquareCLI, signal squarecloud.ApplicationSignal
 
 		err = rest.PostApplicationSignal(appId, signal)
 		if err != nil {
-			fmt.Fprintf(squareCli.Out(), "%s %s", ui.XMark, squareCli.I18n().T("commands.app.signal.failed"))
+			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.signal.failed"))
 			return
 		}
 
-		fmt.Fprintf(squareCli.Out(), "%s %s", ui.CheckMark, squareCli.I18n().T("commands.app.signal.success", map[string]any{
+		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.signal.success", map[string]any{
 			"Signal": string(signal),
 		}))
 		return nil

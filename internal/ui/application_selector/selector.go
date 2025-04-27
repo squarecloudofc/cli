@@ -97,7 +97,7 @@ func (m *model) View() string {
 	}
 
 	var s string
-	s += fmt.Sprintf("\n %s\n", lipgloss.NewStyle().Bold(true).Render("Selecione uma aplicação para esta ação:"))
+	s += fmt.Sprintf("\n %s\n", lipgloss.NewStyle().Bold(true).Render(m.cli.I18n().T("ui.select.application")))
 
 	for i, app := range m.apps {
 		applicationName := lipgloss.NewStyle()

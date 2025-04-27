@@ -68,5 +68,10 @@
     "zip": {
       "success": "Your source has successfuly zipped to {{.Zip}}"
     }
+  },
+  "ui": {
+    "select": {
+      "application": "Select an application for this action"
+    }
   }
 }
