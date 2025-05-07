@@ -5,7 +5,6 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/command/app"
 	"github.com/squarecloudofc/cli/internal/command/app/commit"
-	"github.com/squarecloudofc/cli/internal/command/app/upload"
 	"github.com/squarecloudofc/cli/internal/command/auth"
 	"github.com/squarecloudofc/cli/internal/command/backup"
 )
@@ -17,9 +16,10 @@ func AddCommands(cmd *cobra.Command, squareCli cli.SquareCLI) {
 		NewZipCommand(squareCli),
 
 		app.NewAppCommand(squareCli),
+		app.NewUploadCommand(squareCli),
+
 		auth.NewAuthCommand(squareCli),
 
-		upload.NewCommand(squareCli),
 		commit.NewCommand(squareCli),
 		backup.NewCommand(squareCli),
 	)
