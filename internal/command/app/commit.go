@@ -1,4 +1,4 @@
-package commit
+package app
 
 import (
 	"fmt"
@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
@@ -24,7 +23,7 @@ type CommitOptions struct {
 	Restart       bool
 }
 
-func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
+func NewCommitCommand(squareCli cli.SquareCLI) *cobra.Command {
 	options := CommitOptions{}
 
 	cmd := &cobra.Command{
@@ -62,27 +61,30 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 }
 
 func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
-	m, err := NewModel(squareCli, options)
-	if err != nil {
-		fmt.Fprint(
-			squareCli.Out(),
-			squareCli.I18n().T(
-				"commands.app.upload.error",
-				map[string]any{
-					"Error": err.Error(),
-				},
-			),
-		)
-		return nil
+	var err error
+
+	if options.FileName != "" {
+		options.File, _ = handleCommitFile(squareCli, options)
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.loading_file", map[string]any{
+			"Filename": filepath.Base(options.File.Name()),
+		}))
 	}
 
-	if _, err := tea.NewProgram(m).Run(); err != nil {
+	if options.File == nil {
+		options.File, err = handleCommitWorkingDirectory()
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := squareCli.Rest().PostApplicationCommit(options.ApplicationID, options.File); err != nil {
 		return err
 	}
-	defer m.options.File.Close()
 
-	if isTemporaryFile(m.options.File) {
-		defer os.Remove(m.options.File.Name())
+	defer options.File.Close()
+
+	if isTemporaryFile(options.File) {
+		defer os.Remove(options.File.Name())
 	}
 
 	return nil

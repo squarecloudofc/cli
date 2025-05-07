@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/command/app/commit"
 	"github.com/squarecloudofc/cli/internal/command/backup"
 )
 
@@ -18,7 +17,7 @@ func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd.AddCommand(
 		NewUploadCommand(squareCli),
-		commit.NewCommand(squareCli),
+		NewCommitCommand(squareCli),
 
 		NewStartCommand(squareCli),
 		NewRestartCommand(squareCli),

@@ -2,11 +2,13 @@ package app
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/ui"
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
 	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
@@ -47,10 +49,15 @@ func runUploadCommand(squareCli cli.SquareCLI, options *UploadOptions) error {
 
 	var file *os.File
 	if options.File == "" {
-		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.upload.states.loading_file"))
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.upload.states.compressing"))
 
 		ignoreFiles, _ := squareignore.Load()
-		file, err := zipper.ZipFolder(workDir, ignoreFiles)
+		file, err = zipper.ZipFolder(workDir, ignoreFiles)
+		if err != nil {
+			return err
+		}
+
+		_, err = file.Seek(0, io.SeekStart)
 		if err != nil {
 			return err
 		}
@@ -59,13 +66,14 @@ func runUploadCommand(squareCli cli.SquareCLI, options *UploadOptions) error {
 	}
 
 	if options.File != "" {
-		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.upload.states.compressing"))
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.upload.states.loading_file"))
 
 		file, err = os.Open(filepath.Join(workDir, options.File))
 		if err != nil {
 			return err
 		}
 	}
+
 	defer file.Close()
 
 	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.upload.states.uploading"))
@@ -76,6 +84,18 @@ func runUploadCommand(squareCli cli.SquareCLI, options *UploadOptions) error {
 			options.ConfigFile.Save()
 		}
 	}
+
+	if err != nil {
+		fmt.Fprintf(squareCli.Out(), "\n%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.upload.error", map[string]any{
+			"Error": err.Error(),
+		}))
+		return nil
+	}
+
+	fmt.Fprintf(squareCli.Out(), "\n%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.upload.success"))
+	fmt.Fprintf(squareCli.Out(), "  %s\n", squareCli.I18n().T("commands.app.upload.access", map[string]any{
+		"Link": ui.TextLink.Render(fmt.Sprintf("https://squarecloud.app/dashboard/app/%s", uploaded.ID)),
+	}))
 
 	return nil
 }
