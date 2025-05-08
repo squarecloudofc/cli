@@ -92,7 +92,7 @@ func runUploadCommand(squareCli cli.SquareCLI, options *UploadOptions) error {
 		return nil
 	}
 
-	fmt.Fprintf(squareCli.Out(), "\n%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.upload.success"))
+	fmt.Fprintf(squareCli.Out(), "\n%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.upload.success"))
 	fmt.Fprintf(squareCli.Out(), "  %s\n", squareCli.I18n().T("commands.app.upload.access", map[string]any{
 		"Link": ui.TextLink.Render(fmt.Sprintf("https://squarecloud.app/dashboard/app/%s", uploaded.ID)),
 	}))
