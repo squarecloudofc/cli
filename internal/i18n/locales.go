@@ -4,7 +4,6 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/Xuanwo/go-locale"
@@ -28,7 +27,7 @@ func init() {
 	for _, d := range data {
 		localeName := strings.Split(d.Name(), ".")[0]
 
-		lang, err := localeData.ReadFile(filepath.Join("data", d.Name()))
+		lang, err := localeData.ReadFile("data/" + d.Name())
 		if err != nil {
 			fmt.Printf("failed to read locale file %s: %v\n", d.Name(), err)
 			continue
