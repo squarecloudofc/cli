@@ -32,7 +32,7 @@ func (l *localizerImpl) LocaleData() map[string]any {
 func (l *localizerImpl) T(key string, params ...map[string]any) string {
 	value, ok := l.LocaleData()[key]
 	if !ok {
-		return key
+		value = LocaleContents["en"][key]
 	}
 
 	strValue, ok := value.(string)
