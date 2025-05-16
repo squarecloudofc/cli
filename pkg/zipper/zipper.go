@@ -50,11 +50,6 @@ func ZipFolderW(writer io.Writer, folder string, ignoreFiles []string) error {
 	w := zip.NewWriter(writer)
 	defer w.Close()
 
-	ignoreSet := make(map[string]struct{})
-	for _, f := range ignoreFiles {
-		ignoreSet[f] = struct{}{}
-	}
-
 	baseLen := len(folder) + 1
 
 	return filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
@@ -62,7 +57,7 @@ func ZipFolderW(writer io.Writer, folder string, ignoreFiles []string) error {
 			return fmt.Errorf("error walking path %s: %w", path, err)
 		}
 
-		if _, ignore := ignoreSet[info.Name()]; ignore {
+		if shouldIgnoreFile(info, ignoreFiles) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
