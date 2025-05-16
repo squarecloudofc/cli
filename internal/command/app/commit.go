@@ -12,6 +12,7 @@ import (
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
 	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
+	"github.com/squarecloudofc/sdk-api-go/squarecloud"
 )
 
 type CommitOptions struct {
@@ -64,29 +65,40 @@ func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
 	var err error
 
 	if options.FileName != "" {
-		options.File, _ = handleCommitFile(squareCli, options)
 		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.loading_file", map[string]any{
 			"Filename": filepath.Base(options.File.Name()),
 		}))
+
+		options.File, _ = handleCommitFile(squareCli, options)
 	}
 
 	if options.File == nil {
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.compressing"))
+
 		options.File, err = handleCommitWorkingDirectory()
 		if err != nil {
 			return err
 		}
 	}
 
-	if err := squareCli.Rest().PostApplicationCommit(options.ApplicationID, options.File); err != nil {
-		return err
-	}
-
 	defer options.File.Close()
-
 	if isTemporaryFile(options.File) {
 		defer os.Remove(options.File.Name())
 	}
 
+	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.uploading", map[string]any{
+		"Appid": options.ApplicationID,
+	}))
+	err = squareCli.Rest().PostApplicationCommit(options.ApplicationID, options.File)
+	if err != nil {
+		return err
+	}
+
+	if options.Restart {
+		squareCli.Rest().PostApplicationSignal(options.ApplicationID, squarecloud.ApplicationSignalRestart)
+	}
+
+	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.success"))
 	return nil
 }
 
