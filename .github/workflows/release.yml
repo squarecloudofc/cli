@@ -39,7 +39,7 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Build NPM Package
         run: |
-          ./scripts/create-npm-package.sh
+          bash ./scripts/create-npm-package.sh
       - name: Publish npm packages
         working-directory: dist/npm/squarecloud
         env:
