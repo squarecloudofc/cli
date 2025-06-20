@@ -47,9 +47,13 @@ func runZipCommand(squareCli cli.SquareCLI) RunEFunc {
 		if err != nil {
 			return err
 		}
-		defer file.Close()
+		file.Close()
 
-		os.Rename(file.Name(), zipfilename)
+		err = os.Rename(file.Name(), zipfilename)
+		if err != nil {
+			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.zip.failed", map[string]any{"Zip": workDirName}))
+			return err
+		}
 
 		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.zip.success", map[string]any{"Zip": workDirName}))
 		return nil

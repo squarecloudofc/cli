@@ -66,6 +66,7 @@
       "logged": "Atualmente logado como {{.User}}"
     },
     "zip": {
+      "failed": "Não foi possível fazer o zip da sua aplicação",
       "success": "Sua fonte foi compactada com sucesso para {{.Zip}}"
     }
   }

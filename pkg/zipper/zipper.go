@@ -86,7 +86,7 @@ func addFileToZip(w *zip.Writer, path string, info os.FileInfo, baseLen int) err
 	}
 
 	header.Method = zip.Deflate
-	header.Name = path[baseLen:]
+	header.Name = filepath.ToSlash(path[baseLen:])
 
 	writer, err := w.CreateHeader(header)
 	if err != nil {
