@@ -12,7 +12,7 @@ import (
 func NewLoginCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "login",
-		Short:       "Login to Square Cloud",
+		Short:       squareCli.I18n().T("commands.auth.login.metadata.short"),
 		Annotations: map[string]string{"skipAuthCheck": "true"},
 		RunE:        runLoginCommand(squareCli),
 	}

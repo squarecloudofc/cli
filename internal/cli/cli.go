@@ -5,9 +5,9 @@ import (
 	"io"
 	"os"
 
+	"github.com/squarecloudofc/cli/i18n"
 	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/cli/internal/i18n"
 	"github.com/squarecloudofc/sdk-api-go/rest"
 )
 

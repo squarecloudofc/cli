@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/pflag"
 )
 
+func CheckAuth(squareCli SquareCLI) bool {
+	return squareCli.Config().AuthToken != ""
+}
+
 // thank you https://github.com/cli/cli/blob/trunk/pkg/cmdutil/auth_check.go#L41
 func ShouldCheckAuth(squareCli SquareCLI, cmd *cobra.Command) bool {
 	switch cmd.Name() {
@@ -30,8 +34,4 @@ func ShouldCheckAuth(squareCli SquareCLI, cmd *cobra.Command) bool {
 		}
 	}
 	return true
-}
-
-func CheckAuth(squareCli SquareCLI) bool {
-	return squareCli.Config().AuthToken != ""
 }
