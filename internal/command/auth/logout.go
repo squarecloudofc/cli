@@ -10,7 +10,7 @@ import (
 func NewLogoutCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logout",
-		Short: "Logout from your Square Cloud account",
+		Short: squareCli.I18n().T("metadata.commands.auth.logout.short"),
 		RunE:  runLogoutCommand(squareCli),
 	}
 

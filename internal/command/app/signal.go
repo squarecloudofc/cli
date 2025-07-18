@@ -13,7 +13,7 @@ import (
 func NewStartCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "start",
-		Short: "Start your application",
+		Short: squareCli.I18n().T("metadata.commands.app.signal.start.short"),
 		RunE:  runSendSignal(squareCli, squarecloud.ApplicationSignalStart),
 	}
 
@@ -23,7 +23,7 @@ func NewStartCommand(squareCli cli.SquareCLI) *cobra.Command {
 func NewRestartCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "restart",
-		Short: "Restart your application",
+		Short: squareCli.I18n().T("metadata.commands.app.signal.restart.short"),
 		RunE:  runSendSignal(squareCli, squarecloud.ApplicationSignalRestart),
 	}
 
@@ -33,7 +33,7 @@ func NewRestartCommand(squareCli cli.SquareCLI) *cobra.Command {
 func NewStopCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "stop",
-		Short: "Stop your application",
+		Short: squareCli.I18n().T("metadata.commands.app.signal.stop.short"),
 		RunE:  runSendSignal(squareCli, squarecloud.ApplicationSignalStop),
 	}
 

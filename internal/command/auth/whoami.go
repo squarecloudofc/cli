@@ -12,7 +12,7 @@ import (
 func NewWhoamiCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "whoami",
-		Short: "Print the user informations associated with current Square Cloud Token",
+		Short: squareCli.I18n().T("metadata.commands.auth.whoami.short"),
 		RunE:  runWhoamiCommand(squareCli),
 	}
 

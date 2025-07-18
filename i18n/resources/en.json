@@ -1,4 +1,72 @@
 {
+  "errors": {
+    "common": {
+      "not_logged": "You need to be authenticated to execute this command; please log in with squarecloud auth login."
+    }
+  },
+  "metadata": {
+    "commands": {
+      "app": {
+        "commit": {
+          "short": "Make a commit for your application"
+        },
+        "delete": {
+          "short": "Delete your application"
+        },
+        "list": {
+          "short": "List all your hosted applications "
+        },
+        "logs": {
+          "short": "View the most recent logs of your application"
+        },
+        "root": {
+          "short": "Manage your applications with these commands"
+        },
+        "signal": {
+          "start": {
+            "short": "Send a start signal to start your application"
+          },
+          "restart": {
+            "short": "Send a restart signal to restart your application's process"
+          },
+          "stop": {
+            "short": "Send a stop signal to stop your application's process"
+          }
+        },
+        "status": {
+          "short": "View the statuses of all your applications"
+        },
+        "upload": {
+          "short": "Upload a new application"
+        }
+      },
+      "auth": {
+        "root": {
+          "short": "Manage your Square Cloud login with these commands"
+        },
+        "login": {
+          "short": "Log in to Square Cloud, required to run some CLI commands."
+        },
+        "logout": {
+          "short": "End the current session"
+        },
+        "whoami": {
+          "short": "View the username and account ID you are authenticated as"
+        }
+      },
+      "backup": {
+        "root": {
+          "short": "Manage your account's backups"
+        },
+        "create": {
+          "short": "Create a new backup of your application and download it to your machine"
+        }
+      },
+      "zip": {
+        "short": "Zip the current folder"
+      }
+    }
+  },
   "commands": {
     "app": {
       "commit": {
@@ -55,24 +123,25 @@
         "success": {
           "0": "Your API Token has successfuly changed! You are now logged in a {{.User}}",
           "1": "With great power comes great responsibility!"
+        },
+        "warnings": {
+          "no_plan": "It looks like you don’t have any active plan at the moment; get a plan at {{ .Link }}."
         }
       },
       "logout": {
         "success": "You have successfully logged out of your Square Cloud account."
+      },
+      "whoami": {
+        "logged": {
+          "plan": "You are currently logged in as {{.User.Name}} on the {{ .User.Plan }} plan.",
+          "remaining": "You have {{ if lt .User.PlanRemaining 1 }}a few hours{{ else }}{{ .User.PlanRemaining }} days{{ end }} left before your plan expires.",
+          "expired": "Your plan has expired or you do not have an active plan; get a plan at {{ .Link }}."
+        }
       }
     },
-    "whoami": {
-      "none": "No user associated with current Square Cloud Token",
-      "logged": "Currently logged as {{.User}}"
-    },
     "zip": {
-      "success": "Your source has successfuly zipped to {{.Zip}}",
-      "failed": "It was not possible to make the zip of your application"
-    }
-  },
-  "ui": {
-    "select": {
-      "application": "Select an application for this action"
+      "failed": "It was not possible to make the zip of your application",
+      "success": "Your source has successfuly zipped to {{.Zip}}"
     }
   }
 }

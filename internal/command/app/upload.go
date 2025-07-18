@@ -24,7 +24,7 @@ func NewUploadCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "upload",
-		Short: "Upload your application to Square Cloud",
+		Short: squareCli.I18n().T("metadata.commands.app.upload.short"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			config, er := squareconfig.Load()
 			if er != nil {

@@ -10,7 +10,7 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 func NewAuthCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
-		Short: "Manage your authentication with Square Cloud",
+		Short: squareCli.I18n().T("metadata.commands.auth.root.short"),
 		RunE:  runAppCommand(squareCli),
 	}
 

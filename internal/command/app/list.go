@@ -13,7 +13,7 @@ import (
 func NewListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: "List all your Square Cloud applications",
+		Short: squareCli.I18n().T("metadata.commands.app.list.short"),
 		RunE:  runAppListCommand(squareCli),
 	}
 

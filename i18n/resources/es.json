@@ -1,4 +1,72 @@
 {
+  "errors": {
+    "common": {
+      "not_logged": "Necesitas estar autenticado para ejecutar este comando; inicia sesión con squarecloud auth login."
+    }
+  },
+  "metadata": {
+    "commands": {
+      "app": {
+        "commit": {
+          "short": "Realiza un commit para tu aplicación"
+        },
+        "delete": {
+          "short": "Elimina tu aplicación"
+        },
+        "list": {
+          "short": "Lista todas tus aplicaciones alojadas "
+        },
+        "logs": {
+          "short": "Consulta los registros más recientes de tu aplicación"
+        },
+        "root": {
+          "short": "Gestiona tus aplicaciones con estos comandos"
+        },
+        "signal": {
+          "start": {
+            "short": "Envía una señal de inicio para que tu aplicación se inicie"
+          },
+          "restart": {
+            "short": "Envía una señal de reinicio para reiniciar el proceso de tu aplicación"
+          },
+          "stop": {
+            "short": "Envía una señal de parada para detener el proceso de tu aplicación"
+          }
+        },
+        "status": {
+          "short": "Consulta los estados de todas tus aplicaciones"
+        },
+        "upload": {
+          "short": "Sube una nueva aplicación"
+        }
+      },
+      "auth": {
+        "root": {
+          "short": "Gestiona tu inicio de sesión en Square Cloud con estos comandos"
+        },
+        "login": {
+          "short": "Inicia sesión en Square Cloud, necesario para ejecutar algunos comandos de la CLI."
+        },
+        "logout": {
+          "short": "Cierra la sesión actual"
+        },
+        "whoami": {
+          "short": "Consulta el nombre de usuario y el ID de cuenta con el que estás autenticado"
+        }
+      },
+      "backup": {
+        "root": {
+          "short": "Gestiona las copias de seguridad de tu cuenta"
+        },
+        "create": {
+          "short": "Crea una nueva copia de seguridad de tu aplicación y descárgala en tu máquina"
+        }
+      },
+      "zip": {
+        "short": "Comprime la carpeta actual"
+      }
+    }
+  },
   "commands": {
     "app": {
       "commit": {
@@ -55,19 +123,25 @@
         "success": {
           "0": "Tu Token de API ha cambiado con éxito! Ahora has iniciado sesión como {{.User}}",
           "1": "¡Con gran poder viene una gran responsabilidad!"
+        },
+        "warnings": {
+          "no_plan": "Parece que no tienes ningún plan activo en este momento; adquiere un plan en {{ .Link }}."
         }
       },
       "logout": {
         "success": "Has cerrado sesión con éxito en tu cuenta de Square Cloud."
+      },
+      "whoami": {
+        "logged": {
+          "plan": "Actualmente has iniciado sesión como {{.User.Name}} en el plan {{ .User.Plan }}.",
+          "remaining": "Te quedan {{ if lt .User.PlanRemaining 1 }}algunas horas{{ else }}{{ .User.PlanRemaining }} días{{ end }} antes de que tu plan expire.",
+          "expired": "Tu plan ha expirado o no tienes un plan activo; adquiere un plan en {{ .Link }}."
+        }
       }
     },
-    "whoami": {
-      "none": "No hay ningún usuario asociado con el Token de Square Cloud actual",
-      "logged": "Actualmente has iniciado sesión como {{.User}}"
-    },
     "zip": {
-      "success": "Tu fuente se ha comprimido con éxito en {{.Zip}}",
-      "failed": "No fue posible hacer la cremallera de su aplicación"
+      "failed": "No fue posible hacer la cremallera de su aplicación",
+      "success": "Tu fuente se ha comprimido con éxito en {{.Zip}}"
     }
   }
 }

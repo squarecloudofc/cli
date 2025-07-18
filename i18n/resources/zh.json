@@ -1,4 +1,72 @@
 {
+  "errors": {
+    "common": {
+      "not_logged": "您需要进行身份验证后才能执行此命令；请使用 squarecloud auth login 登录。"
+    }
+  },
+  "metadata": {
+    "commands": {
+      "app": {
+        "commit": {
+          "short": "为您的应用程序进行提交"
+        },
+        "delete": {
+          "short": "删除您的应用程序"
+        },
+        "list": {
+          "short": "列出您所有托管的应用程序 "
+        },
+        "logs": {
+          "short": "查看您应用程序的最新日志"
+        },
+        "root": {
+          "short": "使用这些命令管理您的应用程序"
+        },
+        "signal": {
+          "start": {
+            "short": "发送 start 信号以启动您的应用程序"
+          },
+          "restart": {
+            "short": "发送 restart 信号以重新启动您的应用程序进程"
+          },
+          "stop": {
+            "short": "发送 stop 信号以停止您的应用程序进程"
+          }
+        },
+        "status": {
+          "short": "查看您所有应用程序的状态"
+        },
+        "upload": {
+          "short": "上传一个新应用程序"
+        }
+      },
+      "auth": {
+        "root": {
+          "short": "使用这些命令管理您的 Square Cloud 登录"
+        },
+        "login": {
+          "short": "登录 Square Cloud，运行某些 CLI 命令所必需。"
+        },
+        "logout": {
+          "short": "结束当前会话"
+        },
+        "whoami": {
+          "short": "查看您已认证的用户名和账号 ID"
+        }
+      },
+      "backup": {
+        "root": {
+          "short": "管理您账号的备份"
+        },
+        "create": {
+          "short": "创建您的应用程序的新备份并下载到您的机器"
+        }
+      },
+      "zip": {
+        "short": "将当前文件夹压缩为 zip"
+      }
+    }
+  },
   "commands": {
     "app": {
       "commit": {
@@ -55,19 +123,25 @@
         "success": {
           "0": "您的API令牌已成功更改！您现在已登录为 {{.User}}",
           "1": "能力越大，责任越大！"
+        },
+        "warnings": {
+          "no_plan": "看起来您目前没有任何有效计划，请在 {{ .Link }} 获取计划。"
         }
       },
       "logout": {
         "success": "您已成功退出Square Cloud帐户。"
+      },
+      "whoami": {
+        "logged": {
+          "plan": "您目前以 {{.User.Name}} 身份登录，计划为 {{ .User.Plan }}。",
+          "remaining": "{{ if lt .User.PlanRemaining 1 }}剩余几个小时{{ else }}剩余 {{ .User.PlanRemaining }} 天{{ end }}，直到您的计划到期。",
+          "expired": "您的计划已过期或您没有有效的计划，请在 {{ .Link }} 获取计划。"
+        }
       }
     },
-    "whoami": {
-      "none": "当前Square Cloud令牌未关联任何用户",
-      "logged": "当前已登录为 {{.User}}"
-    },
     "zip": {
-      "success": "您的源已成功压缩到 {{.Zip}}",
-      "failed": "不可能使您的应用程序的拉链"
+      "failed": "不可能使您的应用程序的拉链",
+      "success": "您的源已成功压缩到 {{.Zip}}"
     }
   }
 }

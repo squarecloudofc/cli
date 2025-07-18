@@ -15,7 +15,7 @@ import (
 func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status",
-		Short: "Show the status of your application",
+		Short: squareCli.I18n().T("metadata.commands.app.status.short"),
 		RunE:  runStatusCommand(squareCli),
 	}
 

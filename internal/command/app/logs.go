@@ -11,7 +11,7 @@ import (
 func NewLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "logs",
-		Short: "See your application logs",
+		Short: squareCli.I18n().T("metadata.commands.app.logs.short"),
 		RunE:  runLogsCommand(squareCli),
 	}
 

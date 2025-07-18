@@ -16,7 +16,7 @@ import (
 func NewZipCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:         "zip",
-		Short:       "Zip the current folder",
+		Short:       squareCli.I18n().T("metadata.commands.zip.short"),
 		Annotations: map[string]string{"skipAuthCheck": "true"},
 		RunE:        runZipCommand(squareCli),
 	}

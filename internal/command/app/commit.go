@@ -29,7 +29,7 @@ func NewCommitCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:     "commit",
-		Short:   "Commit your application to Square Cloud",
+		Short:   squareCli.I18n().T("metadata.commands.app.commit.short"),
 		Aliases: []string{"push"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			config, er := squareconfig.Load()

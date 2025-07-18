@@ -12,7 +12,7 @@ import (
 func NewDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete",
-		Short: "Delete your application",
+		Short: squareCli.I18n().T("metadata.commands.app.delete.short"),
 		RunE:  runDeleteCommand(squareCli),
 	}
 

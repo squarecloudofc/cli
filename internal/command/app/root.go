@@ -11,7 +11,7 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "app",
-		Short: "Do some actions with your applications",
+		Short: squareCli.I18n().T("metadata.commands.app.root.short"),
 		RunE:  runAppCommand(squareCli),
 	}
 

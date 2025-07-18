@@ -16,7 +16,7 @@ import (
 func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: "Create a backup of you application",
+		Short: squareCli.I18n().T("metadata.commands.backup.create.short"),
 		RunE:  runBackupCreateCommand(squareCli),
 	}
 
