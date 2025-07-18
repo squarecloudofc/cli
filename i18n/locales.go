@@ -11,13 +11,13 @@ import (
 
 var SupportedLanguages = []string{"en", "pt", "es", "zh"}
 
-//go:embed data/*.json
+//go:embed resources/*.json
 var localeData embed.FS
 
 var LocaleContents = make(map[string]map[string]any)
 
 func init() {
-	data, err := localeData.ReadDir("data")
+	data, err := localeData.ReadDir("resources")
 	if err != nil {
 		panic(fmt.Errorf("failed to read locale directory: %w", err))
 	}
@@ -27,7 +27,7 @@ func init() {
 	for _, d := range data {
 		localeName := strings.Split(d.Name(), ".")[0]
 
-		lang, err := localeData.ReadFile("data/" + d.Name())
+		lang, err := localeData.ReadFile("resources/" + d.Name())
 		if err != nil {
 			fmt.Printf("failed to read locale file %s: %v\n", d.Name(), err)
 			continue

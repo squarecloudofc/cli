@@ -4,7 +4,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/squarecloudofc/cli/internal/i18n"
+	"github.com/squarecloudofc/cli/i18n"
 )
 
 func Load() (*Config, error) {
