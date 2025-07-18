@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
@@ -29,7 +30,28 @@ func runWhoamiCommand(squareCli cli.SquareCLI) RunEFunc {
 
 		username := ui.TextGreen.SetString(self.Name)
 
-		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.whoami.logged", map[string]any{"User": username}))
+		diff := time.Until(time.Unix(self.Plan.Duration, 0))
+		daysRemaining := int(diff.Hours() / 24)
+
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.plan", map[string]any{
+			"User": map[string]any{
+				"Name": username.String(),
+				"Plan": self.Plan.Name,
+			},
+		}))
+
+		if self.Plan.Name == "free" {
+			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.expired", map[string]any{
+				"Link": ui.TextBlue.Render("https://squarecloud.app/pricing"),
+			}))
+		} else {
+			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.remaining", map[string]any{
+				"User": map[string]any{
+					"PlanRemaining": daysRemaining,
+				},
+			}))
+		}
+
 		return
 	}
 }
