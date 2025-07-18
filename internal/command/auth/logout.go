@@ -24,7 +24,7 @@ func runLogoutCommand(squareCli cli.SquareCLI) RunEFunc {
 		configuration.AuthToken = ""
 		configuration.Save()
 
-		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.logout.success"))
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.logout.success"))
 		return
 	}
 }
