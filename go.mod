@@ -13,7 +13,7 @@ require (
 	github.com/rvflash/elapsed v0.4.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	github.com/squarecloudofc/sdk-api-go v1.0.0
+	github.com/squarecloudofc/sdk-api-go v1.1.0
 )
 
 require (
