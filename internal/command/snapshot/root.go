@@ -1,4 +1,4 @@
-package backup
+package snapshot
 
 import (
 	"github.com/spf13/cobra"
@@ -7,8 +7,8 @@ import (
 
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "backup",
-		Short: squareCli.I18n().T("metadata.commands.backup.root.short"),
+		Use:   "snapshot",
+		Short: squareCli.I18n().T("metadata.commands.snapshot.root.short"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},

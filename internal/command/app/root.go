@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/command/backup"
+	"github.com/squarecloudofc/cli/internal/command/snapshot"
 )
 
 type RunEFunc func(cmd *cobra.Command, args []string) error
@@ -23,7 +23,7 @@ func NewAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 		NewRestartCommand(squareCli),
 		NewStopCommand(squareCli),
 
-		backup.NewCommand(squareCli),
+		snapshot.NewCommand(squareCli),
 		NewDeleteCommand(squareCli),
 		NewLogsCommand(squareCli),
 		NewStatusCommand(squareCli),

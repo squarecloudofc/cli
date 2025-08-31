@@ -54,9 +54,9 @@
           "short": "Veja o nome de usuário e ID da conta que você está autentidado"
         }
       },
-      "backup": {
+      "snapshot": {
         "root": {
-          "short": "Gerencie os backups de sua conta"
+          "short": "Gerencie os snapshots de sua conta"
         },
         "create": {
           "short": "Crie um novo backup de sua aplicação e faça o download para sua máquina"
@@ -107,10 +107,10 @@
         "failed": "Falha ao enviar o sinal para sua aplicação",
         "success": "O sinal {{.Signal}} foi enviado com sucesso para sua aplicação."
       },
-      "backup": {
-        "downloading": "Baixando seu backup...",
-        "error": "Não foi possível baixar seu backup, tente novamente mais tarde...",
-        "success": "Seu backup foi baixado com sucesso para {{.File}}"
+      "snapshot": {
+        "downloading": "Baixando seu snapshot...",
+        "error": "Não foi possível baixar seu snapshot, tente novamente mais tarde...",
+        "success": "Seu snapshot foi baixado com sucesso para {{ .File }}"
       }
     },
     "auth": {

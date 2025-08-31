@@ -1,4 +1,4 @@
-package backup
+package snapshot
 
 import (
 	"fmt"
@@ -16,7 +16,7 @@ import (
 func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: squareCli.I18n().T("metadata.commands.backup.create.short"),
+		Short: squareCli.I18n().T("metadata.commands.snapshot.create.short"),
 		RunE:  runBackupCreateCommand(squareCli),
 	}
 
@@ -46,18 +46,18 @@ func runBackupCreateCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, ar
 			return err
 		}
 
-		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.backup.downloading"))
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.snapshot.downloading"))
 
 		time := time.Now().Format("2006-01-02 15:04:05")
 		filename := fmt.Sprintf("Square Cloud - Backup %s.zip", time)
 
 		err = downloadBackup(filename, result.URL)
 		if err != nil {
-			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.backup.error"))
+			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.snapshot.error"))
 			return
 		}
 
-		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.backup.success", map[string]any{"File": filename}))
+		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.snapshot.success", map[string]any{"File": filename}))
 		return nil
 	}
 }

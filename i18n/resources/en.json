@@ -54,9 +54,9 @@
           "short": "View the username and account ID you are authenticated as"
         }
       },
-      "backup": {
+      "snapshot": {
         "root": {
-          "short": "Manage your account's backups"
+          "short": "Manage your account snapshots"
         },
         "create": {
           "short": "Create a new backup of your application and download it to your machine"
@@ -107,10 +107,10 @@
         "failed": "Failed to send the signal to your application",
         "success": "Signal {{.Signal}} has been successfully sent to your application."
       },
-      "backup": {
-        "downloading": "Downloading your backup...",
-        "error": "It's not possible to download your backup, please try again later...",
-        "success": "Your backup is successfuly downloaded to {{.File}}"
+      "snapshot": {
+        "downloading": "Downloading your snapshot...",
+        "error": "Unable to download your snapshot, please try again later...",
+        "success": "Your snapshot was successfully downloaded to {{ .File }}"
       }
     },
     "auth": {

@@ -54,12 +54,12 @@
           "short": "Consulta el nombre de usuario y el ID de cuenta con el que estás autenticado"
         }
       },
-      "backup": {
+      "snapshot": {
         "root": {
-          "short": "Gestiona las copias de seguridad de tu cuenta"
+          "short": "Administra los snapshots de tu cuenta"
         },
         "create": {
-          "short": "Crea una nueva copia de seguridad de tu aplicación y descárgala en tu máquina"
+          "short": "Crea una nueva copia de seguridad de tu aplicación y descárgala a tu máquina"
         }
       },
       "zip": {
@@ -107,10 +107,10 @@
         "failed": "No se pudo enviar la señal a tu aplicación",
         "success": "La señal {{.Signal}} se ha enviado con éxito a tu aplicación."
       },
-      "backup": {
-        "downloading": "Descargando tu respaldo...",
-        "error": "No es posible descargar tu respaldo, por favor intenta nuevamente más tarde...",
-        "success": "Tu respaldo se descargó con éxito en {{.File}}"
+      "snapshot": {
+        "downloading": "Descargando tu snapshot...",
+        "error": "No se pudo descargar tu snapshot, intenta nuevamente más tarde...",
+        "success": "Tu snapshot se descargó correctamente en {{ .File }}"
       }
     },
     "auth": {
