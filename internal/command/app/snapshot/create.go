@@ -26,7 +26,7 @@ func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		RunE:  runBackupCreateCommand(squareCli, options),
 	}
 
-	cmd.Flags().BoolVar(&options.download, "download", false, "Download the backup file")
+	cmd.Flags().BoolVar(&options.download, "download", false, squareCli.I18n().T("metadata.commands.snapshot.create.flags.download"))
 
 	return cmd
 }
