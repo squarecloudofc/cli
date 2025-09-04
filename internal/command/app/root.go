@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/command/snapshot"
+	"github.com/squarecloudofc/cli/internal/command/app/snapshot"
 )
 
 type RunEFunc func(cmd *cobra.Command, args []string) error

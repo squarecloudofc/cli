@@ -108,9 +108,21 @@
         "success": "O sinal {{.Signal}} foi enviado com sucesso para sua aplicação."
       },
       "snapshot": {
-        "downloading": "Baixando seu snapshot...",
-        "error": "Não foi possível baixar seu snapshot, tente novamente mais tarde...",
-        "success": "Seu snapshot foi baixado com sucesso para {{ .File }}"
+        "create": {
+          "downloading": "Salvando seu snapshot...",
+          "error": "Não foi possível baixar seu snapshot, tente novamente mais tarde...",
+          "success": {
+            "downloaded": "Seu snapshot foi salvo com sucesso para {{ .File }}",
+            "link": "Seu snapshot foi efetuado sucesso, você pode acessar em:"
+          }
+        },
+        "list": {
+          "table": {
+            "quantity": "Quantidade",
+            "size": "Tamanho",
+            "last_update": "Última Atualização"
+          }
+        }
       }
     },
     "auth": {

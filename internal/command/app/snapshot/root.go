@@ -16,6 +16,7 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd.AddCommand(
 		NewCreateCommand(squareCli),
+		NewListCommand(squareCli),
 	)
 
 	return cmd
