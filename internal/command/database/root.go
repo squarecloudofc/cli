@@ -3,7 +3,7 @@ package database
 import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/command/app/snapshot"
+	"github.com/squarecloudofc/cli/internal/command/database/snapshot"
 )
 
 type RunEFunc func(cmd *cobra.Command, args []string) error
@@ -11,7 +11,7 @@ type RunEFunc func(cmd *cobra.Command, args []string) error
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "database",
-		Short: squareCli.I18n().T("metadata.commands.app.root.short"),
+		Short: squareCli.I18n().T("metadata.commands.database.root.short"),
 		RunE:  runDatabaseCommand(squareCli),
 	}
 

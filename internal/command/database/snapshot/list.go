@@ -16,7 +16,7 @@ import (
 func NewListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: squareCli.I18n().T("metadata.commands.app.list.short"),
+		Short: squareCli.I18n().T("metadata.commands.database.snapshot.list.short"),
 		RunE:  runSnapshotListCommand(squareCli),
 	}
 
@@ -34,7 +34,7 @@ type snapshotSummary struct {
 func runSnapshotListCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		rest := squareCli.Rest()
-		raw, err := rest.UserSnapshots("database")
+		raw, err := rest.UserSnapshots("databases")
 		if err != nil {
 			return err
 		}
