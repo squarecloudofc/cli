@@ -22,7 +22,7 @@ func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "create",
-		Short: squareCli.I18n().T("metadata.commands.snapshot.create.short"),
+		Short: squareCli.I18n().T("metadata.commands.app.snapshot.create.short"),
 		RunE:  runBackupCreateCommand(squareCli, options),
 	}
 

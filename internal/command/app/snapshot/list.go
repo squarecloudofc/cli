@@ -16,7 +16,7 @@ import (
 func NewListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list",
-		Short: squareCli.I18n().T("metadata.commands.app.list.short"),
+		Short: squareCli.I18n().T("metadata.commands.app.snapshot.list.short"),
 		RunE:  runSnapshotListCommand(squareCli),
 	}
 

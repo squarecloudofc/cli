@@ -38,6 +38,39 @@
         },
         "upload": {
           "short": "Upload a new application"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Manage all snapshots of your applications"
+          },
+          "create": {
+            "short": "Create a new snapshot of your application",
+            "flags": {
+              "download": "Automatically download the created snapshot"
+            }
+          },
+          "list": {
+            "short": "List all application snapshots from your account"
+          }
+        }
+      },
+      "database": {
+        "root": {
+          "short": "Manage the databases of your account"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Manage all snapshots of your databases"
+          },
+          "create": {
+            "short": "Create a new snapshot of your database",
+            "flags": {
+              "download": "Automatically download the created snapshot"
+            }
+          },
+          "list": {
+            "short": "List all database snapshots from your account"
+          }
         }
       },
       "auth": {
@@ -52,14 +85,6 @@
         },
         "whoami": {
           "short": "View the username and account ID you are authenticated as"
-        }
-      },
-      "snapshot": {
-        "root": {
-          "short": "Manage your account snapshots"
-        },
-        "create": {
-          "short": "Create a new backup of your application and download it to your machine"
         }
       },
       "zip": {
@@ -108,9 +133,32 @@
         "success": "Signal {{.Signal}} has been successfully sent to your application."
       },
       "snapshot": {
-        "downloading": "Downloading your snapshot...",
-        "error": "Unable to download your snapshot, please try again later...",
-        "success": "Your snapshot was successfully downloaded to {{ .File }}"
+        "create": {
+          "downloading": "Saving your snapshot...",
+          "error": "Unable to download your snapshot, please try again later...",
+          "success": {
+            "downloaded": "Your snapshot was successfully saved to {{ .File }}",
+            "link": "Your snapshot was successfully created, you can access it at:"
+          }
+        },
+        "list": {
+          "table": {
+            "quantity": "Quantity",
+            "size": "Size",
+            "last_update": "Last Update"
+          }
+        }
+      }
+    },
+    "database": {
+      "snapshot": {
+        "list": {
+          "table": {
+            "quantity": "Quantity",
+            "size": "Size",
+            "last_update": "Last Update"
+          }
+        }
       }
     },
     "auth": {

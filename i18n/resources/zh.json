@@ -38,6 +38,39 @@
         },
         "upload": {
           "short": "上传一个新应用程序"
+        },
+        "snapshot": {
+          "root": {
+            "short": "管理您所有应用程序的快照"
+          },
+          "create": {
+            "short": "创建您的应用程序的新快照",
+            "flags": {
+              "download": "自动下载已创建的快照"
+            }
+          },
+          "list": {
+            "short": "列出您账户中所有应用程序的快照"
+          }
+        }
+      },
+      "database": {
+        "root": {
+          "short": "管理您账户的数据库"
+        },
+        "snapshot": {
+          "root": {
+            "short": "管理您所有数据库的快照"
+          },
+          "create": {
+            "short": "创建您的数据库的新快照",
+            "flags": {
+              "download": "自动下载已创建的快照"
+            }
+          },
+          "list": {
+            "short": "列出您账户中所有数据库的快照"
+          }
         }
       },
       "auth": {
@@ -52,14 +85,6 @@
         },
         "whoami": {
           "short": "查看您已认证的用户名和账号 ID"
-        }
-      },
-      "snapshot": {
-        "root": {
-          "short": "管理您的账户快照"
-        },
-        "create": {
-          "short": "创建您的应用程序的新备份并将其下载到您的计算机"
         }
       },
       "zip": {
@@ -108,9 +133,32 @@
         "success": "信号 {{.Signal}} 已成功发送到您的应用程序。"
       },
       "snapshot": {
-        "downloading": "正在下载您的快照...",
-        "error": "无法下载您的快照，请稍后再试...",
-        "success": "您的快照已成功下载到 {{ .File }}="
+        "create": {
+          "downloading": "正在保存您的快照...",
+          "error": "无法下载您的快照，请稍后再试...",
+          "success": {
+            "downloaded": "您的快照已成功保存到 {{ .File }}",
+            "link": "您的快照已成功创建，您可以在以下位置访问："
+          }
+        },
+        "list": {
+          "table": {
+            "quantity": "数量",
+            "size": "大小",
+            "last_update": "最后更新"
+          }
+        }
+      }
+    },
+    "database": {
+      "snapshot": {
+        "list": {
+          "table": {
+            "quantity": "数量",
+            "size": "大小",
+            "last_update": "最后更新"
+          }
+        }
       }
     },
     "auth": {

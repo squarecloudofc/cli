@@ -8,7 +8,7 @@ import (
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "snapshot",
-		Short: squareCli.I18n().T("metadata.commands.snapshot.root.short"),
+		Short: squareCli.I18n().T("metadata.commands.app.snapshot.root.short"),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return cmd.Help()
 		},

@@ -38,6 +38,39 @@
         },
         "upload": {
           "short": "Sube una nueva aplicación"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Administra todos los snapshots de tus aplicaciones"
+          },
+          "create": {
+            "short": "Crea un nuevo snapshot de tu aplicación",
+            "flags": {
+              "download": "Descarga automáticamente el snapshot creado"
+            }
+          },
+          "list": {
+            "short": "Lista todos los snapshots de las aplicaciones de tu cuenta"
+          }
+        }
+      },
+      "database": {
+        "root": {
+          "short": "Administra las bases de datos de tu cuenta"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Administra todos los snapshots de tus bases de datos"
+          },
+          "create": {
+            "short": "Crea un nuevo snapshot de tu base de datos",
+            "flags": {
+              "download": "Descarga automáticamente el snapshot creado"
+            }
+          },
+          "list": {
+            "short": "Lista todos los snapshots de las bases de datos de tu cuenta"
+          }
         }
       },
       "auth": {
@@ -52,14 +85,6 @@
         },
         "whoami": {
           "short": "Consulta el nombre de usuario y el ID de cuenta con el que estás autenticado"
-        }
-      },
-      "snapshot": {
-        "root": {
-          "short": "Administra los snapshots de tu cuenta"
-        },
-        "create": {
-          "short": "Crea una nueva copia de seguridad de tu aplicación y descárgala a tu máquina"
         }
       },
       "zip": {
@@ -108,9 +133,32 @@
         "success": "La señal {{.Signal}} se ha enviado con éxito a tu aplicación."
       },
       "snapshot": {
-        "downloading": "Descargando tu snapshot...",
-        "error": "No se pudo descargar tu snapshot, intenta nuevamente más tarde...",
-        "success": "Tu snapshot se descargó correctamente en {{ .File }}"
+        "create": {
+          "downloading": "Guardando tu snapshot...",
+          "error": "No se pudo descargar tu snapshot, intenta nuevamente más tarde...",
+          "success": {
+            "downloaded": "Tu snapshot fue guardado exitosamente en {{ .File }}",
+            "link": "Tu snapshot se creó con éxito, puedes acceder a él en:"
+          }
+        },
+        "list": {
+          "table": {
+            "quantity": "Cantidad",
+            "size": "Tamaño",
+            "last_update": "Última Actualización"
+          }
+        }
+      }
+    },
+    "database": {
+      "snapshot": {
+        "list": {
+          "table": {
+            "quantity": "Cantidad",
+            "size": "Tamaño",
+            "last_update": "Última Actualización"
+          }
+        }
       }
     },
     "auth": {

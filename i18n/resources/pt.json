@@ -38,6 +38,39 @@
         },
         "upload": {
           "short": "Faça o upload de uma nova aplicação"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Gerencie todos os snapshots de suas aplicações"
+          },
+          "create": {
+            "short": "Crie um novo snapshot de sua aplicação",
+            "flags": {
+              "download": "Faça o download automaticamente da snapshot criada"
+            }
+          },
+          "list": {
+            "short": "Liste todas as snapshots das aplicações sua conta"
+          }
+        }
+      },
+      "database": {
+        "root": {
+          "short": "Gerencie os banco de dados de sua conta"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Gerencie todos os snapshots de seus bancos de dados"
+          },
+          "create": {
+            "short": "Crie uma nova snapshot de seu banco de dados",
+            "flags": {
+              "download": "Faça o download automaticamente da snapshot criada"
+            }
+          },
+          "list": {
+            "short": "Liste todas as snapshots dos bancos de dados sua conta"
+          }
         }
       },
       "auth": {
@@ -52,14 +85,6 @@
         },
         "whoami": {
           "short": "Veja o nome de usuário e ID da conta que você está autentidado"
-        }
-      },
-      "snapshot": {
-        "root": {
-          "short": "Gerencie os snapshots de sua conta"
-        },
-        "create": {
-          "short": "Crie um novo backup de sua aplicação e faça o download para sua máquina"
         }
       },
       "zip": {
@@ -116,6 +141,17 @@
             "link": "Seu snapshot foi efetuado sucesso, você pode acessar em:"
           }
         },
+        "list": {
+          "table": {
+            "quantity": "Quantidade",
+            "size": "Tamanho",
+            "last_update": "Última Atualização"
+          }
+        }
+      }
+    },
+    "database": {
+      "snapshot": {
         "list": {
           "table": {
             "quantity": "Quantidade",
