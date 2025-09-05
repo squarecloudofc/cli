@@ -2,6 +2,8 @@ module github.com/squarecloudofc/cli
 
 go 1.24.2
 
+// replace github.com/squarecloudofc/sdk-api-go => ../sdk-api-go
+
 require (
 	github.com/Xuanwo/go-locale v1.1.3
 	github.com/charmbracelet/bubbles v0.17.2-0.20240108170749-ec883029c8e6
@@ -13,7 +15,7 @@ require (
 	github.com/rvflash/elapsed v0.4.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
-	github.com/squarecloudofc/sdk-api-go v1.1.0
+	github.com/squarecloudofc/sdk-api-go v1.2.0
 )
 
 require (
