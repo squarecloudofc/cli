@@ -55,20 +55,20 @@ func runBackupCreateCommand(squareCli cli.SquareCLI, options *snapshotOptions) f
 		}
 
 		if options.download {
-			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.snapshot.downloading"))
+			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.snapshot.create.downloading"))
 
 			timestamp := time.Now().Format("2006-01-02 15:04:05")
 			filename := fmt.Sprintf("Square Cloud - Backup %s.zip", timestamp)
 
 			err = downloadBackup(filename, result.URL)
 			if err != nil {
-				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.snapshot.error"))
+				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.snapshot.create.error"))
 				return nil
 			}
 
-			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.snapshot.success.downloaded", map[string]any{"File": filename}))
+			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.snapshot.create.success.downloaded", map[string]any{"File": filename}))
 		} else {
-			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.snapshot.success.link", map[string]any{"Link": result.URL}))
+			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.snapshot.create.success.link", map[string]any{"Link": result.URL}))
 			fmt.Fprintf(squareCli.Out(), "  %s\n", result.URL)
 		}
 
