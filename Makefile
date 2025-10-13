@@ -15,13 +15,13 @@ BUILD_LDFLAGS=-ldflags="\
 INSTALL_DIR=$(HOME)/.squarecloud/bin
 
 build:
-	@go build $(BUILD_LDFLAGS) -o $(BUILD_DIR)/squarecloud $(BUILD_MAIN)
+	CGO_ENABLED=0 @go build $(BUILD_LDFLAGS) -o $(BUILD_DIR)/squarecloud $(BUILD_MAIN)
 
 completions:
 	mkdir -p $(BUILD_DIR)/completions
-	@go run $(BUILD_DIR)/completions/squarecloud completion bash >"$(BUILD_DIR)/completions/completions-bash.bash"
-	@go run $(BUILD_DIR)/completions/squarecloud completion fish >"$(BUILD_DIR)/completions/completions-fish.fish"
-	@go run $(BUILD_DIR)/completions/squarecloud completion zsh >"$(BUILD_DIR)/completions/completions-zsh.zsh"
+	@go run $(BUILD_MAIN) completion bash >"$(BUILD_DIR)/completions/completions-bash.bash"
+	@go run $(BUILD_MAIN) completion fish >"$(BUILD_DIR)/completions/completions-fish.fish"
+	@go run $(BUILD_MAIN) completion zsh >"$(BUILD_DIR)/completions/completions-zsh.zsh"
 
 install: build
 	@mkdir -p $(INSTALL_DIR)
