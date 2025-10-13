@@ -66,10 +66,14 @@ func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
 
 	if options.FileName != "" {
 		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.loading_file", map[string]any{
-			"Filename": filepath.Base(options.File.Name()),
+			"Filename": filepath.Base(options.FileName),
 		}))
 
-		options.File, _ = handleCommitFile(squareCli, options)
+		var fileErr error
+		options.File, fileErr = handleCommitFile(squareCli, options)
+		if fileErr != nil {
+			return fileErr
+		}
 	}
 
 	if options.File == nil {
@@ -81,9 +85,11 @@ func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
 		}
 	}
 
-	defer options.File.Close()
-	if isTemporaryFile(options.File) {
-		defer os.Remove(options.File.Name())
+	if options.File != nil {
+		defer options.File.Close()
+		if isTemporaryFile(options.File) {
+			defer os.Remove(options.File.Name())
+		}
 	}
 
 	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.uploading", map[string]any{
@@ -95,14 +101,20 @@ func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
 	}
 
 	if options.Restart {
-		squareCli.Rest().PostApplicationSignal(options.ApplicationID, squarecloud.ApplicationSignalRestart)
+		signalErr := squareCli.Rest().PostApplicationSignal(options.ApplicationID, squarecloud.ApplicationSignalRestart)
+		if signalErr != nil {
+			return signalErr
+		}
 	}
 
 	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.success"))
 	return nil
 }
 
-func handleCommitFile(squarecli cli.SquareCLI, options *CommitOptions) (*os.File, error) {
+func handleCommitFile(_ cli.SquareCLI, options *CommitOptions) (*os.File, error) {
+	if options.FileName == "" {
+		return nil, fmt.Errorf("file name is empty")
+	}
 	workDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -133,7 +145,6 @@ func handleCommitWorkingDirectory() (*os.File, error) {
 		return nil, err
 	}
 
-	// since we write the file and we don't want to close it, we need to move the cursor to the first element
 	_, err = destination.Seek(0, io.SeekStart)
 	if err != nil {
 		return nil, err
