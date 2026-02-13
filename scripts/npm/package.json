@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github:squarecloud/cli"
+    "url": "https://github.com/squarecloud/cli"
   },
   "bugs": {
     "url": "https://github.com/squarecloudofc/cli/issues"
