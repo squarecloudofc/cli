@@ -29,6 +29,9 @@ jobs:
   npm:
     runs-on: ubuntu-latest
     needs: goreleaser
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
