@@ -26,7 +26,7 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 			}
 
 			mark := ui.CheckMark
-			if status.Status != "ok" {
+			if status.Status != "online" {
 				mark = ui.XMark
 			}
 
