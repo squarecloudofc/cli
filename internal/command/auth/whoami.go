@@ -10,48 +10,42 @@ import (
 )
 
 func NewWhoamiCommand(squareCli cli.SquareCLI) *cobra.Command {
-	cmd := &cobra.Command{
+	return &cobra.Command{
 		Use:   "whoami",
 		Short: squareCli.I18n().T("metadata.commands.auth.whoami.short"),
-		RunE:  runWhoamiCommand(squareCli),
-	}
+		RunE: func(cmd *cobra.Command, args []string) error {
+			self, err := squareCli.Rest().SelfUser()
+			if err != nil || self.Name == "" {
+				fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.whoami.none"))
+				return err
+			}
 
-	return cmd
-}
+			username := ui.TextGreen.SetString(self.Name)
 
-func runWhoamiCommand(squareCli cli.SquareCLI) RunEFunc {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		rest := squareCli.Rest()
-		self, err := rest.SelfUser()
-		if err != nil || self.Name == "" {
-			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.whoami.none"))
-			return err
-		}
-
-		username := ui.TextGreen.SetString(self.Name)
-
-		diff := time.Until(time.Unix(self.Plan.Duration, 0))
-		daysRemaining := int(diff.Hours() / 24)
-
-		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.plan", map[string]any{
-			"User": map[string]any{
-				"Name": username.String(),
-				"Plan": self.Plan.Name,
-			},
-		}))
-
-		if self.Plan.Name == "free" {
-			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.expired", map[string]any{
-				"Link": ui.TextBlue.Render("https://squarecloud.app/pricing"),
-			}))
-		} else {
-			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.remaining", map[string]any{
+			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.plan", map[string]any{
 				"User": map[string]any{
-					"PlanRemaining": daysRemaining,
+					"Name": username.String(),
+					"Plan": self.Plan.Name,
 				},
 			}))
-		}
 
-		return
+			if self.Plan.Name == "free" {
+				fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.expired", map[string]any{
+					"Link": ui.TextBlue.Render("https://squarecloud.app/pricing"),
+				}))
+				return nil
+			}
+
+			if self.Plan.Duration != nil {
+				daysRemaining := int(time.Until(time.Unix(*self.Plan.Duration, 0)).Hours() / 24)
+				fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.logged.remaining", map[string]any{
+					"User": map[string]any{
+						"PlanRemaining": daysRemaining,
+					},
+				}))
+			}
+
+			return nil
+		},
 	}
 }

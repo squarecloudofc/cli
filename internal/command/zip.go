@@ -24,7 +24,7 @@ func NewZipCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return cmd
 }
 
-func runZipCommand(squareCli cli.SquareCLI) RunEFunc {
+func runZipCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) (err error) {
 		workDir, err := os.Getwd()
 		if err != nil {

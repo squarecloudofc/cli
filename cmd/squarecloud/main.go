@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
 
-	"github.com/google/go-github/v58/github"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/cli"
@@ -53,51 +53,39 @@ func newSquareCloudCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd.SetVersionTemplate("Square Cloud CLI version {{.Version}}\n")
 	cmd.Flags().BoolP("version", "v", false, "Print CLI version")
-
-	cmd.Flags().BoolP("debug", "d", false, "Debug Mode")
-	cmd.Flags().MarkHidden("debug")
+	cmd.PersistentFlags().Bool("json", false, "Output raw JSON")
 
 	command.AddCommands(cmd, squareCli)
 	return cmd
 }
 
-func run(context context.Context, squareCli cli.SquareCLI) (err error) {
-	cmd := newSquareCloudCommand(squareCli)
-
-	return cmd.ExecuteContext(context)
-}
-
 func main() {
-	squareCli := cli.NewSquareCli()
-
-	ctx := context.Background()
-
-	updateContext, updateCancel := context.WithCancel(ctx)
-	defer updateCancel()
-
-	updateMessageChannel := make(chan *github.RepositoryRelease)
-	go func() {
-		release, _ := updater.GetLatestRelease(updateContext)
-		updateMessageChannel <- release
-	}()
-
-	if err := run(ctx, squareCli); err != nil {
-		var authErr *cli.AuthError
-		if errors.As(err, &authErr) {
-			os.Exit(0)
-		} else {
-			fmt.Fprintln(squareCli.Err(), err)
-			os.Exit(1)
-		}
+	squareCli, err := cli.NewSquareCli()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
-	updateCancel()
-	release := <-updateMessageChannel
-	if build.Version != "development" && release != nil && *release.TagName != build.Version {
-		version := ui.TextGreen.SetString(*release.TagName)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
 
+	latestVersion := make(chan string, 1)
+	go func() {
+		latestVersion <- updater.LatestVersion(ctx)
+	}()
+
+	cmd := newSquareCloudCommand(squareCli)
+	if err := cmd.ExecuteContext(ctx); err != nil {
+		var authErr *cli.AuthError
+		if !errors.As(err, &authErr) {
+			fmt.Fprintln(squareCli.Err(), err)
+		}
+		os.Exit(1)
+	}
+
+	if release := <-latestVersion; build.Version != "development" && release != "" && release != build.Version {
 		fmt.Fprintln(squareCli.Out(), "")
 		fmt.Fprintln(squareCli.Out(), ui.TextYellow.SetString("You're using an old version of Square Cloud CLI: "+build.Version))
-		fmt.Fprintf(squareCli.Out(), " Please update to %s\n", version)
+		fmt.Fprintf(squareCli.Out(), " Please update to %s\n", ui.TextGreen.SetString(release))
 	}
 }

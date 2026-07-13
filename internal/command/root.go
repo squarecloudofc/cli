@@ -6,19 +6,21 @@ import (
 	"github.com/squarecloudofc/cli/internal/command/app"
 	"github.com/squarecloudofc/cli/internal/command/auth"
 	"github.com/squarecloudofc/cli/internal/command/database"
+	"github.com/squarecloudofc/cli/internal/command/workspace"
 )
-
-type RunEFunc func(cmd *cobra.Command, args []string) error
 
 func AddCommands(cmd *cobra.Command, squareCli cli.SquareCLI) {
 	cmd.AddCommand(
 		NewZipCommand(squareCli),
+		NewStatusCommand(squareCli),
 
 		app.NewAppCommand(squareCli),
+		// upload/commit are also exposed at the top level — the headline UX.
 		app.NewUploadCommand(squareCli),
 		app.NewCommitCommand(squareCli),
 
 		database.NewCommand(squareCli),
+		workspace.NewCommand(squareCli),
 		auth.NewAuthCommand(squareCli),
 	)
 }

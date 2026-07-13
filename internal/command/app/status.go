@@ -6,59 +6,104 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/rvflash/elapsed"
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/ui/application_selector"
+	"github.com/squarecloudofc/cli/internal/cmdutil"
 )
 
 func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
+	var all bool
+	var raw bool
+
 	cmd := &cobra.Command{
-		Use:   "status",
+		Use:   "status [app id]",
 		Short: squareCli.I18n().T("metadata.commands.app.status.short"),
-		RunE:  runStatusCommand(squareCli),
-	}
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			rest := squareCli.Rest()
 
-	return cmd
-}
+			if all {
+				list, err := rest.GetApplicationListStatus()
+				if err != nil {
+					return err
+				}
 
-func runStatusCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		var appId string
-		rest := squareCli.Rest()
+				if cmdutil.WantsJSON(cmd) {
+					return cmdutil.PrintJSON(squareCli.Out(), list)
+				}
 
-		if len(args) > 0 {
-			appId = args[0]
-		}
+				w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+				defer w.Flush()
 
-		if len(args) < 1 {
-			m, err := application_selector.RunSelector(squareCli)
+				fmt.Fprintln(w, strings.Join([]string{"APP ID", "RUNNING", "CPU", "MEM"}, " \t "))
+				for _, item := range list {
+					fmt.Fprintf(w, "%s \t %t \t %s \t %s \t\n", item.ID, item.Running, item.CPU, item.RAM)
+				}
+
+				return nil
+			}
+
+			appID, err := cmdutil.ResolveAppID(squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			appId = m.ID
-		}
+			if raw {
+				data, err := rest.GetApplicationStatusRaw(appID)
+				if err != nil {
+					return err
+				}
 
-		data, err := rest.GetApplicationStatus(appId)
-		if err != nil {
-			return err
-		}
+				return cmdutil.PrintJSON(squareCli.Out(), data)
+			}
 
-		w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
-		defer w.Flush()
+			data, err := rest.GetApplicationStatus(appID)
+			if err != nil {
+				return err
+			}
 
-		uptime_elapsed := ""
+			if cmdutil.WantsJSON(cmd) {
+				return cmdutil.PrintJSON(squareCli.Out(), data)
+			}
 
-		if data.Status == "running" {
-			uptime_elapsed = elapsed.Time(time.Unix(0, (data.Uptime * int64(time.Millisecond))))
-		}
+			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			defer w.Flush()
 
-		tags := []string{"APP ID", "CPU %", "MEM", "DISK", "STATUS", "UPTIME"}
-		fmt.Fprintln(w, strings.Join(tags, " \t "))
+			fmt.Fprintln(w, strings.Join([]string{"APP ID", "CPU %", "MEM", "DISK", "STATUS", "UPTIME"}, " \t "))
+			fmt.Fprintf(w, "%s \t %s \t %s \t %s \t %s \t %s \t\n",
+				appID, data.CPU, data.RAM, data.Storage, data.Status, formatUptime(data.Uptime))
 
-		fmt.Fprintf(w, "%s \t %s \t %s \t %s \t %s \t %s \t\n", appId, data.CPU, data.RAM, data.Storage, data.Status, uptime_elapsed)
+			return nil
+		},
+	}
 
-		return nil
+	cmd.Flags().BoolVar(&all, "all", false, "Show the status of every application")
+	cmd.Flags().BoolVar(&raw, "raw", false, "Print raw numeric stats as JSON")
+	return cmd
+}
+
+// formatUptime renders a startup timestamp (Unix ms) as a compact elapsed
+// string, e.g. "3d4h" or "12m".
+func formatUptime(startedAt *int64) string {
+	if startedAt == nil {
+		return "-"
+	}
+
+	elapsed := time.Since(time.UnixMilli(*startedAt))
+	if elapsed < 0 {
+		return "-"
+	}
+
+	days := int(elapsed.Hours()) / 24
+	hours := int(elapsed.Hours()) % 24
+	minutes := int(elapsed.Minutes()) % 60
+
+	switch {
+	case days > 0:
+		return fmt.Sprintf("%dd%dh", days, hours)
+	case hours > 0:
+		return fmt.Sprintf("%dh%dm", hours, minutes)
+	default:
+		return fmt.Sprintf("%dm", minutes)
 	}
 }

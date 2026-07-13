@@ -3,6 +3,8 @@ package snapshot
 import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/cmdutil"
+	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
 )
 
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -16,7 +18,8 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 	cmd.AddCommand(
 		NewCreateCommand(squareCli),
-		NewListCommand(squareCli),
+		NewRestoreCommand(squareCli),
+		cmdutil.NewSnapshotListCommand(squareCli, squarecloud.SnapshotScopeApplications),
 	)
 
 	return cmd

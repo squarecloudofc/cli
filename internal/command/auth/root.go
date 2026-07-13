@@ -5,13 +5,13 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 )
 
-type RunEFunc func(cmd *cobra.Command, args []string) error
-
 func NewAuthCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "auth",
 		Short: squareCli.I18n().T("metadata.commands.auth.root.short"),
-		RunE:  runAppCommand(squareCli),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
+		},
 	}
 
 	cmd.AddCommand(
@@ -21,12 +21,4 @@ func NewAuthCommand(squareCli cli.SquareCLI) *cobra.Command {
 	)
 
 	return cmd
-}
-
-func runAppCommand(_ cli.SquareCLI) RunEFunc {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		cmd.Help()
-
-		return nil
-	}
 }

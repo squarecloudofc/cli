@@ -12,15 +12,15 @@ import (
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
 	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
-	"github.com/squarecloudofc/sdk-api-go/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v2/rest"
+	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
 )
 
 type CommitOptions struct {
-	ConfigFile *squareconfig.SquareConfig
-
 	File          *os.File
 	FileName      string
 	ApplicationID string
+	Path          string
 	Restart       bool
 }
 
@@ -28,20 +28,19 @@ func NewCommitCommand(squareCli cli.SquareCLI) *cobra.Command {
 	options := CommitOptions{}
 
 	cmd := &cobra.Command{
-		Use:     "commit",
+		Use:     "commit [app id]",
 		Short:   squareCli.I18n().T("metadata.commands.app.commit.short"),
 		Aliases: []string{"push"},
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			config, er := squareconfig.Load()
-			if er != nil {
-				return er
+			config, err := squareconfig.Load()
+			if err != nil {
+				return err
 			}
 
 			if len(args) > 0 {
 				options.ApplicationID = args[0]
-			}
-
-			if len(args) == 0 {
+			} else {
 				if config.ID == "" {
 					fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.arguments.missing"))
 					fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.arguments.missing_2"))
@@ -51,13 +50,13 @@ func NewCommitCommand(squareCli cli.SquareCLI) *cobra.Command {
 				options.ApplicationID = config.ID
 			}
 
-			options.ConfigFile = config
 			return runCommitCommand(squareCli, &options)
 		},
 	}
 
 	cmd.Flags().BoolVarP(&options.Restart, "restart", "r", false, "Restart your application when commit")
 	cmd.Flags().StringVar(&options.FileName, "file", "", "File you want to upload to square cloud")
+	cmd.Flags().StringVar(&options.Path, "path", "", "Destination directory inside the application")
 	return cmd
 }
 
@@ -69,41 +68,37 @@ func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
 			"Filename": filepath.Base(options.FileName),
 		}))
 
-		var fileErr error
-		options.File, fileErr = handleCommitFile(squareCli, options)
-		if fileErr != nil {
-			return fileErr
-		}
-	}
-
-	if options.File == nil {
+		options.File, err = openCommitFile(options.FileName)
+	} else {
 		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.compressing"))
 
-		options.File, err = handleCommitWorkingDirectory()
-		if err != nil {
-			return err
-		}
+		options.File, err = zipCommitWorkingDirectory()
+	}
+	if err != nil {
+		return err
 	}
 
-	if options.File != nil {
-		defer options.File.Close()
-		if isTemporaryFile(options.File) {
-			defer os.Remove(options.File.Name())
-		}
+	defer options.File.Close()
+	if isTemporaryFile(options.File) {
+		defer os.Remove(options.File.Name())
 	}
 
 	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.commit.states.uploading", map[string]any{
 		"Appid": options.ApplicationID,
 	}))
-	err = squareCli.Rest().PostApplicationCommit(options.ApplicationID, options.File)
-	if err != nil {
+
+	var requestOpts []rest.RequestOpt
+	if options.Path != "" {
+		requestOpts = append(requestOpts, rest.WithQueryParam("path", options.Path))
+	}
+
+	if err := squareCli.Rest().PostApplicationCommit(options.ApplicationID, options.File, requestOpts...); err != nil {
 		return err
 	}
 
 	if options.Restart {
-		signalErr := squareCli.Rest().PostApplicationSignal(options.ApplicationID, squarecloud.ApplicationSignalRestart)
-		if signalErr != nil {
-			return signalErr
+		if err := squareCli.Rest().PostApplicationSignal(options.ApplicationID, squarecloud.ApplicationSignalRestart); err != nil {
+			return err
 		}
 	}
 
@@ -111,24 +106,16 @@ func runCommitCommand(squareCli cli.SquareCLI, options *CommitOptions) error {
 	return nil
 }
 
-func handleCommitFile(_ cli.SquareCLI, options *CommitOptions) (*os.File, error) {
-	if options.FileName == "" {
-		return nil, fmt.Errorf("file name is empty")
-	}
+func openCommitFile(filename string) (*os.File, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
-	file, err := os.Open(filepath.Join(workDir, options.FileName))
-	if err != nil {
-		return nil, err
-	}
-
-	return file, nil
+	return os.Open(filepath.Join(workDir, filename))
 }
 
-func handleCommitWorkingDirectory() (*os.File, error) {
+func zipCommitWorkingDirectory() (*os.File, error) {
 	workDir, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -140,13 +127,11 @@ func handleCommitWorkingDirectory() (*os.File, error) {
 	}
 
 	ignoreFiles, _ := squareignore.Load()
-	err = zipper.ZipFolderW(destination, workDir, ignoreFiles)
-	if err != nil {
+	if err := zipper.ZipFolderW(destination, workDir, ignoreFiles); err != nil {
 		return nil, err
 	}
 
-	_, err = destination.Seek(0, io.SeekStart)
-	if err != nil {
+	if _, err := destination.Seek(0, io.SeekStart); err != nil {
 		return nil, err
 	}
 
@@ -154,10 +139,5 @@ func handleCommitWorkingDirectory() (*os.File, error) {
 }
 
 func isTemporaryFile(file *os.File) bool {
-	tempDir := os.TempDir()
-	filePath := file.Name()
-
-	isTempLocation := strings.HasPrefix(filePath, tempDir)
-
-	return isTempLocation
+	return strings.HasPrefix(file.Name(), os.TempDir())
 }

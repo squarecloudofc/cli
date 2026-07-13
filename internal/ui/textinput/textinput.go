@@ -1,105 +1,83 @@
+// Package textinput is a thin wrapper around bubbles/textinput used for the
+// hidden token prompt.
 package textinput
 
 import (
-	"bytes"
-	"text/template"
+	"errors"
 
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type model struct {
-	*TextInput
+// ErrCanceled is returned when the user aborts the prompt (esc/ctrl+c).
+var ErrCanceled = errors.New("input canceled")
 
-	Err error
-
-	input textinput.Model
-
-	tmpl       *template.Template
-	resultTmpl *template.Template
-
-	quitting bool
+type TextInput struct {
+	Prompt      string
+	Placeholder string
+	// Hidden masks the typed value (password style).
+	Hidden bool
 }
 
-func NewModel(text *TextInput) *model {
-	return &model{TextInput: text}
+func New(prompt string) *TextInput {
+	return &TextInput{Prompt: prompt}
+}
+
+// RunPrompt renders the prompt and blocks until the user submits or cancels.
+func (t *TextInput) RunPrompt() (string, error) {
+	input := textinput.New()
+	input.Placeholder = t.Placeholder
+	if t.Hidden {
+		input.EchoMode = textinput.EchoPassword
+		input.EchoCharacter = '*'
+	}
+	input.Focus()
+
+	m := &model{prompt: t.Prompt, input: input}
+	if _, err := tea.NewProgram(m).Run(); err != nil {
+		return "", err
+	}
+
+	if m.canceled {
+		return "", ErrCanceled
+	}
+
+	return m.input.Value(), nil
+}
+
+type model struct {
+	prompt   string
+	input    textinput.Model
+	done     bool
+	canceled bool
 }
 
 func (m *model) Init() tea.Cmd {
-	m.tmpl, m.Err = m.initTemplate()
-	if m.Err != nil {
-		return tea.Quit
-	}
-
-	m.input = m.initInput()
-
 	return textinput.Blink
 }
 
-func (m *model) initTemplate() (*template.Template, error) {
-	tmpl := template.New("view")
-	// tmpl.Funcs(termenv.TemplateFuncs(m.ColorProfile))
-	// tmpl.Funcs(promptkit.UtilFuncMap())
-	// tmpl.Funcs(m.ExtendedTemplateFuncs)
-	// tmpl.Funcs(template.FuncMap{
-	// 	"Mask": m.mask,
-	// 	"AutoCompleteSuggestions": func() []string {
-	// 		return m.AutoComplete(m.input.Value())
-	// 	},
-	// })
-
-	return tmpl.Parse(m.Template)
-}
-
-func (m *model) initInput() textinput.Model {
-	input := textinput.New()
-	input.Prompt = ""
-
-	if m.Hidden {
-		input.EchoMode = textinput.EchoPassword
-		input.EchoCharacter = m.HideMask
-	}
-
-	input.Focus()
-	return input
-}
-
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyEnter, tea.KeyCtrlC, tea.KeyEsc:
-			m.quitting = true
+	if key, ok := msg.(tea.KeyMsg); ok {
+		switch key.String() {
+		case "enter":
+			m.done = true
+			return m, tea.Quit
+		case "ctrl+c", "esc":
+			m.done = true
+			m.canceled = true
 			return m, tea.Quit
 		}
-
-		// We handle errors just like any other message
-		// case errMsg:
-		// 	m.err = msg
-		// 	return m, nil
 	}
 
+	var cmd tea.Cmd
 	m.input, cmd = m.input.Update(msg)
 	return m, cmd
 }
 
 func (m *model) View() string {
-	if m.quitting {
+	if m.done {
 		return ""
 	}
 
-	buf := &bytes.Buffer{}
-
-	m.tmpl.Execute(buf, map[string]any{
-		"Prompt": m.Prompt,
-		"Input":  m.input.View(),
-	})
-
-	return buf.String()
-}
-
-func (m *model) Value() (string, error) {
-	return m.input.Value(), nil
+	return m.prompt + "\n" + m.input.View() + "\n"
 }

@@ -5,63 +5,48 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/cli/internal/ui/application_selector"
-	"github.com/squarecloudofc/sdk-api-go/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
 )
 
 func NewStartCommand(squareCli cli.SquareCLI) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "start",
+	return &cobra.Command{
+		Use:   "start [app id]",
 		Short: squareCli.I18n().T("metadata.commands.app.signal.start.short"),
+		Args:  cobra.MaximumNArgs(1),
 		RunE:  runSendSignal(squareCli, squarecloud.ApplicationSignalStart),
 	}
-
-	return cmd
 }
 
 func NewRestartCommand(squareCli cli.SquareCLI) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "restart",
+	return &cobra.Command{
+		Use:   "restart [app id]",
 		Short: squareCli.I18n().T("metadata.commands.app.signal.restart.short"),
+		Args:  cobra.MaximumNArgs(1),
 		RunE:  runSendSignal(squareCli, squarecloud.ApplicationSignalRestart),
 	}
-
-	return cmd
 }
 
 func NewStopCommand(squareCli cli.SquareCLI) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "stop",
+	return &cobra.Command{
+		Use:   "stop [app id]",
 		Short: squareCli.I18n().T("metadata.commands.app.signal.stop.short"),
+		Args:  cobra.MaximumNArgs(1),
 		RunE:  runSendSignal(squareCli, squarecloud.ApplicationSignalStop),
 	}
-
-	return cmd
 }
 
 func runSendSignal(squareCli cli.SquareCLI, signal squarecloud.ApplicationSignal) func(cmd *cobra.Command, args []string) error {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		var appId string
-		rest := squareCli.Rest()
-
-		if len(args) > 0 {
-			appId = args[0]
-		}
-
-		if len(args) < 1 {
-			m, err := application_selector.RunSelector(squareCli)
-			if err != nil {
-				return err
-			}
-
-			appId = m.ID
-		}
-
-		err = rest.PostApplicationSignal(appId, signal)
+	return func(cmd *cobra.Command, args []string) error {
+		appID, err := cmdutil.ResolveAppID(squareCli, args)
 		if err != nil {
+			return err
+		}
+
+		if err := squareCli.Rest().PostApplicationSignal(appID, signal); err != nil {
 			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.signal.failed"))
-			return
+			return err
 		}
 
 		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.signal.success", map[string]any{

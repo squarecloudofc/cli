@@ -44,13 +44,113 @@
             "short": "管理您所有应用程序的快照"
           },
           "create": {
-            "short": "创建您的应用程序的新快照",
-            "flags": {
-              "download": "自动下载已创建的快照"
-            }
+            "short": "创建您的应用程序的新快照"
+          },
+          "restore": {
+            "short": "Restore your application from a snapshot"
+          }
+        },
+        "info": {
+          "short": "View detailed information about your application"
+        },
+        "metrics": {
+          "short": "View the last 24h of CPU/RAM/network metrics"
+        },
+        "realtime": {
+          "short": "Stream realtime events of your application (SSE)"
+        },
+        "domains": {
+          "short": "List every domain configured across your applications"
+        },
+        "load_balancers": {
+          "short": "List your custom domains grouped by application (load balancers)"
+        },
+        "env": {
+          "root": {
+            "short": "Manage the environment variables of your application"
           },
           "list": {
-            "short": "列出您账户中所有应用程序的快照"
+            "short": "List the environment variables"
+          },
+          "set": {
+            "short": "Set one or more environment variables"
+          },
+          "replace": {
+            "short": "Replace the entire set of environment variables"
+          },
+          "remove": {
+            "short": "Remove one or more environment variables"
+          }
+        },
+        "file": {
+          "root": {
+            "short": "Manage the files of your application"
+          },
+          "list": {
+            "short": "List files in a directory of your application"
+          },
+          "read": {
+            "short": "Read a file from your application"
+          },
+          "write": {
+            "short": "Create or overwrite a file in your application"
+          },
+          "move": {
+            "short": "Move or rename a file in your application"
+          },
+          "delete": {
+            "short": "Delete a file from your application"
+          }
+        },
+        "deploy": {
+          "root": {
+            "short": "Manage deployments and Git integrations"
+          },
+          "list": {
+            "short": "List the most recent deployments"
+          },
+          "current": {
+            "short": "Show the current Git integration"
+          },
+          "webhook": {
+            "short": "Configure a GitHub webhook deploy integration"
+          },
+          "github": {
+            "root": {
+              "short": "Manage the GitHub App integration"
+            },
+            "link": {
+              "short": "Link a repository through the Square Cloud GitHub App"
+            },
+            "unlink": {
+              "short": "Unlink the GitHub App repository"
+            }
+          }
+        },
+        "network": {
+          "root": {
+            "short": "Manage DNS, custom domain and edge observability"
+          },
+          "dns": {
+            "short": "View the DNS records required for your custom domain"
+          },
+          "domain": {
+            "short": "Set the custom domain of your application"
+          },
+          "analytics": {
+            "short": "View edge analytics of your application"
+          },
+          "errors": {
+            "short": "View edge error breakdown of your application"
+          },
+          "logs": {
+            "short": "View edge request logs (Pro+ plans)"
+          },
+          "performance": {
+            "short": "View edge latency percentiles (Pro+ plans)"
+          },
+          "purge_cache": {
+            "short": "Purge the entire edge cache of your application"
           }
         }
       },
@@ -63,13 +163,48 @@
             "short": "管理您所有数据库的快照"
           },
           "create": {
-            "short": "创建您的数据库的新快照",
-            "flags": {
-              "download": "自动下载已创建的快照"
-            }
+            "short": "创建您的数据库的新快照"
           },
-          "list": {
-            "short": "列出您账户中所有数据库的快照"
+          "restore": {
+            "short": "Restore your database from a snapshot"
+          }
+        },
+        "list": {
+          "short": "List all your databases"
+        },
+        "create": {
+          "short": "Create a new database"
+        },
+        "info": {
+          "short": "View detailed information about your database"
+        },
+        "update": {
+          "short": "Update the name or memory of your database"
+        },
+        "delete": {
+          "short": "Delete your database"
+        },
+        "start": {
+          "short": "Start your database"
+        },
+        "stop": {
+          "short": "Stop your database"
+        },
+        "status": {
+          "short": "View the status of your database"
+        },
+        "metrics": {
+          "short": "View the last 24h of database metrics"
+        },
+        "credentials": {
+          "root": {
+            "short": "Manage the credentials of your database"
+          },
+          "certificate": {
+            "short": "Print the TLS certificate of your database"
+          },
+          "reset": {
+            "short": "Rotate the password or certificate of your database"
           }
         }
       },
@@ -89,6 +224,67 @@
       },
       "zip": {
         "short": "将当前文件夹压缩为 zip"
+      },
+      "status": {
+        "short": "Check the Square Cloud platform health"
+      },
+      "snapshot": {
+        "list": {
+          "short": "List all snapshots from your account"
+        },
+        "create": {
+          "flags": {
+            "download": "Automatically download the created snapshot"
+          }
+        }
+      },
+      "workspace": {
+        "root": {
+          "short": "Manage your team workspaces"
+        },
+        "list": {
+          "short": "List all your workspaces"
+        },
+        "create": {
+          "short": "Create a new workspace"
+        },
+        "info": {
+          "short": "View members and applications of a workspace"
+        },
+        "delete": {
+          "short": "Delete a workspace"
+        },
+        "leave": {
+          "short": "Leave a workspace"
+        },
+        "app": {
+          "root": {
+            "short": "Share applications with a workspace"
+          },
+          "add": {
+            "short": "Share an application with a workspace"
+          },
+          "remove": {
+            "short": "Remove an application from a workspace"
+          }
+        },
+        "member": {
+          "root": {
+            "short": "Manage the members of a workspace"
+          },
+          "add": {
+            "short": "Add a member by invite code"
+          },
+          "update": {
+            "short": "Change the permission group of a member"
+          },
+          "remove": {
+            "short": "Remove a member from a workspace"
+          },
+          "invite_code": {
+            "short": "Generate your single-use invite code (valid for 5 minutes)"
+          }
+        }
       }
     }
   },
@@ -98,10 +294,6 @@
         "arguments": {
           "missing": "您未在命令参数中指定您的应用程序ID",
           "missing_2": "您还可以在您的squarecloud.app中指定一个ID参数"
-        },
-        "errors": {
-          "closed_file": "无法打开文件",
-          "unable_commit": "无法提交您的应用程序"
         },
         "states": {
           "loading_file": "正在加载文件 {{ .Filename }}",
@@ -115,15 +307,15 @@
         "states": {
           "loading_file": "已提供文件，跳过压缩。",
           "compressing": "正在压缩当前目录。",
-          "uploading": "正在将zip文件上传到Square Cloud。",
-          "completed": "上传成功完成。"
+          "uploading": "正在将zip文件上传到Square Cloud。"
         },
         "success": "应用程序已上传到Square Cloud!",
         "access": "您可以通过 {{.Link}} 访问"
       },
       "delete": {
         "failed": "无法删除您的应用程序",
-        "success": "您的应用程序已成功删除"
+        "success": "您的应用程序已成功删除",
+        "confirm": "Delete the application {{ .Appid }}? This action is irreversible"
       },
       "list": {
         "empty": "您没有任何活动的应用程序"
@@ -132,32 +324,125 @@
         "failed": "无法向您的应用程序发送信号",
         "success": "信号 {{.Signal}} 已成功发送到您的应用程序。"
       },
-      "snapshot": {
-        "create": {
-          "downloading": "正在保存您的快照...",
-          "error": "无法下载您的快照，请稍后再试...",
-          "success": {
-            "downloaded": "您的快照已成功保存到 {{ .File }}",
-            "link": "您的快照已成功创建，您可以在以下位置访问："
-          }
-        },
+      "info": {},
+      "metrics": {
+        "empty": "No metrics available for this application"
+      },
+      "realtime": {
+        "connected": "Connected to the realtime stream of {{ .Appid }} (Ctrl+C to exit)"
+      },
+      "domains": {
+        "empty": "No domains configured across your applications"
+      },
+      "load_balancers": {
+        "empty": "No load balancers configured (attach a custom domain to more than one app)",
+        "limit": "Plan limit: up to {{ .Limit }} applications per domain"
+      },
+      "env": {
         "list": {
-          "table": {
-            "quantity": "数量",
-            "size": "大小",
-            "last_update": "最后更新"
+          "empty": "No environment variables set for this application"
+        },
+        "set": {
+          "success": "{{ .Count }} environment variable(s) set successfully"
+        },
+        "replace": {
+          "confirm": "Replace ALL environment variables of {{ .Appid }}? Existing ones will be removed",
+          "success": "Environment variables replaced successfully"
+        },
+        "remove": {
+          "success": "{{ .Count }} environment variable(s) removed successfully"
+        }
+      },
+      "file": {
+        "list": {
+          "empty": "No files found in this directory"
+        },
+        "read": {
+          "saved": "File content saved to {{ .File }}"
+        },
+        "write": {
+          "failed": "The API refused to write the file",
+          "success": "File {{ .File }} written successfully"
+        },
+        "move": {
+          "success": "Moved {{ .From }} to {{ .To }}"
+        },
+        "delete": {
+          "confirm": "Delete the file {{ .File }} from your application?",
+          "success": "File {{ .File }} deleted successfully"
+        }
+      },
+      "deploy": {
+        "list": {
+          "empty": "No deployments found for this application"
+        },
+        "current": {
+          "empty": "No Git integration configured for this application",
+          "github_app": "GitHub App: {{ .Repository }} (branch {{ .Branch }})",
+          "webhook": "Webhook: {{ .Webhook }}"
+        },
+        "webhook": {
+          "removed": "Webhook integration removed successfully",
+          "success": "Webhook created successfully; add it to your GitHub repository:"
+        },
+        "github": {
+          "link": {
+            "success": "Repository {{ .Repository }} (branch {{ .Branch }}) linked successfully"
+          },
+          "unlink": {
+            "success": "GitHub App repository unlinked successfully"
           }
+        }
+      },
+      "network": {
+        "dns": {
+          "empty": "No DNS records — configure a custom domain first"
+        },
+        "domain": {
+          "success": "Custom domain {{ .Domain }} configured successfully",
+          "hint": "Run 'squarecloud app network dns' to see the DNS records you need to create."
+        },
+        "analytics": {
+          "empty": "No analytics data for the requested window",
+          "summary": "Visits: {{ .Visits }} | Requests: {{ .Requests }} | Traffic: {{ .Traffic }}"
+        },
+        "errors": {
+          "summary": "Errors: {{ .Total }} total ({{ .Class4xx }} 4xx / {{ .Class5xx }} 5xx)"
+        },
+        "logs": {
+          "empty": "No edge logs for the requested window"
+        },
+        "performance": {
+          "summary": "Requests: {{ .Requests }} | Edge p50/p95: {{ .EdgeP50 }}/{{ .EdgeP95 }} ms | Origin p50/p95: {{ .OrigP50 }}/{{ .OrigP95 }} ms"
+        },
+        "purge_cache": {
+          "confirm": "Purge the ENTIRE edge cache of {{ .Appid }}?",
+          "success": "Edge cache purged successfully"
         }
       }
     },
     "database": {
-      "snapshot": {
-        "list": {
-          "table": {
-            "quantity": "数量",
-            "size": "大小",
-            "last_update": "最后更新"
-          }
+      "list": {
+        "empty": "You don't have any database active"
+      },
+      "create": {
+        "success": "Database {{ .Name }} ({{ .Id }}) created successfully",
+        "password_warning": "Save the password now — it is shown only once and cannot be recovered."
+      },
+      "update": {
+        "success": "Database updated successfully"
+      },
+      "delete": {
+        "confirm": "Delete the database {{ .Id }}? This action is irreversible",
+        "success": "Your database has been successfully deleted"
+      },
+      "signal": {
+        "success": "Signal {{ .Signal }} has been successfully sent to your database."
+      },
+      "credentials": {
+        "reset": {
+          "confirm": "Rotate the {{ .Type }} of database {{ .Id }}? The current one stops working immediately",
+          "success": "Credential rotated successfully"
         }
       }
     },
@@ -190,6 +475,80 @@
     "zip": {
       "failed": "不可能使您的应用程序的拉链",
       "success": "您的源已成功压缩到 {{.Zip}}"
+    },
+    "whoami": {
+      "none": "You are not logged in to any Square Cloud account."
+    },
+    "snapshot": {
+      "list": {
+        "empty": "No snapshots found for your account",
+        "table": {
+          "quantity": "Quantity",
+          "size": "Size",
+          "last_update": "Last Update"
+        }
+      },
+      "create": {
+        "downloading": "Saving your snapshot...",
+        "error": "Unable to download your snapshot, please try again later...",
+        "success": {
+          "downloaded": "Your snapshot was successfully saved to {{ .File }}",
+          "link": "Your snapshot was successfully created, you can access it at:"
+        }
+      },
+      "restore": {
+        "confirm": "Restore {{ .Id }} from this snapshot? Current data will be replaced",
+        "success": "Restore started successfully"
+      }
+    },
+    "workspace": {
+      "list": {
+        "empty": "You don't have any workspace"
+      },
+      "create": {
+        "success": "Workspace {{ .Name }} ({{ .Id }}) created successfully"
+      },
+      "info": {
+        "members": "Members:",
+        "applications": "Applications:"
+      },
+      "delete": {
+        "confirm": "Delete the workspace {{ .Id }}? This action is irreversible",
+        "success": "Workspace deleted successfully"
+      },
+      "leave": {
+        "confirm": "Leave the workspace {{ .Id }}?",
+        "success": "You left the workspace successfully"
+      },
+      "app": {
+        "add": {
+          "success": "Application shared with the workspace successfully"
+        },
+        "remove": {
+          "success": "Application removed from the workspace successfully"
+        }
+      },
+      "member": {
+        "add": {
+          "success": "Member added to the workspace successfully"
+        },
+        "update": {
+          "success": "Member permissions updated successfully"
+        },
+        "remove": {
+          "confirm": "Remove the member {{ .Id }} from the workspace?",
+          "success": "Member removed from the workspace successfully"
+        },
+        "invite_code": {
+          "success": "Your invite code (single-use, valid for 5 minutes):"
+        }
+      }
+    }
+  },
+  "ui": {
+    "select": {
+      "application": "Select an application",
+      "database": "Select a database"
     }
   }
 }

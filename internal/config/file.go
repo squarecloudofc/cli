@@ -10,9 +10,8 @@ import (
 type Config struct {
 	filename string `json:"-"`
 
-	Locale          string `json:"locale,omitempty"`
-	AuthToken       string `json:"auth_token,omitempty"`
-	LastUpdateCheck string `json:"last_update_check,omitempty"`
+	Locale    string `json:"locale,omitempty"`
+	AuthToken string `json:"auth_token,omitempty"`
 }
 
 func New(filename string) *Config {

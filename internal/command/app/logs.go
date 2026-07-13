@@ -5,44 +5,27 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/cli/internal/ui/application_selector"
+	"github.com/squarecloudofc/cli/internal/cmdutil"
 )
 
 func NewLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "logs",
+	return &cobra.Command{
+		Use:   "logs [app id]",
 		Short: squareCli.I18n().T("metadata.commands.app.logs.short"),
-		RunE:  runLogsCommand(squareCli),
-	}
-
-	return cmd
-}
-
-func runLogsCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []string) error {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		var appId string
-		rest := squareCli.Rest()
-
-		if len(args) > 0 {
-			appId = args[0]
-		}
-
-		if len(args) < 1 {
-			m, err := application_selector.RunSelector(squareCli)
+		Args:  cobra.MaximumNArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			appID, err := cmdutil.ResolveAppID(squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			appId = m.ID
-		}
+			result, err := squareCli.Rest().GetApplicationLogs(appID)
+			if err != nil {
+				return err
+			}
 
-		result, err := rest.GetApplicationLogs(appId)
-		if err != nil {
-			return err
-		}
-
-		fmt.Fprint(squareCli.Out(), result.Logs)
-
-		return nil
+			fmt.Fprintln(squareCli.Out(), result.Logs)
+			return nil
+		},
 	}
 }

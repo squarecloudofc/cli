@@ -22,8 +22,6 @@ func init() {
 		panic(fmt.Errorf("failed to read locale directory: %w", err))
 	}
 
-	// englishData := make(map[string]any)
-
 	for _, d := range data {
 		localeName := strings.Split(d.Name(), ".")[0]
 
@@ -39,29 +37,8 @@ func init() {
 			continue
 		}
 
-		flatLangData := toFlatMap(langData)
-		LocaleContents[localeName] = flatLangData
-
-		// out, _ := json.MarshalIndent(flatLangData, "", "  ")
-		// fmt.Println(string(out))
-		// if localeName == "en" {
-		// 	englishData = flatLangData
-		// }
+		LocaleContents[localeName] = toFlatMap(langData)
 	}
-
-	// for lang, langData := range LocaleContents {
-	// 	if lang == "en" {
-	// 		continue
-	// 	}
-	//
-	// 	for key, value := range englishData {
-	// 		if _, exists := langData[key]; !exists {
-	// 			langData[key] = value
-	// 		}
-	// 	}
-	//
-	// 	LocaleContents[lang] = langData
-	// }
 }
 
 func DetectSystemLanguage() string {

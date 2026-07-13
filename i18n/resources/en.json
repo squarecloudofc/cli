@@ -4,8 +4,27 @@
       "not_logged": "You need to be authenticated to execute this command; please log in with squarecloud auth login."
     }
   },
+  "ui": {
+    "select": {
+      "application": "Select an application",
+      "database": "Select a database"
+    }
+  },
   "metadata": {
     "commands": {
+      "status": {
+        "short": "Check the Square Cloud platform health"
+      },
+      "snapshot": {
+        "list": {
+          "short": "List all snapshots from your account"
+        },
+        "create": {
+          "flags": {
+            "download": "Automatically download the created snapshot"
+          }
+        }
+      },
       "app": {
         "commit": {
           "short": "Make a commit for your application"
@@ -14,10 +33,25 @@
           "short": "Delete your application"
         },
         "list": {
-          "short": "List all your hosted applications "
+          "short": "List all your hosted applications"
+        },
+        "info": {
+          "short": "View detailed information about your application"
         },
         "logs": {
           "short": "View the most recent logs of your application"
+        },
+        "metrics": {
+          "short": "View the last 24h of CPU/RAM/network metrics"
+        },
+        "realtime": {
+          "short": "Stream realtime events of your application (SSE)"
+        },
+        "domains": {
+          "short": "List every domain configured across your applications"
+        },
+        "load_balancers": {
+          "short": "List your custom domains grouped by application (load balancers)"
         },
         "root": {
           "short": "Manage your applications with these commands"
@@ -34,7 +68,7 @@
           }
         },
         "status": {
-          "short": "View the statuses of all your applications"
+          "short": "View the status of your application"
         },
         "upload": {
           "short": "Upload a new application"
@@ -44,13 +78,98 @@
             "short": "Manage all snapshots of your applications"
           },
           "create": {
-            "short": "Create a new snapshot of your application",
-            "flags": {
-              "download": "Automatically download the created snapshot"
-            }
+            "short": "Create a new snapshot of your application"
+          },
+          "restore": {
+            "short": "Restore your application from a snapshot"
+          }
+        },
+        "env": {
+          "root": {
+            "short": "Manage the environment variables of your application"
           },
           "list": {
-            "short": "List all application snapshots from your account"
+            "short": "List the environment variables"
+          },
+          "set": {
+            "short": "Set one or more environment variables"
+          },
+          "replace": {
+            "short": "Replace the entire set of environment variables"
+          },
+          "remove": {
+            "short": "Remove one or more environment variables"
+          }
+        },
+        "file": {
+          "root": {
+            "short": "Manage the files of your application"
+          },
+          "list": {
+            "short": "List files in a directory of your application"
+          },
+          "read": {
+            "short": "Read a file from your application"
+          },
+          "write": {
+            "short": "Create or overwrite a file in your application"
+          },
+          "move": {
+            "short": "Move or rename a file in your application"
+          },
+          "delete": {
+            "short": "Delete a file from your application"
+          }
+        },
+        "deploy": {
+          "root": {
+            "short": "Manage deployments and Git integrations"
+          },
+          "list": {
+            "short": "List the most recent deployments"
+          },
+          "current": {
+            "short": "Show the current Git integration"
+          },
+          "webhook": {
+            "short": "Configure a GitHub webhook deploy integration"
+          },
+          "github": {
+            "root": {
+              "short": "Manage the GitHub App integration"
+            },
+            "link": {
+              "short": "Link a repository through the Square Cloud GitHub App"
+            },
+            "unlink": {
+              "short": "Unlink the GitHub App repository"
+            }
+          }
+        },
+        "network": {
+          "root": {
+            "short": "Manage DNS, custom domain and edge observability"
+          },
+          "dns": {
+            "short": "View the DNS records required for your custom domain"
+          },
+          "domain": {
+            "short": "Set the custom domain of your application"
+          },
+          "analytics": {
+            "short": "View edge analytics of your application"
+          },
+          "errors": {
+            "short": "View edge error breakdown of your application"
+          },
+          "logs": {
+            "short": "View edge request logs (Pro+ plans)"
+          },
+          "performance": {
+            "short": "View edge latency percentiles (Pro+ plans)"
+          },
+          "purge_cache": {
+            "short": "Purge the entire edge cache of your application"
           }
         }
       },
@@ -58,18 +177,101 @@
         "root": {
           "short": "Manage the databases of your account"
         },
+        "list": {
+          "short": "List all your databases"
+        },
+        "create": {
+          "short": "Create a new database"
+        },
+        "info": {
+          "short": "View detailed information about your database"
+        },
+        "update": {
+          "short": "Update the name or memory of your database"
+        },
+        "delete": {
+          "short": "Delete your database"
+        },
+        "start": {
+          "short": "Start your database"
+        },
+        "stop": {
+          "short": "Stop your database"
+        },
+        "status": {
+          "short": "View the status of your database"
+        },
+        "metrics": {
+          "short": "View the last 24h of database metrics"
+        },
+        "credentials": {
+          "root": {
+            "short": "Manage the credentials of your database"
+          },
+          "certificate": {
+            "short": "Print the TLS certificate of your database"
+          },
+          "reset": {
+            "short": "Rotate the password or certificate of your database"
+          }
+        },
         "snapshot": {
           "root": {
             "short": "Manage all snapshots of your databases"
           },
           "create": {
-            "short": "Create a new snapshot of your database",
-            "flags": {
-              "download": "Automatically download the created snapshot"
-            }
+            "short": "Create a new snapshot of your database"
           },
-          "list": {
-            "short": "List all database snapshots from your account"
+          "restore": {
+            "short": "Restore your database from a snapshot"
+          }
+        }
+      },
+      "workspace": {
+        "root": {
+          "short": "Manage your team workspaces"
+        },
+        "list": {
+          "short": "List all your workspaces"
+        },
+        "create": {
+          "short": "Create a new workspace"
+        },
+        "info": {
+          "short": "View members and applications of a workspace"
+        },
+        "delete": {
+          "short": "Delete a workspace"
+        },
+        "leave": {
+          "short": "Leave a workspace"
+        },
+        "app": {
+          "root": {
+            "short": "Share applications with a workspace"
+          },
+          "add": {
+            "short": "Share an application with a workspace"
+          },
+          "remove": {
+            "short": "Remove an application from a workspace"
+          }
+        },
+        "member": {
+          "root": {
+            "short": "Manage the members of a workspace"
+          },
+          "add": {
+            "short": "Add a member by invite code"
+          },
+          "update": {
+            "short": "Change the permission group of a member"
+          },
+          "remove": {
+            "short": "Remove a member from a workspace"
+          },
+          "invite_code": {
+            "short": "Generate your single-use invite code (valid for 5 minutes)"
           }
         }
       },
@@ -93,15 +295,36 @@
     }
   },
   "commands": {
+    "whoami": {
+      "none": "You are not logged in to any Square Cloud account."
+    },
+    "snapshot": {
+      "list": {
+        "empty": "No snapshots found for your account",
+        "table": {
+          "quantity": "Quantity",
+          "size": "Size",
+          "last_update": "Last Update"
+        }
+      },
+      "create": {
+        "downloading": "Saving your snapshot...",
+        "error": "Unable to download your snapshot, please try again later...",
+        "success": {
+          "downloaded": "Your snapshot was successfully saved to {{ .File }}",
+          "link": "Your snapshot was successfully created, you can access it at:"
+        }
+      },
+      "restore": {
+        "confirm": "Restore {{ .Id }} from this snapshot? Current data will be replaced",
+        "success": "Restore started successfully"
+      }
+    },
     "app": {
       "commit": {
         "arguments": {
           "missing": "You not specified your application ID in command arguments",
           "missing_2": "You can also specify an ID parameter in your squarecloud.app"
-        },
-        "errors": {
-          "closed_file": "Unable to upen the file",
-          "unable_commit": "Unable to commit your application"
         },
         "states": {
           "loading_file": "Loading the file {{ .Filename }}",
@@ -115,49 +338,185 @@
         "states": {
           "loading_file": "File provided, skipping compression.",
           "compressing": "Compressing the current directory.",
-          "uploading": "Uploading the zip file to Square Cloud.",
-          "completed": "Upload completed successfully."
+          "uploading": "Uploading the zip file to Square Cloud."
         },
         "success": "Application uploaded to Square Cloud!",
         "access": "You can access via {{.Link}}"
       },
       "delete": {
+        "confirm": "Delete the application {{ .Appid }}? This action is irreversible",
         "failed": "Failed to delete your application",
         "success": "Your application has been successfuly deleted"
       },
       "list": {
         "empty": "You don't have any application active"
       },
+      "info": {},
+      "metrics": {
+        "empty": "No metrics available for this application"
+      },
+      "realtime": {
+        "connected": "Connected to the realtime stream of {{ .Appid }} (Ctrl+C to exit)"
+      },
+      "domains": {
+        "empty": "No domains configured across your applications"
+      },
+      "load_balancers": {
+        "empty": "No load balancers configured (attach a custom domain to more than one app)",
+        "limit": "Plan limit: up to {{ .Limit }} applications per domain"
+      },
       "signal": {
         "failed": "Failed to send the signal to your application",
         "success": "Signal {{.Signal}} has been successfully sent to your application."
       },
-      "snapshot": {
-        "create": {
-          "downloading": "Saving your snapshot...",
-          "error": "Unable to download your snapshot, please try again later...",
-          "success": {
-            "downloaded": "Your snapshot was successfully saved to {{ .File }}",
-            "link": "Your snapshot was successfully created, you can access it at:"
-          }
-        },
+      "env": {
         "list": {
-          "table": {
-            "quantity": "Quantity",
-            "size": "Size",
-            "last_update": "Last Update"
+          "empty": "No environment variables set for this application"
+        },
+        "set": {
+          "success": "{{ .Count }} environment variable(s) set successfully"
+        },
+        "replace": {
+          "confirm": "Replace ALL environment variables of {{ .Appid }}? Existing ones will be removed",
+          "success": "Environment variables replaced successfully"
+        },
+        "remove": {
+          "success": "{{ .Count }} environment variable(s) removed successfully"
+        }
+      },
+      "file": {
+        "list": {
+          "empty": "No files found in this directory"
+        },
+        "read": {
+          "saved": "File content saved to {{ .File }}"
+        },
+        "write": {
+          "failed": "The API refused to write the file",
+          "success": "File {{ .File }} written successfully"
+        },
+        "move": {
+          "success": "Moved {{ .From }} to {{ .To }}"
+        },
+        "delete": {
+          "confirm": "Delete the file {{ .File }} from your application?",
+          "success": "File {{ .File }} deleted successfully"
+        }
+      },
+      "deploy": {
+        "list": {
+          "empty": "No deployments found for this application"
+        },
+        "current": {
+          "empty": "No Git integration configured for this application",
+          "github_app": "GitHub App: {{ .Repository }} (branch {{ .Branch }})",
+          "webhook": "Webhook: {{ .Webhook }}"
+        },
+        "webhook": {
+          "removed": "Webhook integration removed successfully",
+          "success": "Webhook created successfully; add it to your GitHub repository:"
+        },
+        "github": {
+          "link": {
+            "success": "Repository {{ .Repository }} (branch {{ .Branch }}) linked successfully"
+          },
+          "unlink": {
+            "success": "GitHub App repository unlinked successfully"
           }
+        }
+      },
+      "network": {
+        "dns": {
+          "empty": "No DNS records — configure a custom domain first"
+        },
+        "domain": {
+          "success": "Custom domain {{ .Domain }} configured successfully",
+          "hint": "Run 'squarecloud app network dns' to see the DNS records you need to create."
+        },
+        "analytics": {
+          "empty": "No analytics data for the requested window",
+          "summary": "Visits: {{ .Visits }} | Requests: {{ .Requests }} | Traffic: {{ .Traffic }}"
+        },
+        "errors": {
+          "summary": "Errors: {{ .Total }} total ({{ .Class4xx }} 4xx / {{ .Class5xx }} 5xx)"
+        },
+        "logs": {
+          "empty": "No edge logs for the requested window"
+        },
+        "performance": {
+          "summary": "Requests: {{ .Requests }} | Edge p50/p95: {{ .EdgeP50 }}/{{ .EdgeP95 }} ms | Origin p50/p95: {{ .OrigP50 }}/{{ .OrigP95 }} ms"
+        },
+        "purge_cache": {
+          "confirm": "Purge the ENTIRE edge cache of {{ .Appid }}?",
+          "success": "Edge cache purged successfully"
         }
       }
     },
     "database": {
-      "snapshot": {
-        "list": {
-          "table": {
-            "quantity": "Quantity",
-            "size": "Size",
-            "last_update": "Last Update"
-          }
+      "list": {
+        "empty": "You don't have any database active"
+      },
+      "create": {
+        "success": "Database {{ .Name }} ({{ .Id }}) created successfully",
+        "password_warning": "Save the password now — it is shown only once and cannot be recovered."
+      },
+      "update": {
+        "success": "Database updated successfully"
+      },
+      "delete": {
+        "confirm": "Delete the database {{ .Id }}? This action is irreversible",
+        "success": "Your database has been successfully deleted"
+      },
+      "signal": {
+        "success": "Signal {{ .Signal }} has been successfully sent to your database."
+      },
+      "credentials": {
+        "reset": {
+          "confirm": "Rotate the {{ .Type }} of database {{ .Id }}? The current one stops working immediately",
+          "success": "Credential rotated successfully"
+        }
+      }
+    },
+    "workspace": {
+      "list": {
+        "empty": "You don't have any workspace"
+      },
+      "create": {
+        "success": "Workspace {{ .Name }} ({{ .Id }}) created successfully"
+      },
+      "info": {
+        "members": "Members:",
+        "applications": "Applications:"
+      },
+      "delete": {
+        "confirm": "Delete the workspace {{ .Id }}? This action is irreversible",
+        "success": "Workspace deleted successfully"
+      },
+      "leave": {
+        "confirm": "Leave the workspace {{ .Id }}?",
+        "success": "You left the workspace successfully"
+      },
+      "app": {
+        "add": {
+          "success": "Application shared with the workspace successfully"
+        },
+        "remove": {
+          "success": "Application removed from the workspace successfully"
+        }
+      },
+      "member": {
+        "add": {
+          "success": "Member added to the workspace successfully"
+        },
+        "update": {
+          "success": "Member permissions updated successfully"
+        },
+        "remove": {
+          "confirm": "Remove the member {{ .Id }} from the workspace?",
+          "success": "Member removed from the workspace successfully"
+        },
+        "invite_code": {
+          "success": "Your invite code (single-use, valid for 5 minutes):"
         }
       }
     },

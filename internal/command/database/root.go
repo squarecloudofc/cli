@@ -6,26 +6,29 @@ import (
 	"github.com/squarecloudofc/cli/internal/command/database/snapshot"
 )
 
-type RunEFunc func(cmd *cobra.Command, args []string) error
-
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "database",
-		Short: squareCli.I18n().T("metadata.commands.database.root.short"),
-		RunE:  runDatabaseCommand(squareCli),
+		Use:     "db",
+		Aliases: []string{"database"},
+		Short:   squareCli.I18n().T("metadata.commands.database.root.short"),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return cmd.Help()
+		},
 	}
 
 	cmd.AddCommand(
+		newListCommand(squareCli),
+		newCreateCommand(squareCli),
+		newInfoCommand(squareCli),
+		newUpdateCommand(squareCli),
+		newDeleteCommand(squareCli),
+		newStartCommand(squareCli),
+		newStopCommand(squareCli),
+		newStatusCommand(squareCli),
+		newMetricsCommand(squareCli),
+		newCredentialsCommand(squareCli),
 		snapshot.NewCommand(squareCli),
 	)
 
 	return cmd
-}
-
-func runDatabaseCommand(_ cli.SquareCLI) RunEFunc {
-	return func(cmd *cobra.Command, args []string) (err error) {
-		cmd.Help()
-
-		return nil
-	}
 }

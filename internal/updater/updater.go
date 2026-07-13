@@ -2,24 +2,40 @@ package updater
 
 import (
 	"context"
-	"os"
-
-	"github.com/google/go-github/v58/github"
-	"github.com/squarecloudofc/cli/internal/build"
+	"encoding/json"
+	"net/http"
+	"time"
 )
 
-func GetLatestRelease(ctx context.Context) (*github.RepositoryRelease, error) {
-	client := github.NewClient(nil)
-	release, _, err := client.Repositories.GetLatestRelease(ctx, "squarecloudofc", "cli")
+const latestReleaseURL = "https://api.github.com/repos/squarecloudofc/cli/releases/latest"
 
-	if release != nil && build.Version != *release.TagName {
-		return release, nil
+// LatestVersion returns the tag name of the latest GitHub release, or "" on
+// any failure — the update banner is best-effort.
+func LatestVersion(ctx context.Context) string {
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, latestReleaseURL, nil)
+	if err != nil {
+		return ""
 	}
 
-	return release, err
-}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return ""
+	}
+	defer resp.Body.Close()
 
-func IsCI() bool {
-	return os.Getenv("CI") != "" || // GitHub Actions, Travis CI, CircleCI, Cirrus CI, GitLab CI, AppVeyor, CodeShip, dsari
-		os.Getenv("BUILD_NUMBER") != "" // Jenkins, TeamCity
+	if resp.StatusCode != http.StatusOK {
+		return ""
+	}
+
+	var release struct {
+		TagName string `json:"tag_name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return ""
+	}
+
+	return release.TagName
 }

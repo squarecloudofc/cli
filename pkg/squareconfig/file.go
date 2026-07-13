@@ -1,37 +1,32 @@
 package squareconfig
 
 import (
+	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
-
-	"github.com/squarecloudofc/cli/pkg/properties"
+	"strings"
 )
 
-// SquareConfig refers to "squarecloud.app" file
+// SquareConfig refers to the "squarecloud.app"/"squarecloud.config" file.
+// The CLI only consumes ID; every other line is preserved verbatim on Save
+// since the file is real platform configuration owned by the user.
 type SquareConfig struct {
-	ID          string `properties:"ID"`
-	DisplayName string `properties:"DISPLAY_NAME"`
-	Description string `properties:"DESCRIPTION"`
-	Main        string `properties:"MAIN"`
-	Version     string `properties:"VERSION"`
-	Memory      string `properties:"MEMORY"`
-	Subdomain   string `properties:"SUBDOMAIN"`
-	Start       string `properties:"START"`
-	AutoRestart string `properties:"AUTORESTART"`
+	ID string
 
-	filename string `properties:"-"`
-
-	// we will use this created property to check if the file exists or not (internal use only)
-	created bool `properties:"-"`
+	filename string
+	// lines holds the raw file content so Save never destroys keys the CLI
+	// doesn't know about.
+	lines []string
+	// created marks that the file didn't exist on Load.
+	created bool
 }
 
 func New(path string) *SquareConfig {
-	return &SquareConfig{
-		filename: path,
-	}
+	return &SquareConfig{filename: path}
 }
 
 func Load() (*SquareConfig, error) {
@@ -53,10 +48,8 @@ func Load() (*SquareConfig, error) {
 		return nil, err
 	}
 	defer file.Close()
-	err = squareconfig.LoadFromReader(file)
 
-	squareconfig.created = false
-	return squareconfig, err
+	return squareconfig, squareconfig.LoadFromReader(file)
 }
 
 func (c *SquareConfig) IsCreated() bool {
@@ -64,34 +57,40 @@ func (c *SquareConfig) IsCreated() bool {
 }
 
 func (c *SquareConfig) LoadFromReader(reader io.Reader) error {
-	buf := new(bytes.Buffer)
-	_, err := io.Copy(buf, reader)
-	if err != nil {
-		return err
+	scanner := bufio.NewScanner(reader)
+	for scanner.Scan() {
+		line := scanner.Text()
+		c.lines = append(c.lines, line)
+
+		if key, value, found := strings.Cut(line, "="); found && strings.TrimSpace(key) == "ID" {
+			c.ID = strings.TrimSpace(value)
+		}
 	}
 
-	err = properties.Unmarshal(buf.Bytes(), c)
-	return err
+	return scanner.Err()
 }
 
-func (c *SquareConfig) Save() (tmpErr error) {
-	err := os.MkdirAll(filepath.Dir(c.filename), 0771)
-	if err != nil {
+func (c *SquareConfig) Save() error {
+	if err := os.MkdirAll(filepath.Dir(c.filename), 0771); err != nil {
 		return err
 	}
 
-	file, err := os.OpenFile(c.filename, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		return err
+	buf := &bytes.Buffer{}
+	idWritten := false
+
+	for _, line := range c.lines {
+		if key, _, found := strings.Cut(line, "="); found && strings.TrimSpace(key) == "ID" {
+			fmt.Fprintf(buf, "ID=%s\n", c.ID)
+			idWritten = true
+			continue
+		}
+
+		fmt.Fprintln(buf, line)
 	}
 
-	defer file.Close()
-
-	data, err := properties.Marshal(c)
-	if err != nil {
-		return err
+	if !idWritten && c.ID != "" {
+		fmt.Fprintf(buf, "ID=%s\n", c.ID)
 	}
 
-	_, err = file.Write(data)
-	return err
+	return os.WriteFile(c.filename, buf.Bytes(), 0600)
 }
