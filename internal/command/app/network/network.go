@@ -3,16 +3,16 @@
 package network
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/sdk-api-go/v2/rest"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -39,11 +39,11 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 // rangeFlags registers --start/--end and returns a resolver that defaults to
 // the last 24 hours (API max retention is 7 days).
-func rangeFlags(cmd *cobra.Command) func() (time.Time, time.Time, error) {
+func rangeFlags(cmd *cobra.Command, squareCli cli.SquareCLI) func() (time.Time, time.Time, error) {
 	var startFlag, endFlag string
 
-	cmd.Flags().StringVar(&startFlag, "start", "", "Start of the window (RFC 3339, default: 24h ago)")
-	cmd.Flags().StringVar(&endFlag, "end", "", "End of the window (RFC 3339, default: now)")
+	cmd.Flags().StringVar(&startFlag, "start", "", squareCli.I18n().T("metadata.flags.start"))
+	cmd.Flags().StringVar(&endFlag, "end", "", squareCli.I18n().T("metadata.flags.end"))
 
 	return func() (time.Time, time.Time, error) {
 		end := time.Now()
@@ -52,12 +52,12 @@ func rangeFlags(cmd *cobra.Command) func() (time.Time, time.Time, error) {
 		var err error
 		if startFlag != "" {
 			if start, err = time.Parse(time.RFC3339, startFlag); err != nil {
-				return start, end, fmt.Errorf("invalid --start: %w", err)
+				return start, end, errors.New(squareCli.I18n().T("commands.app.network.invalid_time", map[string]any{"Flag": "--start", "Value": startFlag}))
 			}
 		}
 		if endFlag != "" {
 			if end, err = time.Parse(time.RFC3339, endFlag); err != nil {
-				return start, end, fmt.Errorf("invalid --end: %w", err)
+				return start, end, errors.New(squareCli.I18n().T("commands.app.network.invalid_time", map[string]any{"Flag": "--end", "Value": endFlag}))
 			}
 		}
 
@@ -67,16 +67,17 @@ func rangeFlags(cmd *cobra.Command) func() (time.Time, time.Time, error) {
 
 func newDNSCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "dns [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.network.dns.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "dns [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.network.dns.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			records, err := squareCli.Rest().GetApplicationDNS(appID)
+			records, err := squareCli.API().Apps.Network.DNS(cmd.Context(), appID)
 			if err != nil {
 				return err
 			}
@@ -90,10 +91,11 @@ func newDNSCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"TYPE", "NAME", "VALUE", "STATUS"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.type"), t.T("ui.table.name"), t.T("ui.table.value"), t.T("ui.table.status")}, " \t "))
 			for _, record := range records {
 				fmt.Fprintf(w, "%s \t %s \t %s \t %s \t\n", record.Type, record.Name, record.Value, record.Status)
 			}
@@ -116,12 +118,12 @@ func newDomainCommand(squareCli cli.SquareCLI) *cobra.Command {
 				idArgs = []string{appID}
 			}
 
-			id, err := cmdutil.ResolveAppID(squareCli, idArgs)
+			id, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, idArgs)
 			if err != nil {
 				return err
 			}
 
-			if err := squareCli.Rest().SetApplicationCustomDomain(id, args[0]); err != nil {
+			if err := squareCli.API().Apps.Network.SetDomain(cmd.Context(), id, args[0]); err != nil {
 				return err
 			}
 
@@ -131,28 +133,31 @@ func newDomainCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&appID, "app", "", "Application ID")
+	cmd.Flags().StringVar(&appID, "app", "", squareCli.I18n().T("metadata.flags.app"))
 	return cmd
 }
 
 func newAnalyticsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "analytics [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.network.analytics.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "analytics [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.network.analytics.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 	}
 
-	window := rangeFlags(cmd)
+	window := rangeFlags(cmd, squareCli)
 
-	filters := map[string]*string{}
-	for _, name := range []string{"country", "ip", "path", "status", "os", "browser", "protocol", "referer", "provider", "content-type", "bot"} {
-		value := new(string)
-		filters[name] = value
-		cmd.Flags().StringVar(value, name, "", "Filter analytics by "+name)
+	var filters squarecloud.AnalyticsFilters
+	for name, value := range map[string]*string{
+		"country": &filters.Country, "ip": &filters.IP, "path": &filters.Path, "status": &filters.Status,
+		"os": &filters.OS, "browser": &filters.Browser, "protocol": &filters.Protocol, "referer": &filters.Referer,
+		"provider": &filters.Provider, "content-type": &filters.ContentType, "bot": &filters.Bot,
+	} {
+		cmd.Flags().StringVar(value, name, "", squareCli.I18n().T("metadata.flags.filter", map[string]any{"Name": name}))
 	}
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		appID, err := cmdutil.ResolveAppID(squareCli, args)
+		appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 		if err != nil {
 			return err
 		}
@@ -162,14 +167,7 @@ func newAnalyticsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return err
 		}
 
-		var opts []rest.RequestOpt
-		for name, value := range filters {
-			if *value != "" {
-				opts = append(opts, rest.WithQueryParam(strings.ReplaceAll(name, "-", "_"), *value))
-			}
-		}
-
-		analytics, err := squareCli.Rest().GetApplicationAnalytics(appID, start, end, opts...)
+		analytics, err := squareCli.API().Apps.Network.Analytics(cmd.Context(), appID, start, end, filters)
 		if err != nil {
 			return err
 		}
@@ -178,15 +176,15 @@ func newAnalyticsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return cmdutil.PrintJSON(squareCli.Out(), analytics)
 		}
 
-		if len(analytics.Visits) == 0 {
+		if analytics == nil || len(analytics.Visits) == 0 {
 			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.network.analytics.empty"))
 			return nil
 		}
 
 		var visits, requests, bytes int64
 		for _, bucket := range analytics.Visits {
-			visits += int64(bucket.Visits)
-			requests += int64(bucket.Requests)
+			visits += bucket.Visits
+			requests += bucket.Requests
 			bytes += bucket.Bytes
 		}
 
@@ -196,10 +194,11 @@ func newAnalyticsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			"Traffic":  cmdutil.FormatBytes(bytes),
 		}))
 
-		w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+		w := cmdutil.NewTableWriter(squareCli.Out())
 		defer w.Flush()
 
-		fmt.Fprintln(w, strings.Join([]string{"COUNTRY", "REQUESTS", "VISITS"}, " \t "))
+		t := squareCli.I18n()
+		fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.country"), t.T("ui.table.requests"), t.T("ui.table.visits")}, " \t "))
 		for i, bucket := range analytics.Countries {
 			if i >= 10 {
 				break
@@ -217,15 +216,16 @@ func newErrorsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	var include4xx bool
 
 	cmd := &cobra.Command{
-		Use:   "errors [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.network.errors.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "errors [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.network.errors.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 	}
 
-	window := rangeFlags(cmd)
+	window := rangeFlags(cmd, squareCli)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		appID, err := cmdutil.ResolveAppID(squareCli, args)
+		appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 		if err != nil {
 			return err
 		}
@@ -235,12 +235,7 @@ func newErrorsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return err
 		}
 
-		var opts []rest.RequestOpt
-		if include4xx {
-			opts = append(opts, rest.WithQueryParam("include_4xx", "true"))
-		}
-
-		networkErrors, err := squareCli.Rest().GetApplicationNetworkErrors(appID, start, end, opts...)
+		networkErrors, err := squareCli.API().Apps.Network.Errors(cmd.Context(), appID, start, end, include4xx)
 		if err != nil {
 			return err
 		}
@@ -249,20 +244,25 @@ func newErrorsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return cmdutil.PrintJSON(squareCli.Out(), networkErrors)
 		}
 
+		if networkErrors == nil { // no traffic in the window
+			networkErrors = &squarecloud.NetworkErrors{}
+		}
+
 		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.network.errors.summary", map[string]any{
 			"Total":    networkErrors.Summary.Total,
-			"Class4xx": networkErrors.Summary.ByClass.Class4xx,
-			"Class5xx": networkErrors.Summary.ByClass.Class5xx,
+			"Class4xx": networkErrors.Summary.ByClass["4xx"],
+			"Class5xx": networkErrors.Summary.ByClass["5xx"],
 		}))
 
 		if len(networkErrors.TopPaths) == 0 {
 			return nil
 		}
 
-		w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+		w := cmdutil.NewTableWriter(squareCli.Out())
 		defer w.Flush()
 
-		fmt.Fprintln(w, strings.Join([]string{"PATH", "METHOD", "ERRORS"}, " \t "))
+		t := squareCli.I18n()
+		fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.path"), t.T("ui.table.method"), t.T("ui.table.errors")}, " \t "))
 		for i, path := range networkErrors.TopPaths {
 			if i >= 10 {
 				break
@@ -279,21 +279,22 @@ func newErrorsCommand(squareCli cli.SquareCLI) *cobra.Command {
 		return nil
 	}
 
-	cmd.Flags().BoolVar(&include4xx, "include-4xx", false, "Include 4xx responses (default: 5xx only)")
+	cmd.Flags().BoolVar(&include4xx, "include-4xx", false, squareCli.I18n().T("metadata.flags.include_4xx"))
 	return cmd
 }
 
 func newLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "logs [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.network.logs.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "logs [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.network.logs.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 	}
 
-	window := rangeFlags(cmd)
+	window := rangeFlags(cmd, squareCli)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		appID, err := cmdutil.ResolveAppID(squareCli, args)
+		appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 		if err != nil {
 			return err
 		}
@@ -303,7 +304,7 @@ func newLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return err
 		}
 
-		logs, err := squareCli.Rest().GetApplicationNetworkLogs(appID, start, end)
+		logs, err := squareCli.API().Apps.Network.Logs(cmd.Context(), appID, start, end)
 		if err != nil {
 			return err
 		}
@@ -317,10 +318,11 @@ func newLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return nil
 		}
 
-		w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+		w := cmdutil.NewTableWriter(squareCli.Out())
 		defer w.Flush()
 
-		fmt.Fprintln(w, strings.Join([]string{"TIME", "STATUS", "METHOD", "PATH", "IP", "COUNTRY"}, " \t "))
+		t := squareCli.I18n()
+		fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.time"), t.T("ui.table.status"), t.T("ui.table.method"), t.T("ui.table.path"), "IP", t.T("ui.table.country")}, " \t "))
 		for _, log := range logs {
 			ip, country := "-", "-"
 			if log.Client.IP != nil {
@@ -343,15 +345,16 @@ func newLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 func newPerformanceCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "performance [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.network.performance.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "performance [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.network.performance.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 	}
 
-	window := rangeFlags(cmd)
+	window := rangeFlags(cmd, squareCli)
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
-		appID, err := cmdutil.ResolveAppID(squareCli, args)
+		appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 		if err != nil {
 			return err
 		}
@@ -361,7 +364,7 @@ func newPerformanceCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return err
 		}
 
-		performance, err := squareCli.Rest().GetApplicationNetworkPerformance(appID, start, end)
+		performance, err := squareCli.API().Apps.Network.Performance(cmd.Context(), appID, start, end)
 		if err != nil {
 			return err
 		}
@@ -370,27 +373,32 @@ func newPerformanceCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return cmdutil.PrintJSON(squareCli.Out(), performance)
 		}
 
+		if performance == nil { // no traffic in the window
+			performance = &squarecloud.NetworkPerformance{}
+		}
+
 		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.network.performance.summary", map[string]any{
 			"Requests": performance.Summary.Requests,
-			"EdgeP50":  performance.Summary.Edge.P50,
-			"EdgeP95":  performance.Summary.Edge.P95,
-			"OrigP50":  performance.Summary.Origin.P50,
-			"OrigP95":  performance.Summary.Origin.P95,
+			"EdgeP50":  ms(performance.Summary.Edge.P50),
+			"EdgeP95":  ms(performance.Summary.Edge.P95),
+			"OrigP50":  ms(performance.Summary.Origin.P50),
+			"OrigP95":  ms(performance.Summary.Origin.P95),
 		}))
 
 		if len(performance.SlowestPaths) == 0 {
 			return nil
 		}
 
-		w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+		w := cmdutil.NewTableWriter(squareCli.Out())
 		defer w.Flush()
 
-		fmt.Fprintln(w, strings.Join([]string{"SLOWEST PATH", "P95 MS", "P99 MS", "REQUESTS"}, " \t "))
+		t := squareCli.I18n()
+		fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.slowest_path"), "P95 MS", "P99 MS", t.T("ui.table.requests")}, " \t "))
 		for i, path := range performance.SlowestPaths {
 			if i >= 10 {
 				break
 			}
-			fmt.Fprintf(w, "%s \t %.0f \t %.0f \t %d \t\n", path.Path, path.P95, path.P99, path.Requests)
+			fmt.Fprintf(w, "%s \t %s \t %s \t %d \t\n", path.Path, ms(path.P95), ms(path.P99), path.Requests)
 		}
 
 		return nil
@@ -407,17 +415,17 @@ func newPurgeCacheCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.app.network.purge_cache.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
 			message := squareCli.I18n().T("commands.app.network.purge_cache.confirm", map[string]any{"Appid": appID})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().PurgeApplicationCache(appID); err != nil {
+			if err := squareCli.API().Apps.Network.PurgeCache(cmd.Context(), appID); err != nil {
 				return err
 			}
 
@@ -426,6 +434,14 @@ func newPurgeCacheCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
+}
+
+// ms renders a latency the API may send as null.
+func ms(v *float64) string {
+	if v == nil {
+		return "-"
+	}
+	return fmt.Sprintf("%.0f", *v)
 }

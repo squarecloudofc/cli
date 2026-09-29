@@ -1,11 +1,29 @@
 {
   "errors": {
     "common": {
-      "not_logged": "Necesitas estar autenticado para ejecutar este comando; inicia sesión con squarecloud auth login."
+      "not_logged": "Necesitas iniciar sesión para ejecutar este comando. Inicia sesión con squarecloud auth login.",
+      "json_unsupported": "{{ .Command }} no tiene salida en JSON; ejecútalo sin --json.",
+      "not_a_command": "{{ .Command }} no es un comando. Consulta 'squarecloud --help'.",
+      "selection_canceled": "Selección cancelada."
+    },
+    "api": {
+      "unauthorized": "Tu sesión expiró o la clave de API fue revocada. Ejecuta squarecloud auth login para iniciar sesión de nuevo.",
+      "rate_limited": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo."
+    },
+    "confirm": {
+      "no_tty": "No se puede pedir confirmación: esta no es una terminal interactiva. Ejecuta el comando de nuevo con --yes (-y) para confirmar, o ejecútalo en una terminal.",
+      "declined": "Cancelado. No se cambió nada. Usa --yes (-y) para omitir esta pregunta."
+    },
+    "config": {
+      "no_dir": "No se encontró una carpeta para la configuración de la CLI: define HOME (APPDATA en Windows) para guardar el inicio de sesión, o usa SQUARECLOUD_API_KEY.",
+      "load": "No se pudo cargar el archivo de configuración: {{ .Error }}"
     }
   },
   "metadata": {
     "commands": {
+      "root": {
+        "short": "Una herramienta de línea de comandos para gestionar tus aplicaciones en Square Cloud"
+      },
       "app": {
         "commit": {
           "short": "Realiza un commit para tu aplicación"
@@ -14,17 +32,17 @@
           "short": "Elimina tu aplicación"
         },
         "list": {
-          "short": "Lista todas tus aplicaciones alojadas "
+          "short": "Lista todas tus aplicaciones alojadas"
         },
         "logs": {
-          "short": "Consulta los registros más recientes de tu aplicación"
+          "short": "Consulta los logs más recientes de tu aplicación"
         },
         "root": {
           "short": "Gestiona tus aplicaciones con estos comandos"
         },
         "signal": {
           "start": {
-            "short": "Envía una señal de inicio para que tu aplicación se inicie"
+            "short": "Envía una señal de inicio para iniciar tu aplicación"
           },
           "restart": {
             "short": "Envía una señal de reinicio para reiniciar el proceso de tu aplicación"
@@ -34,177 +52,177 @@
           }
         },
         "status": {
-          "short": "Consulta los estados de todas tus aplicaciones"
+          "short": "Consulta el estado de tu aplicación"
         },
         "upload": {
           "short": "Sube una nueva aplicación"
         },
         "snapshot": {
           "root": {
-            "short": "Administra todos los snapshots de tus aplicaciones"
+            "short": "Gestiona todos los snapshots de tus aplicaciones"
           },
           "create": {
             "short": "Crea un nuevo snapshot de tu aplicación"
           },
           "restore": {
-            "short": "Restore your application from a snapshot"
+            "short": "Restaura tu aplicación desde un snapshot"
           }
         },
         "info": {
-          "short": "View detailed information about your application"
+          "short": "Consulta la información detallada de tu aplicación"
         },
         "metrics": {
-          "short": "View the last 24h of CPU/RAM/network metrics"
+          "short": "Consulta las métricas de CPU, RAM y red de las últimas 24 h"
         },
         "realtime": {
-          "short": "Stream realtime events of your application (SSE)"
+          "short": "Transmite en tiempo real los eventos de tu aplicación (SSE)"
         },
         "domains": {
-          "short": "List every domain configured across your applications"
+          "short": "Lista todos los dominios configurados en tus aplicaciones"
         },
         "load_balancers": {
-          "short": "List your custom domains grouped by application (load balancers)"
+          "short": "Lista tus dominios personalizados agrupados por aplicación (balanceadores de carga)"
         },
         "env": {
           "root": {
-            "short": "Manage the environment variables of your application"
+            "short": "Gestiona las variables de entorno de tu aplicación"
           },
           "list": {
-            "short": "List the environment variables"
+            "short": "Lista las variables de entorno"
           },
           "set": {
-            "short": "Set one or more environment variables"
+            "short": "Define una o más variables de entorno"
           },
           "replace": {
-            "short": "Replace the entire set of environment variables"
+            "short": "Reemplaza todas las variables de entorno"
           },
           "remove": {
-            "short": "Remove one or more environment variables"
+            "short": "Elimina una o más variables de entorno"
           }
         },
         "file": {
           "root": {
-            "short": "Manage the files of your application"
+            "short": "Gestiona los archivos de tu aplicación"
           },
           "list": {
-            "short": "List files in a directory of your application"
+            "short": "Lista los archivos de un directorio de tu aplicación"
           },
           "read": {
-            "short": "Read a file from your application"
+            "short": "Lee un archivo de tu aplicación"
           },
           "write": {
-            "short": "Create or overwrite a file in your application"
+            "short": "Crea o sobrescribe un archivo en tu aplicación"
           },
           "move": {
-            "short": "Move or rename a file in your application"
+            "short": "Mueve o renombra un archivo de tu aplicación"
           },
           "delete": {
-            "short": "Delete a file from your application"
+            "short": "Elimina un archivo de tu aplicación"
           }
         },
         "deploy": {
           "root": {
-            "short": "Manage deployments and Git integrations"
+            "short": "Gestiona los deploys y las integraciones con Git"
           },
           "list": {
-            "short": "List the most recent deployments"
+            "short": "Lista los deploys más recientes"
           },
           "current": {
-            "short": "Show the current Git integration"
+            "short": "Muestra la integración actual con Git"
           },
           "webhook": {
-            "short": "Configure a GitHub webhook deploy integration"
+            "short": "Configura una integración de deploy por webhook de GitHub"
           },
           "github": {
             "root": {
-              "short": "Manage the GitHub App integration"
+              "short": "Gestiona la integración con la GitHub App"
             },
             "link": {
-              "short": "Link a repository through the Square Cloud GitHub App"
+              "short": "Vincula un repositorio mediante la GitHub App de Square Cloud"
             },
             "unlink": {
-              "short": "Unlink the GitHub App repository"
+              "short": "Desvincula el repositorio de la GitHub App"
             }
           }
         },
         "network": {
           "root": {
-            "short": "Manage DNS, custom domain and edge observability"
+            "short": "Gestiona el DNS, el dominio personalizado y la observabilidad del edge"
           },
           "dns": {
-            "short": "View the DNS records required for your custom domain"
+            "short": "Consulta los registros DNS necesarios para tu dominio personalizado"
           },
           "domain": {
-            "short": "Set the custom domain of your application"
+            "short": "Define el dominio personalizado de tu aplicación"
           },
           "analytics": {
-            "short": "View edge analytics of your application"
+            "short": "Consulta las analíticas del edge de tu aplicación"
           },
           "errors": {
-            "short": "View edge error breakdown of your application"
+            "short": "Consulta el desglose de errores del edge de tu aplicación"
           },
           "logs": {
-            "short": "View edge request logs (Pro+ plans)"
+            "short": "Consulta los logs de solicitudes del edge (planes Pro+)"
           },
           "performance": {
-            "short": "View edge latency percentiles (Pro+ plans)"
+            "short": "Consulta los percentiles de latencia del edge (planes Pro+)"
           },
           "purge_cache": {
-            "short": "Purge the entire edge cache of your application"
+            "short": "Purga toda la caché del edge de tu aplicación"
           }
         }
       },
       "database": {
         "root": {
-          "short": "Administra las bases de datos de tu cuenta"
+          "short": "Gestiona las bases de datos de tu cuenta"
         },
         "snapshot": {
           "root": {
-            "short": "Administra todos los snapshots de tus bases de datos"
+            "short": "Gestiona todos los snapshots de tus bases de datos"
           },
           "create": {
             "short": "Crea un nuevo snapshot de tu base de datos"
           },
           "restore": {
-            "short": "Restore your database from a snapshot"
+            "short": "Restaura tu base de datos desde un snapshot"
           }
         },
         "list": {
-          "short": "List all your databases"
+          "short": "Lista todas tus bases de datos"
         },
         "create": {
-          "short": "Create a new database"
+          "short": "Crea una nueva base de datos"
         },
         "info": {
-          "short": "View detailed information about your database"
+          "short": "Consulta la información detallada de tu base de datos"
         },
         "update": {
-          "short": "Update the name or memory of your database"
+          "short": "Actualiza el nombre o la memoria de tu base de datos"
         },
         "delete": {
-          "short": "Delete your database"
+          "short": "Elimina tu base de datos"
         },
         "start": {
-          "short": "Start your database"
+          "short": "Inicia tu base de datos"
         },
         "stop": {
-          "short": "Stop your database"
+          "short": "Detén tu base de datos"
         },
         "status": {
-          "short": "View the status of your database"
+          "short": "Consulta el estado de tu base de datos"
         },
         "metrics": {
-          "short": "View the last 24h of database metrics"
+          "short": "Consulta las métricas de tu base de datos de las últimas 24 h"
         },
         "credentials": {
           "root": {
-            "short": "Manage the credentials of your database"
+            "short": "Gestiona las credenciales de tu base de datos"
           },
           "certificate": {
-            "short": "Print the TLS certificate of your database"
+            "short": "Muestra el certificado TLS de tu base de datos"
           },
           "reset": {
-            "short": "Rotate the password or certificate of your database"
+            "short": "Restablece la contraseña o el certificado de tu base de datos"
           }
         }
       },
@@ -213,112 +231,152 @@
           "short": "Gestiona tu inicio de sesión en Square Cloud con estos comandos"
         },
         "login": {
-          "short": "Inicia sesión en Square Cloud, necesario para ejecutar algunos comandos de la CLI."
+          "short": "Inicia sesión en Square Cloud, necesario para ejecutar algunos comandos de la CLI"
         },
         "logout": {
           "short": "Cierra la sesión actual"
         },
         "whoami": {
-          "short": "Consulta el nombre de usuario y el ID de cuenta con el que estás autenticado"
+          "short": "Consulta el nombre de usuario y el ID de la cuenta con la que iniciaste sesión"
         }
       },
       "zip": {
         "short": "Comprime la carpeta actual"
       },
       "status": {
-        "short": "Check the Square Cloud platform health"
+        "short": "Consulta el estado de la plataforma Square Cloud"
       },
       "snapshot": {
         "list": {
-          "short": "List all snapshots from your account"
-        },
-        "create": {
-          "flags": {
-            "download": "Automatically download the created snapshot"
-          }
+          "short": "Lista todos los snapshots de tu cuenta"
         }
       },
       "workspace": {
         "root": {
-          "short": "Manage your team workspaces"
+          "short": "Gestiona los espacios de trabajo de tu equipo"
         },
         "list": {
-          "short": "List all your workspaces"
+          "short": "Lista todos tus espacios de trabajo"
         },
         "create": {
-          "short": "Create a new workspace"
+          "short": "Crea un nuevo espacio de trabajo"
         },
         "info": {
-          "short": "View members and applications of a workspace"
+          "short": "Consulta los miembros y las aplicaciones de un espacio de trabajo"
         },
         "delete": {
-          "short": "Delete a workspace"
+          "short": "Elimina un espacio de trabajo"
         },
         "leave": {
-          "short": "Leave a workspace"
+          "short": "Sal de un espacio de trabajo"
         },
         "app": {
           "root": {
-            "short": "Share applications with a workspace"
+            "short": "Comparte aplicaciones con un espacio de trabajo"
           },
           "add": {
-            "short": "Share an application with a workspace"
+            "short": "Comparte una aplicación con un espacio de trabajo"
           },
           "remove": {
-            "short": "Remove an application from a workspace"
+            "short": "Quita una aplicación de un espacio de trabajo"
           }
         },
         "member": {
           "root": {
-            "short": "Manage the members of a workspace"
+            "short": "Gestiona los miembros de un espacio de trabajo"
           },
           "add": {
-            "short": "Add a member by invite code"
+            "short": "Agrega un miembro con un código de invitación"
           },
           "update": {
-            "short": "Change the permission group of a member"
+            "short": "Cambia el grupo de permisos de un miembro"
           },
           "remove": {
-            "short": "Remove a member from a workspace"
+            "short": "Quita a un miembro de un espacio de trabajo"
           },
           "invite_code": {
-            "short": "Generate your single-use invite code (valid for 5 minutes)"
+            "short": "Genera tu código de invitación de un solo uso (válido durante 5 minutos)"
           }
         }
       }
+    },
+    "flags": {
+      "version": "Muestra la versión de la CLI",
+      "json": "Muestra la salida en JSON sin procesar",
+      "app": "ID de la aplicación",
+      "yes": "Omite la pregunta de confirmación",
+      "file": "Archivo que se sube en lugar de la carpeta actual",
+      "restart": "Reinicia la aplicación después del commit",
+      "path": "Carpeta de destino dentro de la aplicación",
+      "status_all_apps": "Muestra el estado de todas las aplicaciones",
+      "status_all_databases": "Muestra el estado de todas las bases de datos",
+      "raw": "Muestra las estadísticas numéricas sin procesar en JSON",
+      "from_file": "Lee las variables de un archivo con formato .env",
+      "remove_all_envs": "Elimina todas las variables de entorno",
+      "output": "Escribe el contenido en un archivo local",
+      "download": "Descarga automáticamente el snapshot creado",
+      "from": "Lee el contenido de un archivo local (predeterminado: stdin)",
+      "remove_webhook": "Elimina el webhook configurado",
+      "start": "Inicio del período (RFC 3339, predeterminado: hace 24 h)",
+      "end": "Fin del período (RFC 3339, predeterminado: ahora)",
+      "filter": "Filtra las analíticas por {{ .Name }}",
+      "include_4xx": "Incluye las respuestas 4xx (predeterminado: solo 5xx)",
+      "token": "Inicia sesión con una clave de API de Square Cloud que ya tienes",
+      "with_token": "Lee la clave de API desde stdin",
+      "no_browser": "No abras el navegador; solo muestra la URL",
+      "yes_switch_account": "Reemplaza sin preguntar la clave guardada de otra cuenta",
+      "db_name": "Nombre de la base de datos (1-32 caracteres)",
+      "db_memory": "Memoria asignada en MB",
+      "db_type": "Motor: mongo, mysql, redis o postgres",
+      "db_version": "Versión del motor",
+      "db_new_name": "Nuevo nombre de la base de datos",
+      "db_new_memory": "Nueva memoria asignada en MB"
+    },
+    "help": {
+      "flag": "Muestra la ayuda de este comando",
+      "command": "Ayuda sobre cualquier comando",
+      "usage": "Uso:",
+      "aliases": "Alias:",
+      "examples": "Ejemplos:",
+      "available_commands": "Comandos disponibles:",
+      "additional_commands": "Comandos adicionales:",
+      "flags": "Opciones:",
+      "global_flags": "Opciones globales:",
+      "additional_topics": "Temas de ayuda adicionales:",
+      "more_info": "Usa \"{{ .Command }} [command] --help\" para obtener más información sobre un comando."
     }
   },
   "commands": {
     "app": {
       "commit": {
         "arguments": {
-          "missing": "No especificaste tu ID de aplicación en los argumentos del comando",
-          "missing_2": "También puedes especificar un parámetro ID en tu squarecloud.app"
+          "missing": "No indicaste un ID de aplicación.",
+          "missing_2": "También puedes definirlo con una línea ID= en tu archivo squarecloud.app."
         },
         "states": {
           "loading_file": "Cargando el archivo {{ .Filename }}",
           "compressing": "Comprimiendo el directorio actual.",
-          "uploading": "Realizando commit de las actualizaciones en tu aplicación ({{.Appid}})"
+          "uploading": "Realizando commit en tu aplicación ({{.Appid}})..."
         },
-        "success": "Commit realizado con éxito en tu aplicación"
+        "success": "Commit realizado en tu aplicación."
       },
       "upload": {
-        "error": "No se puede enviar la aplicación a Square Cloud debido a: {{ .Error }}",
+        "error": "No se pudo subir la aplicación a Square Cloud: {{ .Error }}",
         "states": {
-          "loading_file": "Archivo proporcionado, omitiendo compresión.",
+          "loading_file": "Archivo proporcionado; se omite la compresión.",
           "compressing": "Comprimiendo el directorio actual.",
           "uploading": "Subiendo el archivo zip a Square Cloud."
         },
-        "success": "Aplicación subida a Square Cloud!",
-        "access": "Puedes acceder a través de {{.Link}}"
+        "success": "¡Aplicación subida a Square Cloud!",
+        "access": "Ábrela en {{.Link}}"
       },
       "delete": {
         "failed": "No se pudo eliminar tu aplicación",
-        "success": "Tu aplicación ha sido eliminada con éxito",
-        "confirm": "Delete the application {{ .Appid }}? This action is irreversible"
+        "success": "Tu aplicación se ha eliminado.",
+        "confirm": "¿Eliminar la aplicación {{ .Appid }}? Esta acción es irreversible"
       },
       "list": {
-        "empty": "No tienes ninguna aplicación activa"
+        "empty": "No tienes ninguna aplicación."
       },
       "signal": {
         "failed": "No se pudo enviar la señal a tu aplicación",
@@ -326,229 +384,319 @@
       },
       "info": {},
       "metrics": {
-        "empty": "No metrics available for this application"
+        "empty": "No hay métricas disponibles para esta aplicación"
       },
       "realtime": {
-        "connected": "Connected to the realtime stream of {{ .Appid }} (Ctrl+C to exit)"
+        "connected": "Conectado a la transmisión en tiempo real de {{ .Appid }} (Ctrl+C para salir)"
       },
       "domains": {
-        "empty": "No domains configured across your applications"
+        "empty": "No hay dominios configurados en tus aplicaciones"
       },
       "load_balancers": {
-        "empty": "No load balancers configured (attach a custom domain to more than one app)",
-        "limit": "Plan limit: up to {{ .Limit }} applications per domain"
+        "empty": "No hay balanceadores de carga configurados (vincula un dominio personalizado a más de una aplicación)",
+        "limit": "Aplicaciones por dominio permitidas en tu plan: {{ .Limit }}"
       },
       "env": {
+        "invalid": "Variable no válida \"{{ .Variable }}\": usa el formato KEY=VALUE.",
         "list": {
-          "empty": "No environment variables set for this application"
+          "empty": "Esta aplicación no tiene variables de entorno definidas"
         },
         "set": {
-          "success": "{{ .Count }} environment variable(s) set successfully"
+          "success": "Variables de entorno definidas: {{ .Count }}"
         },
         "replace": {
-          "confirm": "Replace ALL environment variables of {{ .Appid }}? Existing ones will be removed",
-          "success": "Environment variables replaced successfully"
+          "confirm": "¿Reemplazar TODAS las variables de entorno de {{ .Appid }}? Las existentes se eliminarán",
+          "success": "Variables de entorno reemplazadas con éxito",
+          "empty": "No hay variables con las que reemplazar las actuales. Pasa pares KEY=VALUE o --from-file con al menos una variable. Para eliminar todas las variables, ejecuta squarecloud app env remove --all."
         },
         "remove": {
-          "success": "{{ .Count }} environment variable(s) removed successfully"
+          "success": "Variables de entorno eliminadas: {{ .Count }}",
+          "usage": "Pasa los nombres de las variables que quieres eliminar, o --all para eliminarlas todas (no ambos).",
+          "confirm_all": "¿Eliminar TODAS las variables de entorno de {{ .Appid }}?",
+          "success_all": "Se eliminaron todas las variables de entorno"
         }
       },
       "file": {
         "list": {
-          "empty": "No files found in this directory"
+          "empty": "No se encontraron archivos en este directorio"
         },
         "read": {
-          "saved": "File content saved to {{ .File }}"
+          "saved": "Contenido del archivo guardado en {{ .File }}",
+          "overwrite": "{{ .File }} ya existe. ¿Sobrescribirlo?"
         },
         "write": {
-          "failed": "The API refused to write the file",
-          "success": "File {{ .File }} written successfully"
+          "success": "Archivo {{ .File }} escrito con éxito"
         },
         "move": {
-          "success": "Moved {{ .From }} to {{ .To }}"
+          "success": "{{ .From }} se movió a {{ .To }}"
         },
         "delete": {
-          "confirm": "Delete the file {{ .File }} from your application?",
-          "success": "File {{ .File }} deleted successfully"
+          "confirm": "¿Eliminar el archivo {{ .File }} de tu aplicación?",
+          "success": "Archivo {{ .File }} eliminado con éxito"
         }
       },
       "deploy": {
         "list": {
-          "empty": "No deployments found for this application"
+          "empty": "No se encontraron deploys para esta aplicación"
         },
         "current": {
-          "empty": "No Git integration configured for this application",
-          "github_app": "GitHub App: {{ .Repository }} (branch {{ .Branch }})",
+          "empty": "Esta aplicación no tiene ninguna integración con Git configurada",
+          "github_app": "GitHub App: {{ .Repository }} (rama {{ .Branch }})",
           "webhook": "Webhook: {{ .Webhook }}"
         },
         "webhook": {
-          "removed": "Webhook integration removed successfully",
-          "success": "Webhook created successfully; add it to your GitHub repository:"
+          "removed": "Integración por webhook eliminada con éxito",
+          "success": "Webhook creado con éxito; agrégalo a tu repositorio de GitHub:"
         },
         "github": {
           "link": {
-            "success": "Repository {{ .Repository }} (branch {{ .Branch }}) linked successfully"
+            "success": "Repositorio {{ .Repository }} (rama {{ .Branch }}) vinculado con éxito"
           },
           "unlink": {
-            "success": "GitHub App repository unlinked successfully"
+            "success": "Repositorio de la GitHub App desvinculado con éxito"
           }
         }
       },
       "network": {
+        "invalid_time": "Valor no válido para {{ .Flag }}: {{ .Value }}. Usa una hora en formato RFC 3339, como 2026-01-02T15:04:05Z.",
         "dns": {
-          "empty": "No DNS records — configure a custom domain first"
+          "empty": "No hay registros DNS. Configura primero un dominio personalizado."
         },
         "domain": {
-          "success": "Custom domain {{ .Domain }} configured successfully",
-          "hint": "Run 'squarecloud app network dns' to see the DNS records you need to create."
+          "success": "Dominio personalizado {{ .Domain }} configurado con éxito",
+          "hint": "Ejecuta 'squarecloud app network dns' para ver los registros DNS que debes crear."
         },
         "analytics": {
-          "empty": "No analytics data for the requested window",
-          "summary": "Visits: {{ .Visits }} | Requests: {{ .Requests }} | Traffic: {{ .Traffic }}"
+          "empty": "No hay datos de analíticas para el período solicitado",
+          "summary": "Visitas: {{ .Visits }} | Solicitudes: {{ .Requests }} | Tráfico: {{ .Traffic }}"
         },
         "errors": {
-          "summary": "Errors: {{ .Total }} total ({{ .Class4xx }} 4xx / {{ .Class5xx }} 5xx)"
+          "summary": "Errores: {{ .Total }} en total ({{ .Class4xx }} 4xx / {{ .Class5xx }} 5xx)"
         },
         "logs": {
-          "empty": "No edge logs for the requested window"
+          "empty": "No hay logs del edge para el período solicitado"
         },
         "performance": {
-          "summary": "Requests: {{ .Requests }} | Edge p50/p95: {{ .EdgeP50 }}/{{ .EdgeP95 }} ms | Origin p50/p95: {{ .OrigP50 }}/{{ .OrigP95 }} ms"
+          "summary": "Solicitudes: {{ .Requests }} | Edge p50/p95: {{ .EdgeP50 }}/{{ .EdgeP95 }} ms | Origen p50/p95: {{ .OrigP50 }}/{{ .OrigP95 }} ms"
         },
         "purge_cache": {
-          "confirm": "Purge the ENTIRE edge cache of {{ .Appid }}?",
-          "success": "Edge cache purged successfully"
+          "confirm": "¿Purgar TODA la caché del edge de {{ .Appid }}?",
+          "success": "Caché del edge purgada con éxito"
         }
       }
     },
     "database": {
       "list": {
-        "empty": "You don't have any database active"
+        "empty": "No tienes ninguna base de datos."
       },
       "create": {
-        "success": "Database {{ .Name }} ({{ .Id }}) created successfully",
-        "password_warning": "Save the password now — it is shown only once and cannot be recovered."
+        "success": "Base de datos {{ .Name }} ({{ .Id }}) creada con éxito",
+        "password_warning": "Guarda la contraseña ahora: solo se muestra una vez y no se puede recuperar."
       },
       "update": {
-        "success": "Database updated successfully"
+        "success": "Base de datos actualizada con éxito"
       },
       "delete": {
-        "confirm": "Delete the database {{ .Id }}? This action is irreversible",
-        "success": "Your database has been successfully deleted"
+        "confirm": "¿Eliminar la base de datos {{ .Id }}? Esta acción es irreversible",
+        "success": "Tu base de datos se ha eliminado con éxito"
       },
       "signal": {
-        "success": "Signal {{ .Signal }} has been successfully sent to your database."
+        "success": "La señal {{ .Signal }} se ha enviado con éxito a tu base de datos."
       },
       "credentials": {
         "reset": {
-          "confirm": "Rotate the {{ .Type }} of database {{ .Id }}? The current one stops working immediately",
-          "success": "Credential rotated successfully"
+          "invalid_type": "Tipo de restablecimiento no válido \"{{ .Type }}\": usa password o certificate.",
+          "confirm": "¿Restablecer la credencial ({{ .Type }}) de la base de datos {{ .Id }}? La actual dejará de funcionar de inmediato",
+          "success": "Credencial restablecida con éxito"
         }
       }
     },
     "auth": {
       "login": {
-        "input": {
-          "label": "Tu Token de API:",
-          "placeholder": "Inserta tu token de API de Square Cloud"
-        },
-        "error": "No hay ningún usuario asociado con este Token de Square Cloud",
+        "error": "Ninguna cuenta de Square Cloud usa esta clave de API.",
         "success": {
-          "0": "Tu Token de API ha cambiado con éxito! Ahora has iniciado sesión como {{.User}}",
+          "0": "Clave de API guardada. Ahora has iniciado sesión como {{.User}}.",
           "1": "¡Con gran poder viene una gran responsabilidad!"
         },
         "warnings": {
           "no_plan": "Parece que no tienes ningún plan activo en este momento; adquiere un plan en {{ .Link }}."
-        }
+        },
+        "device": {
+          "instructions": "Abre esta página en tu navegador e introduce el código:",
+          "waiting": "Esperando aprobación · expira en {{ .Remaining }} · Ctrl+C para cancelar",
+          "cancelled": "Inicio de sesión cancelado.",
+          "expired": "El código de inicio de sesión expiró o ya fue usado. Ejecuta squarecloud auth login de nuevo.",
+          "key_limit": "Tu cuenta alcanzó el límite de claves de API. Revoca una clave en {{ .Link }} y el inicio de sesión continuará solo.",
+          "rate_limited": "Demasiados intentos desde esta red. Esperando un minuto antes de intentarlo de nuevo...",
+          "success": "Sesión iniciada como {{ .Email }}."
+        },
+        "key_expires": "Esta clave de API expira el {{ .Date }}.",
+        "no_tty": "No hay una terminal interactiva. Usa --with-token para leer una clave de API desde stdin o define SQUARECLOUD_API_KEY.",
+        "empty_token": "No se recibió ninguna clave de API por stdin.",
+        "env_override": "Nota: SQUARECLOUD_API_KEY está definida y tiene prioridad sobre la clave guardada.",
+        "ci": "CI detectado (CI=true). El inicio de sesión por navegador crea una clave que expira en 90 días y solo una persona puede renovarla. Crea una clave de API en {{ .Link }} y defínela en SQUARECLOUD_API_KEY.",
+        "switch_account": "Este equipo tiene sesión iniciada en otra cuenta de Square Cloud. ¿Reemplazarla por {{ .Email }}?"
       },
       "logout": {
-        "success": "Has cerrado sesión con éxito en tu cuenta de Square Cloud."
+        "success": "Has cerrado sesión con éxito en tu cuenta de Square Cloud.",
+        "none": "No hay ninguna cuenta conectada en este equipo."
       },
       "whoami": {
         "logged": {
           "plan": "Actualmente has iniciado sesión como {{.User.Name}} en el plan {{ .User.Plan }}.",
-          "remaining": "Te quedan {{ if lt .User.PlanRemaining 1 }}algunas horas{{ else }}{{ .User.PlanRemaining }} días{{ end }} antes de que tu plan expire.",
+          "remaining": "{{ if lt .User.PlanRemaining 1 }}Te quedan algunas horas{{ else if eq .User.PlanRemaining 1 }}Te queda 1 día{{ else }}Te quedan {{ .User.PlanRemaining }} días{{ end }} antes de que tu plan expire.",
           "expired": "Tu plan ha expirado o no tienes un plan activo; adquiere un plan en {{ .Link }}."
+        },
+        "key": {
+          "expires": "Tu clave de API expira el {{ .Date }}.",
+          "scopes": "Permisos: {{ .Scopes }}",
+          "env": "Usando la clave de API de SQUARECLOUD_API_KEY."
         }
       }
     },
     "zip": {
-      "failed": "No fue posible hacer la cremallera de su aplicación",
-      "success": "Tu fuente se ha comprimido con éxito en {{.Zip}}"
+      "failed": "No se pudo comprimir tu aplicación.",
+      "success": "Tu proyecto se comprimió en {{.Zip}}",
+      "legacy_ignore": "Leyendo {{ .File }}. Renómbralo a squarecloud.ignore, el nombre que usan la CLI y la extensión de VS Code.",
+      "skipped_link": "Se omitió {{ .Path }}: es un enlace a una carpeta o un enlace roto.",
+      "exists": "{{ .File }} ya existe y no se pudo eliminar: {{ .Error }}"
     },
     "whoami": {
-      "none": "You are not logged in to any Square Cloud account."
+      "none": "No has iniciado sesión en ninguna cuenta de Square Cloud."
     },
     "snapshot": {
       "list": {
-        "empty": "No snapshots found for your account",
-        "table": {
-          "quantity": "Quantity",
-          "size": "Size",
-          "last_update": "Last Update"
-        }
+        "empty": "No se encontraron snapshots en tu cuenta"
       },
       "create": {
-        "downloading": "Saving your snapshot...",
-        "error": "Unable to download your snapshot, please try again later...",
+        "downloading": "Guardando tu snapshot...",
+        "error": "No se pudo descargar tu snapshot. Inténtalo de nuevo más tarde.",
         "success": {
-          "downloaded": "Your snapshot was successfully saved to {{ .File }}",
-          "link": "Your snapshot was successfully created, you can access it at:"
-        }
+          "downloaded": "Tu snapshot se guardó con éxito en {{ .File }}",
+          "link": "Tu snapshot se creó. Descárgalo en:"
+        },
+        "pending": "Tu snapshot se está generando. Aparecerá en la lista de snapshots en unos minutos."
       },
       "restore": {
-        "confirm": "Restore {{ .Id }} from this snapshot? Current data will be replaced",
-        "success": "Restore started successfully"
+        "confirm": "¿Restaurar {{ .Id }} desde este snapshot? Los datos actuales se reemplazarán",
+        "success": "Restauración iniciada con éxito"
       }
     },
     "workspace": {
       "list": {
-        "empty": "You don't have any workspace"
+        "empty": "No tienes ningún espacio de trabajo."
       },
       "create": {
-        "success": "Workspace {{ .Name }} ({{ .Id }}) created successfully"
+        "success": "Espacio de trabajo {{ .Name }} ({{ .Id }}) creado con éxito"
       },
       "info": {
-        "members": "Members:",
-        "applications": "Applications:"
+        "members": "Miembros:",
+        "applications": "Aplicaciones:"
       },
       "delete": {
-        "confirm": "Delete the workspace {{ .Id }}? This action is irreversible",
-        "success": "Workspace deleted successfully"
+        "confirm": "¿Eliminar el espacio de trabajo {{ .Id }}? Esta acción es irreversible",
+        "success": "Espacio de trabajo eliminado con éxito"
       },
       "leave": {
-        "confirm": "Leave the workspace {{ .Id }}?",
-        "success": "You left the workspace successfully"
+        "confirm": "¿Salir del espacio de trabajo {{ .Id }}?",
+        "success": "Saliste del espacio de trabajo con éxito"
       },
       "app": {
         "add": {
-          "success": "Application shared with the workspace successfully"
+          "success": "Aplicación compartida correctamente con el espacio de trabajo"
         },
         "remove": {
-          "success": "Application removed from the workspace successfully"
+          "success": "Aplicación quitada del espacio de trabajo con éxito"
         }
       },
       "member": {
         "add": {
-          "success": "Member added to the workspace successfully"
+          "success": "Miembro agregado al espacio de trabajo con éxito"
         },
         "update": {
-          "success": "Member permissions updated successfully"
+          "success": "Permisos del miembro actualizados con éxito"
         },
         "remove": {
-          "confirm": "Remove the member {{ .Id }} from the workspace?",
-          "success": "Member removed from the workspace successfully"
+          "confirm": "¿Quitar al miembro {{ .Id }} del espacio de trabajo?",
+          "success": "Miembro quitado del espacio de trabajo con éxito"
         },
         "invite_code": {
-          "success": "Your invite code (single-use, valid for 5 minutes):"
+          "success": "Tu código de invitación (de un solo uso, válido durante 5 minutos):"
         }
       }
+    },
+    "signal": {
+      "already_running": "Ya está en ejecución.",
+      "already_stopped": "Ya está detenida."
     }
   },
   "ui": {
     "select": {
-      "application": "Select an application",
-      "database": "Select a database"
+      "application": "Selecciona una aplicación",
+      "database": "Selecciona una base de datos"
+    },
+    "update": {
+      "outdated": "Estás usando una versión antigua de Square Cloud CLI: {{ .Version }}",
+      "hint": "Actualiza a la versión {{ .Version }}"
+    },
+    "table": {
+      "name": "NOMBRE",
+      "type": "TIPO",
+      "status": "ESTADO",
+      "size": "TAMAÑO",
+      "memory": "MEMORIA",
+      "cluster": "CLÚSTER",
+      "domain": "DOMINIO",
+      "hostname": "HOSTNAME",
+      "lang": "LENGUAJE",
+      "app_id": "ID DE APLICACIÓN",
+      "app_name": "NOMBRE DE APLICACIÓN",
+      "apps": "APLICACIONES",
+      "db_id": "ID DE BASE DE DATOS",
+      "workspace_id": "ID DEL ESPACIO DE TRABAJO",
+      "member_id": "ID DE MIEMBRO",
+      "members": "MIEMBROS",
+      "group": "GRUPO",
+      "joined": "SE UNIÓ",
+      "created": "CREADO",
+      "modified": "MODIFICADO",
+      "last_update": "ÚLTIMA ACTUALIZACIÓN",
+      "quantity": "CANTIDAD",
+      "version_id": "ID DE VERSIÓN",
+      "date": "FECHA",
+      "time": "HORA",
+      "commit": "COMMIT",
+      "state": "ESTADO",
+      "branch": "RAMA",
+      "running": "EN EJECUCIÓN",
+      "mem": "MEM",
+      "disk": "DISCO",
+      "net": "RED",
+      "uptime": "TIEMPO ACTIVO",
+      "value": "VALOR",
+      "country": "PAÍS",
+      "requests": "SOLICITUDES",
+      "visits": "VISITAS",
+      "path": "RUTA",
+      "slowest_path": "RUTA MÁS LENTA",
+      "method": "MÉTODO",
+      "errors": "ERRORES"
+    },
+    "field": {
+      "id": "ID:",
+      "name": "Nombre:",
+      "description": "Descripción:",
+      "type": "Tipo:",
+      "language": "Lenguaje:",
+      "memory": "Memoria:",
+      "port": "Puerto:",
+      "cluster": "Clúster:",
+      "owner": "Propietario:",
+      "domain": "Dominio:",
+      "custom_domain": "Dominio personalizado:",
+      "created_at": "Creado el:",
+      "password": "CONTRASEÑA:",
+      "url": "URL:"
     }
   }
 }

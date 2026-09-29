@@ -18,14 +18,19 @@ func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.app.snapshot.create.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			result, err := squareCli.Rest().CreateApplicationSnapshot(appID)
+			result, err := squareCli.API().Apps.Snapshots.Create(cmd.Context(), appID)
 			if err != nil {
 				return err
+			}
+
+			if result.Pending {
+				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.snapshot.create.pending"))
+				return nil
 			}
 
 			if !download {
@@ -37,8 +42,8 @@ func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.snapshot.create.downloading"))
 
 			filename := fmt.Sprintf("Square Cloud - Snapshot %s.zip", time.Now().Format("2006-01-02 15-04-05"))
-			if err := cmdutil.DownloadFile(filename, result.URL); err != nil {
-				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.snapshot.create.error"))
+			if err := cmdutil.DownloadSnapshot(cmd.Context(), squareCli.API(), filename, result.URL); err != nil {
+				fmt.Fprintf(squareCli.Err(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.snapshot.create.error"))
 				return err
 			}
 
@@ -47,6 +52,6 @@ func NewCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVar(&download, "download", false, squareCli.I18n().T("metadata.commands.snapshot.create.flags.download"))
+	cmd.Flags().BoolVar(&download, "download", false, squareCli.I18n().T("metadata.flags.download"))
 	return cmd
 }

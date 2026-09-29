@@ -4,7 +4,6 @@ package deploy
 import (
 	"fmt"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -34,16 +33,17 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.deploy.list.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "list [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.deploy.list.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			deploys, err := squareCli.Rest().GetApplicationDeployments(appID)
+			deploys, err := squareCli.API().Apps.Deploys.List(cmd.Context(), appID)
 			if err != nil {
 				return err
 			}
@@ -57,10 +57,11 @@ func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"COMMIT", "DATE", "STATE", "BRANCH"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.commit"), t.T("ui.table.date"), t.T("ui.table.state"), t.T("ui.table.branch")}, " \t "))
 
 			// Each outer element is one deploy; its inner timeline shares the
 			// commit SHA. Show the latest event of each deploy.
@@ -93,16 +94,17 @@ func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 func newCurrentCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "current [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.deploy.current.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "current [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.deploy.current.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			current, err := squareCli.Rest().GetApplicationCurrentDeployment(appID)
+			current, err := squareCli.API().Apps.Deploys.Current(cmd.Context(), appID)
 			if err != nil {
 				return err
 			}
@@ -151,7 +153,7 @@ func newWebhookCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.app.deploy.webhook.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := cmdutil.ResolveAppID(squareCli, argsFromID(appID))
+			id, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, argsFromID(appID))
 			if err != nil {
 				return err
 			}
@@ -164,7 +166,7 @@ func newWebhookCommand(squareCli cli.SquareCLI) *cobra.Command {
 				token = args[0]
 			}
 
-			result, err := squareCli.Rest().PostApplicationDeployWebhook(id, token)
+			result, err := squareCli.API().Apps.Deploys.SetWebhook(cmd.Context(), id, token)
 			if err != nil {
 				return err
 			}
@@ -175,13 +177,13 @@ func newWebhookCommand(squareCli cli.SquareCLI) *cobra.Command {
 			}
 
 			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.deploy.webhook.success"))
-			fmt.Fprintf(squareCli.Out(), "  %s\n", result.Webhook)
+			fmt.Fprintf(squareCli.Out(), "  %s\n", result)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&appID, "app", "", "Application ID")
-	cmd.Flags().BoolVar(&remove, "remove", false, "Remove the configured webhook")
+	cmd.Flags().StringVar(&appID, "app", "", squareCli.I18n().T("metadata.flags.app"))
+	cmd.Flags().BoolVar(&remove, "remove", false, squareCli.I18n().T("metadata.flags.remove_webhook"))
 	return cmd
 }
 
@@ -200,36 +202,36 @@ func newGithubCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.app.deploy.github.link.short"),
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := cmdutil.ResolveAppID(squareCli, argsFromID(linkApp))
+			id, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, argsFromID(linkApp))
 			if err != nil {
 				return err
 			}
 
-			result, err := squareCli.Rest().LinkApplicationGithubApp(id, args[0], args[1])
+			result, err := squareCli.API().Apps.Deploys.LinkGithubApp(cmd.Context(), id, args[0], args[1])
 			if err != nil {
 				return err
 			}
 
 			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.app.deploy.github.link.success", map[string]any{
-				"Repository": result.Repository.FullName,
-				"Branch":     result.Repository.Branch,
+				"Repository": result.FullName,
+				"Branch":     result.Branch,
 			}))
 			return nil
 		},
 	}
-	link.Flags().StringVar(&linkApp, "app", "", "Application ID")
+	link.Flags().StringVar(&linkApp, "app", "", squareCli.I18n().T("metadata.flags.app"))
 
 	var unlinkApp string
 	unlink := &cobra.Command{
 		Use:   "unlink",
 		Short: squareCli.I18n().T("metadata.commands.app.deploy.github.unlink.short"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			id, err := cmdutil.ResolveAppID(squareCli, argsFromID(unlinkApp))
+			id, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, argsFromID(unlinkApp))
 			if err != nil {
 				return err
 			}
 
-			if err := squareCli.Rest().UnlinkApplicationGithubApp(id); err != nil {
+			if err := squareCli.API().Apps.Deploys.UnlinkGithubApp(cmd.Context(), id); err != nil {
 				return err
 			}
 
@@ -237,7 +239,7 @@ func newGithubCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return nil
 		},
 	}
-	unlink.Flags().StringVar(&unlinkApp, "app", "", "Application ID")
+	unlink.Flags().StringVar(&unlinkApp, "app", "", squareCli.I18n().T("metadata.flags.app"))
 
 	cmd.AddCommand(link, unlink)
 	return cmd

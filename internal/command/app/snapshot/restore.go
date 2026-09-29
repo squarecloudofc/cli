@@ -20,11 +20,11 @@ func NewRestoreCommand(squareCli cli.SquareCLI) *cobra.Command {
 			appID, snapshotID, versionID := args[0], args[1], args[2]
 
 			message := squareCli.I18n().T("commands.snapshot.restore.confirm", map[string]any{"Id": appID})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().RestoreApplicationSnapshot(appID, snapshotID, versionID); err != nil {
+			if err := squareCli.API().Apps.Snapshots.Restore(cmd.Context(), appID, snapshotID, versionID); err != nil {
 				return err
 			}
 
@@ -33,6 +33,6 @@ func NewRestoreCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
 }

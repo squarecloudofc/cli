@@ -1,0 +1,702 @@
+{
+  "errors": {
+    "common": {
+      "not_logged": "このコマンドを実行するにはログインが必要です。squarecloud auth login でログインしてください。",
+      "json_unsupported": "{{ .Command }} は JSON 出力に対応していません。--json を付けずに実行してください。",
+      "not_a_command": "{{ .Command }} はコマンドではありません。「squarecloud --help」を参照してください。",
+      "selection_canceled": "選択をキャンセルしました。"
+    },
+    "api": {
+      "unauthorized": "セッションの有効期限が切れたか、API キーが失効しました。squarecloud auth login を実行して、もう一度ログインしてください。",
+      "rate_limited": "リクエストが多すぎます。しばらく待ってから、もう一度お試しください。"
+    },
+    "confirm": {
+      "no_tty": "対話型のターミナルではないため、確認できません。確認するには --yes（-y）を付けてコマンドをもう一度実行するか、ターミナルで実行してください。",
+      "declined": "キャンセルしました。変更は行われていません。この確認をスキップするには --yes（-y）を使用してください。"
+    },
+    "config": {
+      "no_dir": "CLI の設定を保存するフォルダが見つかりません。ログイン情報を保存するには HOME（Windows では APPDATA）を設定するか、SQUARECLOUD_API_KEY を使用してください。",
+      "load": "設定ファイルを読み込めませんでした：{{ .Error }}"
+    }
+  },
+  "ui": {
+    "select": {
+      "application": "アプリケーションを選択",
+      "database": "データベースを選択"
+    },
+    "update": {
+      "outdated": "古いバージョンの Square Cloud CLI を使用しています：{{ .Version }}",
+      "hint": "{{ .Version }} に更新してください"
+    },
+    "table": {
+      "name": "名前",
+      "type": "種類",
+      "status": "ステータス",
+      "size": "サイズ",
+      "memory": "メモリ",
+      "cluster": "クラスター",
+      "domain": "ドメイン",
+      "hostname": "ホスト名",
+      "lang": "言語",
+      "app_id": "アプリ ID",
+      "app_name": "アプリ名",
+      "apps": "アプリ数",
+      "db_id": "データベース ID",
+      "workspace_id": "ワークスペース ID",
+      "member_id": "メンバー ID",
+      "members": "メンバー数",
+      "group": "権限グループ",
+      "joined": "参加日時",
+      "created": "作成日時",
+      "modified": "更新日時",
+      "last_update": "最終更新",
+      "quantity": "件数",
+      "version_id": "バージョン ID",
+      "date": "日時",
+      "time": "時刻",
+      "commit": "コミット",
+      "state": "状態",
+      "branch": "ブランチ",
+      "running": "稼働中",
+      "mem": "メモリ",
+      "disk": "ディスク",
+      "net": "ネットワーク",
+      "uptime": "稼働時間",
+      "value": "値",
+      "country": "国",
+      "requests": "リクエスト数",
+      "visits": "訪問数",
+      "path": "パス",
+      "slowest_path": "最も遅いパス",
+      "method": "メソッド",
+      "errors": "エラー数"
+    },
+    "field": {
+      "id": "ID：",
+      "name": "名前：",
+      "description": "説明：",
+      "type": "種類：",
+      "language": "言語：",
+      "memory": "メモリ：",
+      "port": "ポート：",
+      "cluster": "クラスター：",
+      "owner": "オーナー：",
+      "domain": "ドメイン：",
+      "custom_domain": "カスタムドメイン：",
+      "created_at": "作成日時：",
+      "password": "パスワード：",
+      "url": "URL："
+    }
+  },
+  "metadata": {
+    "commands": {
+      "root": {
+        "short": "Square Cloud のアプリケーションを管理するコマンドラインツールです"
+      },
+      "status": {
+        "short": "Square Cloud プラットフォームのステータスを確認します"
+      },
+      "snapshot": {
+        "list": {
+          "short": "アカウントのすべてのスナップショットを一覧表示します"
+        }
+      },
+      "app": {
+        "commit": {
+          "short": "アプリケーションにファイルをコミットします"
+        },
+        "delete": {
+          "short": "アプリケーションを削除します"
+        },
+        "list": {
+          "short": "ホストしているすべてのアプリケーションを一覧表示します"
+        },
+        "info": {
+          "short": "アプリケーションの詳細情報を表示します"
+        },
+        "logs": {
+          "short": "アプリケーションの最新のログを表示します"
+        },
+        "metrics": {
+          "short": "過去 24 時間の CPU、RAM、ネットワークのメトリクスを表示します"
+        },
+        "realtime": {
+          "short": "アプリケーションのリアルタイムイベントをストリーミングします（SSE）"
+        },
+        "domains": {
+          "short": "すべてのアプリケーションに設定されているドメインを一覧表示します"
+        },
+        "load_balancers": {
+          "short": "カスタムドメインをアプリケーションごとにまとめて一覧表示します（ロードバランサー）"
+        },
+        "root": {
+          "short": "これらのコマンドでアプリケーションを管理します"
+        },
+        "signal": {
+          "start": {
+            "short": "start シグナルを送信して、アプリケーションを起動します"
+          },
+          "restart": {
+            "short": "restart シグナルを送信して、アプリケーションのプロセスを再起動します"
+          },
+          "stop": {
+            "short": "stop シグナルを送信して、アプリケーションのプロセスを停止します"
+          }
+        },
+        "status": {
+          "short": "アプリケーションのステータスを表示します"
+        },
+        "upload": {
+          "short": "新しいアプリケーションをアップロードします"
+        },
+        "snapshot": {
+          "root": {
+            "short": "アプリケーションのすべてのスナップショットを管理します"
+          },
+          "create": {
+            "short": "アプリケーションの新しいスナップショットを作成します"
+          },
+          "restore": {
+            "short": "スナップショットからアプリケーションを復元します"
+          }
+        },
+        "env": {
+          "root": {
+            "short": "アプリケーションの環境変数を管理します"
+          },
+          "list": {
+            "short": "環境変数を一覧表示します"
+          },
+          "set": {
+            "short": "1 つ以上の環境変数を設定します"
+          },
+          "replace": {
+            "short": "環境変数をすべて置き換えます"
+          },
+          "remove": {
+            "short": "1 つ以上の環境変数を削除します"
+          }
+        },
+        "file": {
+          "root": {
+            "short": "アプリケーションのファイルを管理します"
+          },
+          "list": {
+            "short": "アプリケーションのディレクトリ内のファイルを一覧表示します"
+          },
+          "read": {
+            "short": "アプリケーションのファイルを読み取ります"
+          },
+          "write": {
+            "short": "アプリケーション内のファイルを作成または上書きします"
+          },
+          "move": {
+            "short": "アプリケーション内のファイルを移動するか、名前を変更します"
+          },
+          "delete": {
+            "short": "アプリケーションからファイルを削除します"
+          }
+        },
+        "deploy": {
+          "root": {
+            "short": "デプロイと Git 連携を管理します"
+          },
+          "list": {
+            "short": "最近のデプロイを一覧表示します"
+          },
+          "current": {
+            "short": "現在の Git 連携を表示します"
+          },
+          "webhook": {
+            "short": "GitHub Webhook によるデプロイ連携を設定します"
+          },
+          "github": {
+            "root": {
+              "short": "GitHub App 連携を管理します"
+            },
+            "link": {
+              "short": "Square Cloud GitHub App を使ってリポジトリを連携します"
+            },
+            "unlink": {
+              "short": "GitHub App リポジトリの連携を解除します"
+            }
+          }
+        },
+        "network": {
+          "root": {
+            "short": "DNS、カスタムドメイン、エッジの監視を管理します"
+          },
+          "dns": {
+            "short": "カスタムドメインに必要な DNS レコードを表示します"
+          },
+          "domain": {
+            "short": "アプリケーションのカスタムドメインを設定します"
+          },
+          "analytics": {
+            "short": "アプリケーションのエッジアナリティクスを表示します"
+          },
+          "errors": {
+            "short": "アプリケーションのエッジエラーの内訳を表示します"
+          },
+          "logs": {
+            "short": "エッジのリクエストログを表示します（Pro+ プラン）"
+          },
+          "performance": {
+            "short": "エッジのレイテンシのパーセンタイルを表示します（Pro+ プラン）"
+          },
+          "purge_cache": {
+            "short": "アプリケーションのエッジキャッシュをすべてパージします"
+          }
+        }
+      },
+      "database": {
+        "root": {
+          "short": "アカウントのデータベースを管理します"
+        },
+        "list": {
+          "short": "すべてのデータベースを一覧表示します"
+        },
+        "create": {
+          "short": "新しいデータベースを作成します"
+        },
+        "info": {
+          "short": "データベースの詳細情報を表示します"
+        },
+        "update": {
+          "short": "データベースの名前またはメモリを更新します"
+        },
+        "delete": {
+          "short": "データベースを削除します"
+        },
+        "start": {
+          "short": "データベースを起動します"
+        },
+        "stop": {
+          "short": "データベースを停止します"
+        },
+        "status": {
+          "short": "データベースのステータスを表示します"
+        },
+        "metrics": {
+          "short": "過去 24 時間のデータベースのメトリクスを表示します"
+        },
+        "credentials": {
+          "root": {
+            "short": "データベースの認証情報を管理します"
+          },
+          "certificate": {
+            "short": "データベースの TLS 証明書を出力します"
+          },
+          "reset": {
+            "short": "データベースのパスワードまたは証明書をリセットします"
+          }
+        },
+        "snapshot": {
+          "root": {
+            "short": "データベースのすべてのスナップショットを管理します"
+          },
+          "create": {
+            "short": "データベースの新しいスナップショットを作成します"
+          },
+          "restore": {
+            "short": "スナップショットからデータベースを復元します"
+          }
+        }
+      },
+      "workspace": {
+        "root": {
+          "short": "チームのワークスペースを管理します"
+        },
+        "list": {
+          "short": "すべてのワークスペースを一覧表示します"
+        },
+        "create": {
+          "short": "新しいワークスペースを作成します"
+        },
+        "info": {
+          "short": "ワークスペースのメンバーとアプリケーションを表示します"
+        },
+        "delete": {
+          "short": "ワークスペースを削除します"
+        },
+        "leave": {
+          "short": "ワークスペースから退出します"
+        },
+        "app": {
+          "root": {
+            "short": "ワークスペースとアプリケーションを共有します"
+          },
+          "add": {
+            "short": "アプリケーションをワークスペースと共有します"
+          },
+          "remove": {
+            "short": "ワークスペースからアプリケーションを削除します"
+          }
+        },
+        "member": {
+          "root": {
+            "short": "ワークスペースのメンバーを管理します"
+          },
+          "add": {
+            "short": "招待コードでメンバーを追加します"
+          },
+          "update": {
+            "short": "メンバーの権限グループを変更します"
+          },
+          "remove": {
+            "short": "ワークスペースからメンバーを削除します"
+          },
+          "invite_code": {
+            "short": "1 回限りの招待コードを生成します（有効期間は 5 分）"
+          }
+        }
+      },
+      "auth": {
+        "root": {
+          "short": "これらのコマンドで Square Cloud へのログインを管理します"
+        },
+        "login": {
+          "short": "Square Cloud にログインします。一部の CLI コマンドの実行に必要です"
+        },
+        "logout": {
+          "short": "現在のセッションを終了します"
+        },
+        "whoami": {
+          "short": "ログイン中のユーザー名とアカウント ID を表示します"
+        }
+      },
+      "zip": {
+        "short": "現在のフォルダを ZIP に圧縮します"
+      }
+    },
+    "flags": {
+      "version": "CLI のバージョンを表示します",
+      "json": "JSON をそのまま出力します",
+      "app": "アプリケーション ID",
+      "yes": "確認のプロンプトをスキップします",
+      "file": "現在のフォルダの代わりにアップロードするファイル",
+      "restart": "コミット後にアプリケーションを再起動します",
+      "path": "アプリケーション内の保存先フォルダ",
+      "status_all_apps": "すべてのアプリケーションのステータスを表示します",
+      "status_all_databases": "すべてのデータベースのステータスを表示します",
+      "raw": "数値の統計をそのまま JSON で出力します",
+      "from_file": ".env 形式のファイルから変数を読み込みます",
+      "remove_all_envs": "すべての環境変数を削除します",
+      "output": "内容をローカルファイルに書き込みます",
+      "download": "作成したスナップショットを自動でダウンロードします",
+      "from": "ローカルファイルから内容を読み込みます（デフォルト：stdin）",
+      "remove_webhook": "設定済みの Webhook を削除します",
+      "start": "期間の開始（RFC 3339、デフォルト：24 時間前）",
+      "end": "期間の終了（RFC 3339、デフォルト：現在）",
+      "filter": "アナリティクスを {{ .Name }} で絞り込みます",
+      "include_4xx": "4xx レスポンスも含めます（デフォルト：5xx のみ）",
+      "token": "既存の Square Cloud API キーでログインします",
+      "with_token": "stdin から API キーを読み込みます",
+      "no_browser": "ブラウザを開かず、URL だけを表示します",
+      "yes_switch_account": "別のアカウントの保存済みキーを確認なしで置き換えます",
+      "db_name": "データベース名（1-32 文字）",
+      "db_memory": "割り当てるメモリ（MB）",
+      "db_type": "エンジン：mongo、mysql、redis、postgres のいずれか",
+      "db_version": "エンジンのバージョン",
+      "db_new_name": "新しいデータベース名",
+      "db_new_memory": "新しく割り当てるメモリ（MB）"
+    },
+    "help": {
+      "flag": "このコマンドのヘルプを表示します",
+      "command": "任意のコマンドのヘルプを表示します",
+      "usage": "使い方：",
+      "aliases": "エイリアス：",
+      "examples": "例：",
+      "available_commands": "利用可能なコマンド：",
+      "additional_commands": "その他のコマンド：",
+      "flags": "オプション：",
+      "global_flags": "グローバルオプション：",
+      "additional_topics": "その他のヘルプトピック：",
+      "more_info": "コマンドの詳細は「{{ .Command }} [command] --help」で確認できます。"
+    }
+  },
+  "commands": {
+    "whoami": {
+      "none": "Square Cloud アカウントにログインしていません。"
+    },
+    "snapshot": {
+      "list": {
+        "empty": "アカウントにスナップショットがありません"
+      },
+      "create": {
+        "downloading": "スナップショットを保存しています...",
+        "error": "スナップショットをダウンロードできませんでした。しばらくしてからもう一度お試しください。",
+        "success": {
+          "downloaded": "スナップショットを {{ .File }} に保存しました",
+          "link": "スナップショットを作成しました。ダウンロードはこちら："
+        },
+        "pending": "スナップショットを生成しています。数分後にスナップショットの一覧に表示されます。"
+      },
+      "restore": {
+        "confirm": "現在のデータは置き換えられます。{{ .Id }} をこのスナップショットから復元しますか？",
+        "success": "復元を開始しました"
+      }
+    },
+    "app": {
+      "commit": {
+        "arguments": {
+          "missing": "アプリケーション ID が指定されていません。",
+          "missing_2": "squarecloud.app ファイルに ID= の行を追加して指定することもできます。"
+        },
+        "states": {
+          "loading_file": "ファイル {{ .Filename }} を読み込んでいます",
+          "compressing": "現在のディレクトリを圧縮しています。",
+          "uploading": "アプリケーション（{{.Appid}}）にコミットしています..."
+        },
+        "success": "アプリケーションにコミットしました。"
+      },
+      "upload": {
+        "error": "Square Cloud にアプリケーションをアップロードできませんでした：{{ .Error }}",
+        "states": {
+          "loading_file": "ファイルが指定されたため、圧縮をスキップします。",
+          "compressing": "現在のディレクトリを圧縮しています。",
+          "uploading": "ZIP ファイルを Square Cloud にアップロードしています。"
+        },
+        "success": "アプリケーションを Square Cloud にアップロードしました！",
+        "access": "{{.Link}} で開けます"
+      },
+      "delete": {
+        "confirm": "この操作は取り消せません。アプリケーション {{ .Appid }} を削除しますか？",
+        "failed": "アプリケーションを削除できませんでした",
+        "success": "アプリケーションを削除しました。"
+      },
+      "list": {
+        "empty": "アプリケーションがありません。"
+      },
+      "info": {},
+      "metrics": {
+        "empty": "このアプリケーションで利用できるメトリクスはありません"
+      },
+      "realtime": {
+        "connected": "{{ .Appid }} のリアルタイムストリームに接続しました（Ctrl+C で終了）"
+      },
+      "domains": {
+        "empty": "どのアプリケーションにもドメインが設定されていません"
+      },
+      "load_balancers": {
+        "empty": "ロードバランサーは設定されていません（カスタムドメインを複数のアプリケーションに割り当ててください）",
+        "limit": "プランの上限：ドメインあたり最大 {{ .Limit }} 件のアプリケーション"
+      },
+      "signal": {
+        "failed": "アプリケーションにシグナルを送信できませんでした",
+        "success": "アプリケーションにシグナル {{.Signal}} を送信しました。"
+      },
+      "env": {
+        "invalid": "無効な変数「{{ .Variable }}」です。KEY=VALUE の形式で指定してください。",
+        "list": {
+          "empty": "このアプリケーションには環境変数が設定されていません"
+        },
+        "set": {
+          "success": "環境変数を設定しました：{{ .Count }} 件"
+        },
+        "replace": {
+          "confirm": "既存の環境変数は削除されます。{{ .Appid }} の環境変数をすべて置き換えますか？",
+          "success": "環境変数を置き換えました",
+          "empty": "置き換える変数がありません。KEY=VALUE のペアを渡すか、変数を 1 つ以上含むファイルを --from-file で指定してください。すべての変数を削除するには、squarecloud app env remove --all を実行してください。"
+        },
+        "remove": {
+          "success": "環境変数を削除しました：{{ .Count }} 件",
+          "usage": "削除する変数の名前を渡すか、--all ですべての変数を削除してください（両方は指定できません）。",
+          "confirm_all": "{{ .Appid }} の環境変数をすべて削除しますか？",
+          "success_all": "すべての環境変数を削除しました"
+        }
+      },
+      "file": {
+        "list": {
+          "empty": "このディレクトリにファイルはありません"
+        },
+        "read": {
+          "saved": "ファイルの内容を {{ .File }} に保存しました",
+          "overwrite": "{{ .File }} はすでに存在します。上書きしますか？"
+        },
+        "write": {
+          "success": "ファイル {{ .File }} を書き込みました"
+        },
+        "move": {
+          "success": "{{ .From }} を {{ .To }} に移動しました"
+        },
+        "delete": {
+          "confirm": "アプリケーションからファイル {{ .File }} を削除しますか？",
+          "success": "ファイル {{ .File }} を削除しました"
+        }
+      },
+      "deploy": {
+        "list": {
+          "empty": "このアプリケーションのデプロイはありません"
+        },
+        "current": {
+          "empty": "このアプリケーションには Git 連携が設定されていません",
+          "github_app": "GitHub App：{{ .Repository }}（ブランチ {{ .Branch }}）",
+          "webhook": "Webhook：{{ .Webhook }}"
+        },
+        "webhook": {
+          "removed": "Webhook 連携を削除しました",
+          "success": "Webhook を作成しました。GitHub リポジトリに追加してください："
+        },
+        "github": {
+          "link": {
+            "success": "リポジトリ {{ .Repository }}（ブランチ {{ .Branch }}）を連携しました"
+          },
+          "unlink": {
+            "success": "GitHub App リポジトリの連携を解除しました"
+          }
+        }
+      },
+      "network": {
+        "invalid_time": "{{ .Flag }} の値が無効です：{{ .Value }}。2026-01-02T15:04:05Z のような RFC 3339 形式の時刻を指定してください。",
+        "dns": {
+          "empty": "DNS レコードがありません。先にカスタムドメインを設定してください。"
+        },
+        "domain": {
+          "success": "カスタムドメイン {{ .Domain }} を設定しました",
+          "hint": "作成が必要な DNS レコードは「squarecloud app network dns」を実行して確認してください。"
+        },
+        "analytics": {
+          "empty": "指定した期間のアナリティクスデータはありません",
+          "summary": "訪問数：{{ .Visits }} | リクエスト数：{{ .Requests }} | トラフィック：{{ .Traffic }}"
+        },
+        "errors": {
+          "summary": "エラー：合計 {{ .Total }} 件（4xx：{{ .Class4xx }} 件、5xx：{{ .Class5xx }} 件）"
+        },
+        "logs": {
+          "empty": "指定した期間のエッジログはありません"
+        },
+        "performance": {
+          "summary": "リクエスト数：{{ .Requests }} | エッジ p50/p95：{{ .EdgeP50 }}/{{ .EdgeP95 }} ms | オリジン p50/p95：{{ .OrigP50 }}/{{ .OrigP95 }} ms"
+        },
+        "purge_cache": {
+          "confirm": "{{ .Appid }} のエッジキャッシュをすべてパージしますか？",
+          "success": "エッジキャッシュをパージしました"
+        }
+      }
+    },
+    "database": {
+      "list": {
+        "empty": "データベースがありません。"
+      },
+      "create": {
+        "success": "データベース {{ .Name }}（{{ .Id }}）を作成しました",
+        "password_warning": "今すぐパスワードを保存してください。表示は今回限りで、後から取得することはできません。"
+      },
+      "update": {
+        "success": "データベースを更新しました"
+      },
+      "delete": {
+        "confirm": "この操作は取り消せません。データベース {{ .Id }} を削除しますか？",
+        "success": "データベースを削除しました"
+      },
+      "signal": {
+        "success": "データベースにシグナル {{ .Signal }} を送信しました。"
+      },
+      "credentials": {
+        "reset": {
+          "invalid_type": "リセットの種類「{{ .Type }}」は無効です。password または certificate を指定してください。",
+          "confirm": "現在の認証情報はすぐに使えなくなります。データベース {{ .Id }} の {{ .Type }} をリセットしますか？",
+          "success": "認証情報をリセットしました"
+        }
+      }
+    },
+    "workspace": {
+      "list": {
+        "empty": "ワークスペースがありません。"
+      },
+      "create": {
+        "success": "ワークスペース {{ .Name }}（{{ .Id }}）を作成しました"
+      },
+      "info": {
+        "members": "メンバー：",
+        "applications": "アプリケーション："
+      },
+      "delete": {
+        "confirm": "この操作は取り消せません。ワークスペース {{ .Id }} を削除しますか？",
+        "success": "ワークスペースを削除しました"
+      },
+      "leave": {
+        "confirm": "ワークスペース {{ .Id }} から退出しますか？",
+        "success": "ワークスペースから退出しました"
+      },
+      "app": {
+        "add": {
+          "success": "アプリケーションをワークスペースと共有しました"
+        },
+        "remove": {
+          "success": "ワークスペースからアプリケーションを削除しました"
+        }
+      },
+      "member": {
+        "add": {
+          "success": "ワークスペースにメンバーを追加しました"
+        },
+        "update": {
+          "success": "メンバーの権限を更新しました"
+        },
+        "remove": {
+          "confirm": "ワークスペースからメンバー {{ .Id }} を削除しますか？",
+          "success": "ワークスペースからメンバーを削除しました"
+        },
+        "invite_code": {
+          "success": "あなたの招待コード（1 回限り、有効期間 5 分）："
+        }
+      }
+    },
+    "auth": {
+      "login": {
+        "error": "この API キーを使用している Square Cloud アカウントはありません。",
+        "success": {
+          "0": "API キーを保存しました。{{.User}} としてログインしました。",
+          "1": "大いなる力には、大いなる責任が伴う！"
+        },
+        "warnings": {
+          "no_plan": "現在、有効なプランがないようです。{{ .Link }} でプランに加入してください。"
+        },
+        "device": {
+          "instructions": "ブラウザでこのページを開き、コードを入力してください：",
+          "waiting": "承認を待っています · 有効期限まで {{ .Remaining }} · Ctrl+C でキャンセル",
+          "cancelled": "ログインをキャンセルしました。",
+          "expired": "ログインコードの有効期限が切れたか、すでに使用されています。もう一度 squarecloud auth login を実行してください。",
+          "key_limit": "アカウントの API キー数が上限に達しています。{{ .Link }} でキーを 1 つ失効させると、ログインが自動的に続行されます。",
+          "rate_limited": "このネットワークからの試行回数が多すぎます。1 分待ってから再試行します...",
+          "success": "{{ .Email }} としてログインしました。"
+        },
+        "key_expires": "この API キーの有効期限は {{ .Date }} です。",
+        "no_tty": "対話型のターミナルではありません。--with-token で stdin から API キーを読み込むか、SQUARECLOUD_API_KEY を設定してください。",
+        "empty_token": "stdin から API キーを受け取れませんでした。",
+        "env_override": "注意：SQUARECLOUD_API_KEY が設定されているため、保存済みのキーよりも優先されます。",
+        "ci": "CI 環境を検出しました（CI=true）。ブラウザでのログインで作成されるキーは 90 日で有効期限が切れ、更新には人による操作が必要です。{{ .Link }} で API キーを作成し、SQUARECLOUD_API_KEY に設定してください。",
+        "switch_account": "このマシンは別の Square Cloud アカウントでログインしています。{{ .Email }} に置き換えますか？"
+      },
+      "logout": {
+        "success": "Square Cloud アカウントからログアウトしました。",
+        "none": "このマシンで接続されているアカウントはありません。"
+      },
+      "whoami": {
+        "logged": {
+          "plan": "現在 {{.User.Name}} としてログインしています（{{ .User.Plan }} プラン）。",
+          "remaining": "プランの有効期限まで残り{{ if lt .User.PlanRemaining 1 }}数時間{{ else }} {{ .User.PlanRemaining }} 日{{ end }}です。",
+          "expired": "プランの有効期限が切れているか、有効なプランがありません。{{ .Link }} でプランに加入してください。"
+        },
+        "key": {
+          "expires": "API キーの有効期限は {{ .Date }} です。",
+          "scopes": "スコープ：{{ .Scopes }}",
+          "env": "SQUARECLOUD_API_KEY の API キーを使用しています。"
+        }
+      }
+    },
+    "zip": {
+      "failed": "アプリケーションを ZIP に圧縮できませんでした。",
+      "success": "プロジェクトを {{.Zip}} に圧縮しました",
+      "legacy_ignore": "{{ .File }} を読み込んでいます。CLI と VS Code 拡張機能で共通のファイル名である squarecloud.ignore に名前を変更してください。",
+      "skipped_link": "{{ .Path }} はフォルダへのリンクかリンク切れのため、スキップしました。",
+      "exists": "{{ .File }} はすでに存在し、削除できませんでした：{{ .Error }}"
+    },
+    "signal": {
+      "already_running": "すでに稼働中です。",
+      "already_stopped": "すでに停止しています。"
+    }
+  }
+}

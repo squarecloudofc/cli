@@ -14,9 +14,9 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
 		Use:         "status",
 		Short:       squareCli.I18n().T("metadata.commands.status.short"),
-		Annotations: map[string]string{"skipAuthCheck": "true"},
+		Annotations: map[string]string{"skipAuthCheck": "true", "json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			status, err := squareCli.Rest().ServiceStatus()
+			status, err := squareCli.API().Service.Status(cmd.Context())
 			if err != nil {
 				return err
 			}

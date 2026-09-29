@@ -24,4 +24,11 @@ async function run() {
   return result.status;
 }
 
-run()
+// Forward the CLI's exit code; null means it was killed by a signal.
+run().then(
+  (status) => process.exit(status ?? 1),
+  (err) => {
+    console.error(`Square Cloud CLI installation failed: ${err.message}`);
+    process.exit(1);
+  },
+);

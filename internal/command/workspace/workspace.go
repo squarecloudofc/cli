@@ -4,14 +4,13 @@ package workspace
 import (
 	"fmt"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -39,10 +38,11 @@ func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: squareCli.I18n().T("metadata.commands.workspace.list.short"),
+		Use:         "list",
+		Short:       squareCli.I18n().T("metadata.commands.workspace.list.short"),
+		Annotations: map[string]string{"json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			workspaces, err := squareCli.Rest().GetWorkspaces()
+			workspaces, err := squareCli.API().Workspaces.List(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -56,10 +56,11 @@ func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"NAME", "WORKSPACE ID", "MEMBERS", "APPS", "CREATED"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.name"), t.T("ui.table.workspace_id"), t.T("ui.table.members"), t.T("ui.table.apps"), t.T("ui.table.created")}, " \t "))
 			for _, ws := range workspaces {
 				fmt.Fprintf(w, "%s \t %s \t %d \t %d \t %s \t\n",
 					ws.Name, ws.ID, len(ws.Members), len(ws.Applications), ws.CreatedAt.Format(time.DateOnly))
@@ -76,7 +77,7 @@ func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.workspace.create.short"),
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			created, err := squareCli.Rest().CreateWorkspace(args[0])
+			created, err := squareCli.API().Workspaces.Create(cmd.Context(), args[0])
 			if err != nil {
 				return err
 			}
@@ -92,11 +93,12 @@ func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 func newInfoCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "info <workspace id>",
-		Short: squareCli.I18n().T("metadata.commands.workspace.info.short"),
-		Args:  cobra.ExactArgs(1),
+		Use:         "info <workspace id>",
+		Short:       squareCli.I18n().T("metadata.commands.workspace.info.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			ws, err := squareCli.Rest().GetWorkspace(args[0])
+			ws, err := squareCli.API().Workspaces.Get(cmd.Context(), args[0])
 			if err != nil {
 				return err
 			}
@@ -105,19 +107,26 @@ func newInfoCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmdutil.PrintJSON(squareCli.Out(), ws)
 			}
 
-			fmt.Fprintf(squareCli.Out(), "%-12s %s\n", "ID:", ws.ID)
-			fmt.Fprintf(squareCli.Out(), "%-12s %s\n", "Name:", ws.Name)
-			fmt.Fprintf(squareCli.Out(), "%-12s %s\n", "Owner:", ws.Owner)
-			fmt.Fprintf(squareCli.Out(), "%-12s %s\n", "Created at:", ws.CreatedAt.Format(time.DateTime))
+			t := squareCli.I18n()
+			w := cmdutil.NewTableWriter(squareCli.Out())
+			fmt.Fprintf(w, "%s\t%s\n", t.T("ui.field.id"), ws.ID)
+			fmt.Fprintf(w, "%s\t%s\n", t.T("ui.field.name"), ws.Name)
+			fmt.Fprintf(w, "%s\t%s\n", t.T("ui.field.owner"), ws.Owner)
+			fmt.Fprintf(w, "%s\t%s\n", t.T("ui.field.created_at"), ws.CreatedAt.Format(time.DateTime))
+			w.Flush()
 
 			if len(ws.Members) > 0 {
 				fmt.Fprintf(squareCli.Out(), "\n%s\n", squareCli.I18n().T("commands.workspace.info.members"))
 
-				w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
-				fmt.Fprintln(w, strings.Join([]string{"  NAME", "MEMBER ID", "GROUP", "JOINED"}, " \t "))
+				w := cmdutil.NewTableWriter(squareCli.Out())
+				fmt.Fprintln(w, strings.Join([]string{"  " + t.T("ui.table.name"), t.T("ui.table.member_id"), t.T("ui.table.group"), t.T("ui.table.joined")}, " \t "))
 				for _, member := range ws.Members {
+					name := "-"
+					if member.Name != nil {
+						name = *member.Name
+					}
 					fmt.Fprintf(w, "  %s \t %s \t %s \t %s \t\n",
-						member.Name, member.ID, member.Group, member.JoinedAt.Format(time.DateOnly))
+						name, member.ID, member.Group, member.JoinedAt.Format(time.DateOnly))
 				}
 				w.Flush()
 			}
@@ -125,8 +134,8 @@ func newInfoCommand(squareCli cli.SquareCLI) *cobra.Command {
 			if len(ws.Applications) > 0 {
 				fmt.Fprintf(squareCli.Out(), "\n%s\n", squareCli.I18n().T("commands.workspace.info.applications"))
 
-				w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
-				fmt.Fprintln(w, strings.Join([]string{"  NAME", "APP ID", "LANG", "MEMORY"}, " \t "))
+				w := cmdutil.NewTableWriter(squareCli.Out())
+				fmt.Fprintln(w, strings.Join([]string{"  " + t.T("ui.table.name"), t.T("ui.table.app_id"), t.T("ui.table.lang"), t.T("ui.table.memory")}, " \t "))
 				for _, app := range ws.Applications {
 					fmt.Fprintf(w, "  %s \t %s \t %s \t %dMB \t\n", app.Name, app.ID, app.Lang, app.RAM)
 				}
@@ -147,11 +156,11 @@ func newDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := squareCli.I18n().T("commands.workspace.delete.confirm", map[string]any{"Id": args[0]})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().DeleteWorkspace(args[0]); err != nil {
+			if err := squareCli.API().Workspaces.Delete(cmd.Context(), args[0]); err != nil {
 				return err
 			}
 
@@ -160,7 +169,7 @@ func newDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
 }
 
@@ -173,11 +182,11 @@ func newLeaveCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := squareCli.I18n().T("commands.workspace.leave.confirm", map[string]any{"Id": args[0]})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().LeaveWorkspace(args[0]); err != nil {
+			if err := squareCli.API().Workspaces.Leave(cmd.Context(), args[0]); err != nil {
 				return err
 			}
 
@@ -186,7 +195,7 @@ func newLeaveCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
 }
 
@@ -204,7 +213,7 @@ func newAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.workspace.app.add.short"),
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := squareCli.Rest().AddWorkspaceApplication(args[0], args[1]); err != nil {
+			if err := squareCli.API().Workspaces.Apps.Add(cmd.Context(), args[0], args[1]); err != nil {
 				return err
 			}
 
@@ -218,7 +227,7 @@ func newAppCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.workspace.app.remove.short"),
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := squareCli.Rest().RemoveWorkspaceApplication(args[0], args[1]); err != nil {
+			if err := squareCli.API().Workspaces.Apps.Remove(cmd.Context(), args[0], args[1]); err != nil {
 				return err
 			}
 
@@ -245,8 +254,8 @@ func newMemberCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.workspace.member.add.short"),
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			group := squarecloud.WorkspaceMemberGroup(args[2])
-			if err := squareCli.Rest().AddWorkspaceMember(args[0], args[1], group); err != nil {
+			group := squarecloud.WorkspaceGroup(args[2])
+			if err := squareCli.API().Workspaces.Members.Add(cmd.Context(), args[0], args[1], group); err != nil {
 				return err
 			}
 
@@ -260,8 +269,8 @@ func newMemberCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.workspace.member.update.short"),
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			group := squarecloud.WorkspaceMemberGroup(args[2])
-			if err := squareCli.Rest().UpdateWorkspaceMember(args[0], args[1], group); err != nil {
+			group := squarecloud.WorkspaceGroup(args[2])
+			if err := squareCli.API().Workspaces.Members.Update(cmd.Context(), args[0], args[1], group); err != nil {
 				return err
 			}
 
@@ -277,11 +286,11 @@ func newMemberCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			message := squareCli.I18n().T("commands.workspace.member.remove.confirm", map[string]any{"Id": args[1]})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().RemoveWorkspaceMember(args[0], args[1]); err != nil {
+			if err := squareCli.API().Workspaces.Members.Remove(cmd.Context(), args[0], args[1]); err != nil {
 				return err
 			}
 
@@ -289,19 +298,19 @@ func newMemberCommand(squareCli cli.SquareCLI) *cobra.Command {
 			return nil
 		},
 	}
-	remove.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	remove.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 
 	inviteCode := &cobra.Command{
 		Use:   "invite-code",
 		Short: squareCli.I18n().T("metadata.commands.workspace.member.invite_code.short"),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			code, err := squareCli.Rest().GetWorkspaceInviteCode()
+			code, err := squareCli.API().Workspaces.Members.InviteCode(cmd.Context())
 			if err != nil {
 				return err
 			}
 
 			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.workspace.member.invite_code.success"))
-			fmt.Fprintf(squareCli.Out(), "  %s\n", code.Code)
+			fmt.Fprintf(squareCli.Out(), "  %s\n", code)
 			return nil
 		},
 	}

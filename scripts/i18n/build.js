@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { join, resolve } from "path";
 
 const DEFAULT_LOCALE = "pt";
-const LOCALES = ["en", "pt", "es", "zh"];
+const LOCALES = ["en", "pt", "es", "zh", "de", "fr", "it", "ja"];
 const LOCALES_DIR = resolve("i18n/resources");
 
 /**

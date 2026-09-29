@@ -2,13 +2,19 @@ package config
 
 import (
 	"os"
-	"path"
-
-	"github.com/squarecloudofc/cli/i18n"
+	"path/filepath"
 )
 
+// Load reads the saved config. The language is not part of it: the CLI
+// detects it on every run (i18n.DetectSystemLanguage), and a "locale" left by
+// older versions is ignored and dropped on the next Save.
 func Load() (*Config, error) {
-	configPath := path.Join(ConfigDir(), ConfigFileName)
+	dir := ConfigDir()
+	if dir == "" {
+		return &Config{}, nil // Save reports ErrNoConfigDir
+	}
+
+	configPath := filepath.Join(dir, ConfigFileName)
 	configFile := New(configPath)
 
 	file, err := os.Open(configPath)
@@ -20,13 +26,6 @@ func Load() (*Config, error) {
 		return nil, err
 	}
 	defer file.Close()
-	err = configFile.LoadFromReader(file)
 
-	if configFile.Locale == "" {
-		lang := i18n.DetectSystemLanguage()
-		configFile.Locale = lang
-		configFile.Save()
-	}
-
-	return configFile, err
+	return configFile, configFile.LoadFromReader(file)
 }

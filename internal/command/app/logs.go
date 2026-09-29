@@ -10,21 +10,26 @@ import (
 
 func NewLogsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "logs [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.logs.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "logs [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.logs.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			result, err := squareCli.Rest().GetApplicationLogs(appID)
+			result, err := squareCli.API().Apps.Logs(cmd.Context(), appID)
 			if err != nil {
 				return err
 			}
 
-			fmt.Fprintln(squareCli.Out(), result.Logs)
+			if cmdutil.WantsJSON(cmd) {
+				return cmdutil.PrintJSON(squareCli.Out(), map[string]string{"logs": result})
+			}
+
+			fmt.Fprintln(squareCli.Out(), result)
 			return nil
 		},
 	}

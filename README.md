@@ -25,15 +25,71 @@ Or visit the [@squarecloud/cli npm page](https://www.npmjs.com/package/@squarecl
 ## Getting started
 
 ```bash
-squarecloud auth login        # authenticate with your API token
+squarecloud auth login        # sign in through the browser
 squarecloud upload            # zip & upload the current directory as a new app
 squarecloud commit -r         # commit the current directory and restart
 squarecloud app logs          # tail the latest logs (interactive app picker)
 ```
 
-Every command accepts `--json` for raw machine-readable output, and app/db
-IDs can be omitted — the CLI falls back to the `squarecloud.app` config file
-or an interactive picker.
+Commands that print data (`list`, `info`, `status`, `logs`, `whoami`,
+`upload`, ...) accept `--json` for raw machine-readable output; the others
+reject it with an error. App/db IDs can be omitted: the CLI falls back to the
+`squarecloud.app` config file or an interactive picker.
+
+## Ignoring files
+
+`upload`, `commit` and `zip` leave out what `squarecloud.ignore`, in the
+project root, lists. It is the same file, with the same rules, that the
+Square Cloud VS Code extension reads:
+
+- gitignore syntax: `#` comments, `!` to re-include, `dir/` for folders only,
+  `/build` for the root only, `*`, `?`, `[abc]` and `**` (`**/tmp`, `logs/**`,
+  `a/**/b`). The last matching line wins, and a file inside an ignored folder
+  cannot be re-included. Matching ignores case.
+- Always ignored first (re-include with `!`): `node_modules`, `.git`,
+  `.github`, `.vscode`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`.
+- Symbolic links to files are uploaded as the file; links to folders and
+  broken links are skipped with a note.
+
+```gitignore
+dist/
+*.log
+!keep.log
+/build
+.env
+```
+
+Older names (`.squareignore`, `.squarecloudignore`, `square.ignore`) are
+still read when `squarecloud.ignore` is missing, with a warning to rename.
+
+## Logging in
+
+`squarecloud auth login` shows a short code and opens
+<https://squarecloud.app/account/security/authorize> in your browser. Type the
+code there and approve; the CLI receives a new API key with only the
+permissions its commands use. Keys issued this way expire after 90 days
+(`auth whoami` shows the date); run `auth login` again to renew. Press
+Ctrl+C to cancel.
+
+| Option | Use it when |
+| ------ | ----------- |
+| `--no-browser` | The browser cannot be opened from this machine (SSH, containers). The URL is printed; open it anywhere. |
+| `--token <key>` | You already have an API key. It is checked before being saved. |
+| `--with-token` | Scripts and CI: reads the key from stdin, e.g. `echo "$KEY" \| squarecloud auth login --with-token`. |
+
+For CI, create an API key in the dashboard and set `SQUARECLOUD_API_KEY`:
+every command uses it instead of the saved key, and `auth login` is not
+needed. With `CI=true` the browser login refuses to run, since its key
+expires and only a person can renew it. Without a terminal and without one
+of these options, `auth login` exits with a hint.
+
+If this machine is already logged in to another account, `auth login` asks
+before replacing it (`--yes` skips the question).
+
+`auth whoami` shows the account, its plan and, for browser logins, when the
+key expires and its scopes. `auth logout` removes the saved key from this
+machine. If a command reports that the session expired or the key was
+revoked, run `squarecloud auth login` again.
 
 ## Commands
 
@@ -54,13 +110,13 @@ or an interactive picker.
 | `app status [id] [--all] [--raw]` | Runtime status (one app or every app) |
 | `app logs [id]` | Most recent logs |
 | `app metrics [id]` | Last 24h of CPU/RAM/network metrics |
-| `app realtime [id]` | Stream realtime events (SSE) |
+| `app realtime [id]` | Stream live logs (stderr lines go to stderr) and status changes |
 | `app start` / `restart` / `stop [id]` | Lifecycle signals |
 | `app delete [id]` | Delete an application |
 | `app domains` | Every domain configured across your apps |
 | `app load-balancers` | Custom domains grouped by app |
-| `app env list/set/remove/replace` | Environment variables (`set KEY=VAL...`, `--from-file .env`) |
-| `app file list/read/write/move/delete` | Remote file manager |
+| `app env list/set/remove/replace` | Environment variables (`set KEY=VAL...`, `--from-file .env`; `replace` needs at least one variable, `remove --all` clears them all) |
+| `app file list/read/write/move/delete` | Remote file manager (`write --from <file>` is binary-safe; `read -o <file>` creates new files with 0600 permissions) |
 | `app deploy list/current/webhook/github link\|unlink` | Deployments & Git integrations |
 | `app network dns/domain/analytics/errors/logs/performance/purge-cache` | DNS, custom domain & edge observability |
 | `app snapshot list/create/restore` | Application snapshots |
@@ -86,13 +142,25 @@ or an interactive picker.
 | `workspace app add/remove` | Share apps with a workspace |
 | `workspace member add/update/remove/invite-code` | Manage members |
 
-Destructive commands (`delete`, `env replace`, `credentials reset`,
-`purge-cache`, `snapshot restore`, ...) ask for confirmation; pass `-y` to
-skip.
+Destructive commands (`delete`, `env replace`, `env remove --all`,
+`credentials reset`, `purge-cache`, `snapshot restore`, `file read -o` over an
+existing file, ...) ask for confirmation; pass `-y` to skip. Answering no, or running without a terminal (CI) and without `-y`,
+exits with code 1 and changes nothing. `snapshot list <id>` prints the
+version IDs that `snapshot restore` takes. Starting a running app or database (or stopping a stopped one) is
+reported as such, not as an error.
+
+## Language
+
+Messages, help and flag descriptions follow your system language, detected on
+every run: the `LANGUAGE`, `LC_ALL`, `LC_MESSAGES` or `LANG` variable when set,
+otherwise the OS display language (on Windows, the display language, not the
+regional format). A language without a translation falls back to English. To pick one for a single run: `LC_ALL=pt_BR squarecloud --help`.
 
 ## Debugging
 
-Set `SQUARECLOUD_DEBUG=1` to log every API request/response to stderr.
+Set `SQUARECLOUD_DEBUG=1` to trace every API request to stderr: method, path,
+status and duration. Headers, query strings and bodies are never logged, so the
+output is safe to share.
 
 ## Update
 
@@ -105,5 +173,5 @@ curl -fsSL https://cli.squarecloud.app/install.sh | sh
 Windows:
 
 ```bash
-squarecloud update
+npm install -g @squarecloud/cli@latest
 ```

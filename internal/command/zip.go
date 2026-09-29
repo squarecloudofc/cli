@@ -1,16 +1,17 @@
 package command
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
+	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/cli/pkg/squareignore"
-	"github.com/squarecloudofc/cli/pkg/zipper"
 )
 
 func NewZipCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -37,25 +38,47 @@ func runZipCommand(squareCli cli.SquareCLI) func(cmd *cobra.Command, args []stri
 		if _, err := os.Lstat(zipfilename); err == nil {
 			err := os.Remove(zipfilename)
 			if err != nil {
-				fmt.Fprintf(squareCli.Err(), "%s.zip already exists and its not possible to delete it\n", workDirName)
-				return nil
+				return errors.New(squareCli.I18n().T("commands.zip.exists", map[string]any{"File": workDirName + ".zip", "Error": err.Error()}))
 			}
 		}
 
-		ignoreFiles, _ := squareignore.Load()
-		file, err := zipper.ZipFolder(workDir, ignoreFiles)
+		file, err := cmdutil.ZipProject(squareCli, workDir)
 		if err != nil {
 			return err
 		}
-		file.Close()
+		defer os.Remove(file.Name())
+		defer file.Close()
 
-		err = os.Rename(file.Name(), zipfilename)
+		// Copied, not renamed: the temp dir is often another filesystem
+		// (tmpfs /tmp, %TEMP% on another drive) and rename fails across them.
+		err = copyFile(file, zipfilename)
 		if err != nil {
-			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.zip.failed", map[string]any{"Zip": workDirName}))
+			fmt.Fprintf(squareCli.Err(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.zip.failed", map[string]any{"Zip": workDirName}))
 			return err
 		}
 
 		fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.zip.success", map[string]any{"Zip": workDirName}))
 		return nil
 	}
+}
+
+// copyFile writes src (from its start) to dst, removing dst on failure.
+func copyFile(src *os.File, dst string) error {
+	if _, err := src.Seek(0, io.SeekStart); err != nil {
+		return err
+	}
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+
+	_, err = io.Copy(out, src)
+	if closeErr := out.Close(); err == nil {
+		err = closeErr
+	}
+	if err != nil {
+		os.Remove(dst)
+	}
+	return err
 }

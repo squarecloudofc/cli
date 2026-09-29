@@ -17,18 +17,18 @@ func NewDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.app.delete.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
 			message := squareCli.I18n().T("commands.app.delete.confirm", map[string]any{"Appid": appID})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().DeleteApplication(appID); err != nil {
-				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.delete.failed"))
+			if err := squareCli.API().Apps.Delete(cmd.Context(), appID); err != nil {
+				fmt.Fprintf(squareCli.Err(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.app.delete.failed"))
 				return err
 			}
 
@@ -37,6 +37,6 @@ func NewDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
 }

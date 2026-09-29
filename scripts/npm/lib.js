@@ -1,118 +1,72 @@
-import { createReadStream, mkdirSync, createWriteStream, readFileSync, unlinkSync } from "node:fs";
+import { createReadStream, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { resolve as _resolve } from "node:path";
+import { pipeline } from "node:stream/promises";
 import { createGunzip } from "node:zlib";
-
-import { extract as _extract } from "tar-fs";
 import { createHash } from "node:crypto";
-import AdmZip from "adm-zip";
+
 import { REPOSITORY, VERSION, BIN_NAME, ARCH, PLATFORM, UNSUPPORTED_ARCH, UNSUPPORTED_PLATFORM, BIN_DIR } from "./constants.js";
 
+/** The goreleaser archive for a platform and arch (see goreleaser.yaml). */
+export function assetName(platform, arch) {
+  return `${BIN_NAME}_${platform}_${arch}${platform === "windows" ? ".zip" : ".tar.gz"}`;
+}
+
+/** A file of the tagged release. A direct download: no GitHub API call, so no API rate limit. */
+export function releaseURL(version, file) {
+  return `https://github.com/${REPOSITORY}/releases/download/v${version}/${file}`;
+}
+
+/** The SHA-256 of file in a goreleaser checksums.txt ("<hex>  <name>" lines). */
+export function checksumFor(text, file) {
+  for (const line of text.split("\n")) {
+    const [hash, name] = line.trim().split(/\s+/);
+    if (name === file && /^[0-9a-f]{64}$/i.test(hash)) return hash.toLowerCase();
+  }
+  throw new Error(`checksums.txt has no entry for ${file}`);
+}
+
+/** Downloads, verifies and extracts the CLI binary. Rejects on any failure. */
 export async function installBinaries() {
   if (!PLATFORM) throw UNSUPPORTED_PLATFORM;
   if (!ARCH) throw UNSUPPORTED_ARCH;
 
-  const destination = BIN_DIR;
-  const release = await getRelease(`v${VERSION}`).catch(err => {
-    throw new Error(`Unable to find release v${VERSION}`);
-  });
-  const assetPrefix = `${BIN_NAME}_${PLATFORM}_${ARCH}`
-  const asset = release.assets.find((a) => a.name.startsWith(assetPrefix));
-  if (!asset) throw new Error(`Cannot find an asset for ${PLATFORM} - ${ARCH} (${assetPrefix})`);
+  const file = assetName(PLATFORM, ARCH);
+  const expected = checksumFor((await download(releaseURL(VERSION, "checksums.txt"))).toString("utf8"), file);
 
-  const checksumAsset = release.assets.find(a => a.name === "checksums.txt");
+  const archive = await download(releaseURL(VERSION, file));
+  const actual = createHash("sha256").update(archive).digest("hex");
+  if (actual !== expected) {
+    throw new Error(`${file} does not match checksums.txt (expected ${expected}, got ${actual})`);
+  }
 
+  mkdirSync(BIN_DIR, { recursive: true });
+  const filepath = _resolve(BIN_DIR, file);
+  writeFileSync(filepath, archive);
   try {
-    const checksumText = await (await fetch(checksumAsset.browser_download_url)).text();
-    const checksumList = checksumText.split('\n').map((c) => c.split(/\s+/));
-    const checksumEntry = checksumList.find((c) => asset.browser_download_url.includes(c[1]));
-    if (!checksumEntry) throw new Error('Checksum entry not found for the asset');
-    const [checksum] = checksumEntry;
-
-    mkdirSync(destination, { recursive: true });
-    const filepath = _resolve(destination, asset.name);
-
-    await downloadFile(asset.browser_download_url, filepath);
-    await validateChecksum(filepath, checksum);
-
-    console.log(`Extracting file to ${destination}`);
-    await extractFile(filepath, destination);
+    console.log(`Extracting ${file} to ${BIN_DIR}`);
+    await extractFile(filepath, BIN_DIR);
+  } finally {
     unlinkSync(filepath);
-
-  } catch (err) {
-    console.log(`Unable to install the CLI:`, err)
   }
 }
 
-async function validateChecksum(filePath, checksum) {
-  console.log('Validating file checksum...');
-  const file = readFileSync(filePath);
-  const hash = createHash('sha256').update(file).digest('hex');
-  if (hash !== checksum) {
-    throw new Error('The file checksum does not match with checksums.txt');
-  }
+async function download(url) {
+  console.log(`Downloading ${url}`);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`GET ${url} failed: ${res.status} ${res.statusText}`);
+  return Buffer.from(await res.arrayBuffer());
 }
 
-async function downloadFile(url, destination) {
-  return new Promise(async (resolve, reject) => {
-    console.log(`Downloading from ${url}`);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Failed to download file from ${url}`);
-
-    const stream = createWriteStream(destination);
-    const reader = res.body.getReader();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) {
-        break;
-      }
-
-      stream.write(value);
-    }
-
-    stream.end();
-
-    stream.once("error", (err) => {
-      console.log("Error when trying to download the file", err);
-      reject(err);
-    });
-
-    stream.once("close", () => {
-      console.log("Download completed.");
-      resolve();
-    });
-  })
-}
-
+// The archive libraries load on use, so the helpers above run (and are
+// tested) without node_modules.
 async function extractFile(path, destination) {
-  return new Promise((resolve, reject) => {
-    if (path.endsWith(".zip")) {
-      const zip = new AdmZip(path);
-      zip.extractAllToAsync(destination, true, false, (err) => (err ? reject(err) : resolve()))
-    }
+  if (path.endsWith(".zip")) {
+    const { default: AdmZip } = await import("adm-zip");
+    return new Promise((resolve, reject) => {
+      new AdmZip(path).extractAllToAsync(destination, true, false, (err) => (err ? reject(err) : resolve()));
+    });
+  }
 
-    if (path.endsWith(".tar.gz")) {
-      const extract = _extract(destination);
-      const stream = createReadStream(path)
-        .pipe(createGunzip())
-        .pipe(extract);
-
-      stream.on("finish", resolve);
-      stream.on("error", reject);
-    }
-  })
-}
-
-async function getRelease(tag) {
-  const res = await fetch(
-    `https://api.github.com/repos/${REPOSITORY}/releases/tags/${tag}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "Square Cloud CLI",
-      },
-    },
-  );
-
-  return res.json();
+  const { extract } = await import("tar-fs");
+  await pipeline(createReadStream(path), createGunzip(), extract(destination));
 }

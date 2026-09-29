@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
@@ -12,10 +11,11 @@ import (
 
 func NewDomainsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "domains",
-		Short: squareCli.I18n().T("metadata.commands.app.domains.short"),
+		Use:         "domains",
+		Short:       squareCli.I18n().T("metadata.commands.app.domains.short"),
+		Annotations: map[string]string{"json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			domains, err := squareCli.Rest().GetApplicationDomains()
+			domains, err := squareCli.API().Apps.Domains(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -29,10 +29,11 @@ func NewDomainsCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"HOSTNAME", "TYPE", "APP ID"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.hostname"), t.T("ui.table.type"), t.T("ui.table.app_id")}, " \t "))
 			for _, domain := range domains {
 				fmt.Fprintf(w, "%s \t %s \t %s \t\n", domain.Hostname, domain.Type, domain.AppID)
 			}
@@ -44,11 +45,12 @@ func NewDomainsCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 func NewLoadBalancersCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:     "load-balancers",
-		Aliases: []string{"lb"},
-		Short:   squareCli.I18n().T("metadata.commands.app.load_balancers.short"),
+		Use:         "load-balancers",
+		Aliases:     []string{"lb"},
+		Short:       squareCli.I18n().T("metadata.commands.app.load_balancers.short"),
+		Annotations: map[string]string{"json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			lbs, err := squareCli.Rest().GetLoadBalancers()
+			lbs, err := squareCli.API().Apps.LoadBalancers(cmd.Context())
 			if err != nil {
 				return err
 			}
@@ -64,10 +66,11 @@ func NewLoadBalancersCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.app.load_balancers.limit", map[string]any{"Limit": lbs.Limit}))
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"HOSTNAME", "APP ID", "APP NAME", "CLUSTER"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.hostname"), t.T("ui.table.app_id"), t.T("ui.table.app_name"), t.T("ui.table.cluster")}, " \t "))
 			for _, balancer := range lbs.Balancers {
 				for _, app := range balancer.Apps {
 					fmt.Fprintf(w, "%s \t %s \t %s \t %s \t\n", balancer.Hostname, app.ID, app.Name, app.Cluster)

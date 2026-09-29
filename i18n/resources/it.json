@@ -1,0 +1,702 @@
+{
+  "errors": {
+    "common": {
+      "not_logged": "Per eseguire questo comando devi effettuare l'accesso. Accedi con squarecloud auth login.",
+      "json_unsupported": "{{ .Command }} non ha un output JSON; eseguilo senza --json.",
+      "not_a_command": "{{ .Command }} non è un comando. Vedi 'squarecloud --help'.",
+      "selection_canceled": "Selezione annullata."
+    },
+    "api": {
+      "unauthorized": "La tua sessione è scaduta o la chiave API è stata revocata. Esegui squarecloud auth login per accedere di nuovo.",
+      "rate_limited": "Troppe richieste. Attendi un momento e riprova."
+    },
+    "confirm": {
+      "no_tty": "Impossibile chiedere conferma: questo non è un terminale interattivo. Esegui di nuovo il comando con --yes (-y) per confermare, oppure eseguilo in un terminale.",
+      "declined": "Annullato. Non è stato modificato nulla. Usa --yes (-y) per saltare questa domanda."
+    },
+    "config": {
+      "no_dir": "Impossibile trovare una cartella per la configurazione della CLI: imposta HOME (APPDATA su Windows) per salvare l'accesso, oppure usa SQUARECLOUD_API_KEY.",
+      "load": "Impossibile caricare il file di configurazione: {{ .Error }}"
+    }
+  },
+  "ui": {
+    "select": {
+      "application": "Scegli un'applicazione",
+      "database": "Scegli un database"
+    },
+    "update": {
+      "outdated": "Stai usando una versione obsoleta di Square Cloud CLI: {{ .Version }}",
+      "hint": "Aggiorna alla versione {{ .Version }}"
+    },
+    "table": {
+      "name": "NOME",
+      "type": "TIPO",
+      "status": "STATO",
+      "size": "DIMENSIONE",
+      "memory": "MEMORIA",
+      "cluster": "CLUSTER",
+      "domain": "DOMINIO",
+      "hostname": "HOSTNAME",
+      "lang": "LINGUAGGIO",
+      "app_id": "ID APP",
+      "app_name": "NOME APP",
+      "apps": "APP",
+      "db_id": "ID DB",
+      "workspace_id": "ID SPAZIO DI LAVORO",
+      "member_id": "ID MEMBRO",
+      "members": "MEMBRI",
+      "group": "GRUPPO",
+      "joined": "INGRESSO",
+      "created": "CREATO",
+      "modified": "MODIFICATO",
+      "last_update": "AGGIORNATO",
+      "quantity": "QUANTITÀ",
+      "version_id": "ID VERSIONE",
+      "date": "DATA",
+      "time": "ORA",
+      "commit": "COMMIT",
+      "state": "STATO",
+      "branch": "BRANCH",
+      "running": "IN ESECUZIONE",
+      "mem": "MEM",
+      "disk": "DISCO",
+      "net": "RETE",
+      "uptime": "UPTIME",
+      "value": "VALORE",
+      "country": "PAESE",
+      "requests": "RICHIESTE",
+      "visits": "VISITE",
+      "path": "PERCORSO",
+      "slowest_path": "PERCORSO PIÙ LENTO",
+      "method": "METODO",
+      "errors": "ERRORI"
+    },
+    "field": {
+      "id": "ID:",
+      "name": "Nome:",
+      "description": "Descrizione:",
+      "type": "Tipo:",
+      "language": "Linguaggio:",
+      "memory": "Memoria:",
+      "port": "Porta:",
+      "cluster": "Cluster:",
+      "owner": "Proprietario:",
+      "domain": "Dominio:",
+      "custom_domain": "Dominio personalizzato:",
+      "created_at": "Data di creazione:",
+      "password": "PASSWORD:",
+      "url": "URL:"
+    }
+  },
+  "metadata": {
+    "commands": {
+      "root": {
+        "short": "Un'applicazione a riga di comando per gestire le tue applicazioni Square Cloud"
+      },
+      "status": {
+        "short": "Controlla lo stato della piattaforma Square Cloud"
+      },
+      "snapshot": {
+        "list": {
+          "short": "Elenca tutti gli snapshot del tuo account"
+        }
+      },
+      "app": {
+        "commit": {
+          "short": "Esegui un commit nella tua applicazione"
+        },
+        "delete": {
+          "short": "Elimina la tua applicazione"
+        },
+        "list": {
+          "short": "Elenca tutte le tue applicazioni ospitate"
+        },
+        "info": {
+          "short": "Mostra informazioni dettagliate sulla tua applicazione"
+        },
+        "logs": {
+          "short": "Mostra i log più recenti della tua applicazione"
+        },
+        "metrics": {
+          "short": "Mostra le metriche di CPU/RAM/rete delle ultime 24h"
+        },
+        "realtime": {
+          "short": "Segui lo stream in tempo reale degli eventi della tua applicazione (SSE)"
+        },
+        "domains": {
+          "short": "Elenca tutti i domini configurati nelle tue applicazioni"
+        },
+        "load_balancers": {
+          "short": "Elenca i tuoi domini personalizzati raggruppati per applicazione (load balancer)"
+        },
+        "root": {
+          "short": "Gestisci le tue applicazioni con questi comandi"
+        },
+        "signal": {
+          "start": {
+            "short": "Invia un segnale di avvio per avviare la tua applicazione"
+          },
+          "restart": {
+            "short": "Invia un segnale di riavvio per riavviare il processo della tua applicazione"
+          },
+          "stop": {
+            "short": "Invia un segnale di arresto per arrestare il processo della tua applicazione"
+          }
+        },
+        "status": {
+          "short": "Mostra lo stato della tua applicazione"
+        },
+        "upload": {
+          "short": "Carica una nuova applicazione"
+        },
+        "snapshot": {
+          "root": {
+            "short": "Gestisci tutti gli snapshot delle tue applicazioni"
+          },
+          "create": {
+            "short": "Crea un nuovo snapshot della tua applicazione"
+          },
+          "restore": {
+            "short": "Ripristina la tua applicazione da uno snapshot"
+          }
+        },
+        "env": {
+          "root": {
+            "short": "Gestisci le variabili d'ambiente della tua applicazione"
+          },
+          "list": {
+            "short": "Elenca le variabili d'ambiente"
+          },
+          "set": {
+            "short": "Imposta una o più variabili d'ambiente"
+          },
+          "replace": {
+            "short": "Sostituisci l'intero insieme di variabili d'ambiente"
+          },
+          "remove": {
+            "short": "Rimuovi una o più variabili d'ambiente"
+          }
+        },
+        "file": {
+          "root": {
+            "short": "Gestisci i file della tua applicazione"
+          },
+          "list": {
+            "short": "Elenca i file in una cartella della tua applicazione"
+          },
+          "read": {
+            "short": "Leggi un file della tua applicazione"
+          },
+          "write": {
+            "short": "Crea o sovrascrivi un file nella tua applicazione"
+          },
+          "move": {
+            "short": "Sposta o rinomina un file nella tua applicazione"
+          },
+          "delete": {
+            "short": "Elimina un file dalla tua applicazione"
+          }
+        },
+        "deploy": {
+          "root": {
+            "short": "Gestisci i deploy e le integrazioni Git"
+          },
+          "list": {
+            "short": "Elenca i deploy più recenti"
+          },
+          "current": {
+            "short": "Mostra l'integrazione Git attuale"
+          },
+          "webhook": {
+            "short": "Configura un'integrazione di deploy tramite webhook GitHub"
+          },
+          "github": {
+            "root": {
+              "short": "Gestisci l'integrazione con la GitHub App"
+            },
+            "link": {
+              "short": "Collega un repository tramite la GitHub App di Square Cloud"
+            },
+            "unlink": {
+              "short": "Scollega il repository della GitHub App"
+            }
+          }
+        },
+        "network": {
+          "root": {
+            "short": "Gestisci DNS, dominio personalizzato e osservabilità edge"
+          },
+          "dns": {
+            "short": "Mostra i record DNS necessari per il tuo dominio personalizzato"
+          },
+          "domain": {
+            "short": "Imposta il dominio personalizzato della tua applicazione"
+          },
+          "analytics": {
+            "short": "Mostra gli analytics edge della tua applicazione"
+          },
+          "errors": {
+            "short": "Mostra la ripartizione degli errori edge della tua applicazione"
+          },
+          "logs": {
+            "short": "Mostra i log delle richieste edge (piani Pro+)"
+          },
+          "performance": {
+            "short": "Mostra i percentili di latenza edge (piani Pro+)"
+          },
+          "purge_cache": {
+            "short": "Svuota l'intera cache edge della tua applicazione"
+          }
+        }
+      },
+      "database": {
+        "root": {
+          "short": "Gestisci i database del tuo account"
+        },
+        "list": {
+          "short": "Elenca tutti i tuoi database"
+        },
+        "create": {
+          "short": "Crea un nuovo database"
+        },
+        "info": {
+          "short": "Mostra informazioni dettagliate sul tuo database"
+        },
+        "update": {
+          "short": "Aggiorna il nome o la memoria del tuo database"
+        },
+        "delete": {
+          "short": "Elimina il tuo database"
+        },
+        "start": {
+          "short": "Avvia il tuo database"
+        },
+        "stop": {
+          "short": "Arresta il tuo database"
+        },
+        "status": {
+          "short": "Mostra lo stato del tuo database"
+        },
+        "metrics": {
+          "short": "Mostra le metriche del database delle ultime 24h"
+        },
+        "credentials": {
+          "root": {
+            "short": "Gestisci le credenziali del tuo database"
+          },
+          "certificate": {
+            "short": "Stampa il certificato TLS del tuo database"
+          },
+          "reset": {
+            "short": "Reimposta la password o il certificato del tuo database"
+          }
+        },
+        "snapshot": {
+          "root": {
+            "short": "Gestisci tutti gli snapshot dei tuoi database"
+          },
+          "create": {
+            "short": "Crea un nuovo snapshot del tuo database"
+          },
+          "restore": {
+            "short": "Ripristina il tuo database da uno snapshot"
+          }
+        }
+      },
+      "workspace": {
+        "root": {
+          "short": "Gestisci gli spazi di lavoro del tuo team"
+        },
+        "list": {
+          "short": "Elenca tutti i tuoi spazi di lavoro"
+        },
+        "create": {
+          "short": "Crea un nuovo spazio di lavoro"
+        },
+        "info": {
+          "short": "Mostra membri e applicazioni di uno spazio di lavoro"
+        },
+        "delete": {
+          "short": "Elimina uno spazio di lavoro"
+        },
+        "leave": {
+          "short": "Esci da uno spazio di lavoro"
+        },
+        "app": {
+          "root": {
+            "short": "Condividi applicazioni con uno spazio di lavoro"
+          },
+          "add": {
+            "short": "Condividi un'applicazione con uno spazio di lavoro"
+          },
+          "remove": {
+            "short": "Rimuovi un'applicazione da uno spazio di lavoro"
+          }
+        },
+        "member": {
+          "root": {
+            "short": "Gestisci i membri di uno spazio di lavoro"
+          },
+          "add": {
+            "short": "Aggiungi un membro tramite codice di invito"
+          },
+          "update": {
+            "short": "Cambia il gruppo di permessi di un membro"
+          },
+          "remove": {
+            "short": "Rimuovi un membro da uno spazio di lavoro"
+          },
+          "invite_code": {
+            "short": "Genera il tuo codice di invito monouso (valido per 5 minuti)"
+          }
+        }
+      },
+      "auth": {
+        "root": {
+          "short": "Gestisci l'accesso a Square Cloud con questi comandi"
+        },
+        "login": {
+          "short": "Accedi a Square Cloud, necessario per eseguire alcuni comandi della CLI"
+        },
+        "logout": {
+          "short": "Termina la sessione corrente"
+        },
+        "whoami": {
+          "short": "Mostra il nome utente e l'ID dell'account con cui hai effettuato l'accesso"
+        }
+      },
+      "zip": {
+        "short": "Crea uno zip della cartella corrente"
+      }
+    },
+    "flags": {
+      "version": "Stampa la versione della CLI",
+      "json": "Mostra l'output come JSON grezzo",
+      "app": "ID dell'applicazione",
+      "yes": "Salta la richiesta di conferma",
+      "file": "File da caricare al posto della cartella corrente",
+      "restart": "Riavvia l'applicazione dopo il commit",
+      "path": "Cartella di destinazione nell'applicazione",
+      "status_all_apps": "Mostra lo stato di tutte le applicazioni",
+      "status_all_databases": "Mostra lo stato di tutti i database",
+      "raw": "Stampa le statistiche numeriche grezze in JSON",
+      "from_file": "Leggi le variabili da un file in stile .env",
+      "remove_all_envs": "Rimuovi tutte le variabili d'ambiente",
+      "output": "Scrivi il contenuto in un file locale",
+      "download": "Scarica automaticamente lo snapshot creato",
+      "from": "Leggi il contenuto da un file locale (predefinito: stdin)",
+      "remove_webhook": "Rimuovi il webhook configurato",
+      "start": "Inizio dell'intervallo (RFC 3339, predefinito: 24h fa)",
+      "end": "Fine dell'intervallo (RFC 3339, predefinito: adesso)",
+      "filter": "Filtra gli analytics per {{ .Name }}",
+      "include_4xx": "Includi le risposte 4xx (predefinito: solo 5xx)",
+      "token": "Accedi con una chiave API di Square Cloud esistente",
+      "with_token": "Leggi la chiave API da stdin",
+      "no_browser": "Non aprire il browser; stampa solo l'URL",
+      "yes_switch_account": "Sostituisci la chiave salvata di un altro account senza chiedere conferma",
+      "db_name": "Nome del database (1-32 caratteri)",
+      "db_memory": "Memoria allocata in MB",
+      "db_type": "Engine: mongo, mysql, redis o postgres",
+      "db_version": "Versione dell'engine",
+      "db_new_name": "Nuovo nome del database",
+      "db_new_memory": "Nuova memoria allocata in MB"
+    },
+    "help": {
+      "flag": "Mostra l'aiuto per questo comando",
+      "command": "Aiuto su qualsiasi comando",
+      "usage": "Uso:",
+      "aliases": "Alias:",
+      "examples": "Esempi:",
+      "available_commands": "Comandi disponibili:",
+      "additional_commands": "Comandi aggiuntivi:",
+      "flags": "Flag:",
+      "global_flags": "Flag globali:",
+      "additional_topics": "Altri argomenti di aiuto:",
+      "more_info": "Usa \"{{ .Command }} [command] --help\" per maggiori informazioni su un comando."
+    }
+  },
+  "commands": {
+    "whoami": {
+      "none": "Non hai effettuato l'accesso a nessun account Square Cloud."
+    },
+    "snapshot": {
+      "list": {
+        "empty": "Nessuno snapshot trovato per il tuo account"
+      },
+      "create": {
+        "downloading": "Salvataggio dello snapshot in corso...",
+        "error": "Impossibile scaricare lo snapshot. Riprova più tardi.",
+        "success": {
+          "downloaded": "Snapshot salvato correttamente in {{ .File }}",
+          "link": "Snapshot creato. Scaricalo da:"
+        },
+        "pending": "Lo snapshot è in fase di generazione. Comparirà nell'elenco degli snapshot tra qualche minuto."
+      },
+      "restore": {
+        "confirm": "Ripristinare {{ .Id }} da questo snapshot? I dati attuali verranno sostituiti",
+        "success": "Ripristino avviato correttamente"
+      }
+    },
+    "app": {
+      "commit": {
+        "arguments": {
+          "missing": "Non hai indicato un ID di applicazione.",
+          "missing_2": "Puoi anche impostarlo con una riga ID= nel tuo file squarecloud.app."
+        },
+        "states": {
+          "loading_file": "Lettura del file {{ .Filename }}",
+          "compressing": "Compressione della cartella corrente.",
+          "uploading": "Commit in corso nella tua applicazione ({{.Appid}})..."
+        },
+        "success": "Commit nella tua applicazione completato."
+      },
+      "upload": {
+        "error": "Impossibile caricare l'applicazione su Square Cloud: {{ .Error }}",
+        "states": {
+          "loading_file": "File fornito, compressione saltata.",
+          "compressing": "Compressione della cartella corrente.",
+          "uploading": "Caricamento del file zip su Square Cloud."
+        },
+        "success": "Applicazione caricata su Square Cloud!",
+        "access": "Aprila su {{.Link}}"
+      },
+      "delete": {
+        "confirm": "Eliminare l'applicazione {{ .Appid }}? Questa azione è irreversibile",
+        "failed": "Impossibile eliminare la tua applicazione",
+        "success": "La tua applicazione è stata eliminata."
+      },
+      "list": {
+        "empty": "Non hai nessuna applicazione."
+      },
+      "info": {},
+      "metrics": {
+        "empty": "Nessuna metrica disponibile per questa applicazione"
+      },
+      "realtime": {
+        "connected": "Connesso allo stream in tempo reale di {{ .Appid }} (Ctrl+C per uscire)"
+      },
+      "domains": {
+        "empty": "Nessun dominio configurato nelle tue applicazioni"
+      },
+      "load_balancers": {
+        "empty": "Nessun load balancer configurato (collega un dominio personalizzato a più di un'applicazione)",
+        "limit": "Applicazioni per dominio consentite dal tuo piano: {{ .Limit }}"
+      },
+      "signal": {
+        "failed": "Impossibile inviare il segnale alla tua applicazione",
+        "success": "Segnale {{.Signal}} inviato correttamente alla tua applicazione."
+      },
+      "env": {
+        "invalid": "Variabile non valida \"{{ .Variable }}\": formato atteso KEY=VALUE.",
+        "list": {
+          "empty": "Nessuna variabile d'ambiente impostata per questa applicazione"
+        },
+        "set": {
+          "success": "Variabili d'ambiente impostate: {{ .Count }}"
+        },
+        "replace": {
+          "confirm": "Sostituire TUTTE le variabili d'ambiente di {{ .Appid }}? Quelle esistenti verranno rimosse",
+          "success": "Variabili d'ambiente sostituite correttamente",
+          "empty": "Nessuna variabile con cui sostituire quelle attuali. Passa coppie KEY=VALUE o --from-file con almeno una variabile. Per rimuovere tutte le variabili, esegui squarecloud app env remove --all."
+        },
+        "remove": {
+          "success": "Variabili d'ambiente rimosse: {{ .Count }}",
+          "usage": "Passa i nomi delle variabili da rimuovere, oppure --all per rimuoverle tutte (non entrambi).",
+          "confirm_all": "Rimuovere TUTTE le variabili d'ambiente di {{ .Appid }}?",
+          "success_all": "Tutte le variabili d'ambiente sono state rimosse"
+        }
+      },
+      "file": {
+        "list": {
+          "empty": "Nessun file trovato in questa cartella"
+        },
+        "read": {
+          "saved": "Contenuto del file salvato in {{ .File }}",
+          "overwrite": "{{ .File }} esiste già. Sovrascriverlo?"
+        },
+        "write": {
+          "success": "File {{ .File }} scritto correttamente"
+        },
+        "move": {
+          "success": "{{ .From }} spostato in {{ .To }}"
+        },
+        "delete": {
+          "confirm": "Eliminare il file {{ .File }} dalla tua applicazione?",
+          "success": "File {{ .File }} eliminato correttamente"
+        }
+      },
+      "deploy": {
+        "list": {
+          "empty": "Nessun deploy trovato per questa applicazione"
+        },
+        "current": {
+          "empty": "Nessuna integrazione Git configurata per questa applicazione",
+          "github_app": "GitHub App: {{ .Repository }} (branch {{ .Branch }})",
+          "webhook": "Webhook: {{ .Webhook }}"
+        },
+        "webhook": {
+          "removed": "Integrazione tramite webhook rimossa correttamente",
+          "success": "Webhook creato correttamente; aggiungilo al tuo repository GitHub:"
+        },
+        "github": {
+          "link": {
+            "success": "Repository {{ .Repository }} (branch {{ .Branch }}) collegato correttamente"
+          },
+          "unlink": {
+            "success": "Repository della GitHub App scollegato correttamente"
+          }
+        }
+      },
+      "network": {
+        "invalid_time": "Valore non valido per {{ .Flag }}: {{ .Value }}. Usa una data e ora in formato RFC 3339, ad esempio 2026-01-02T15:04:05Z.",
+        "dns": {
+          "empty": "Nessun record DNS. Configura prima un dominio personalizzato."
+        },
+        "domain": {
+          "success": "Dominio personalizzato {{ .Domain }} configurato correttamente",
+          "hint": "Esegui 'squarecloud app network dns' per vedere i record DNS da creare."
+        },
+        "analytics": {
+          "empty": "Nessun dato di analytics per l'intervallo richiesto",
+          "summary": "Visite: {{ .Visits }} | Richieste: {{ .Requests }} | Traffico: {{ .Traffic }}"
+        },
+        "errors": {
+          "summary": "Errori: {{ .Total }} in totale ({{ .Class4xx }} 4xx / {{ .Class5xx }} 5xx)"
+        },
+        "logs": {
+          "empty": "Nessun log edge per l'intervallo richiesto"
+        },
+        "performance": {
+          "summary": "Richieste: {{ .Requests }} | Edge p50/p95: {{ .EdgeP50 }}/{{ .EdgeP95 }} ms | Origine p50/p95: {{ .OrigP50 }}/{{ .OrigP95 }} ms"
+        },
+        "purge_cache": {
+          "confirm": "Svuotare TUTTA la cache edge di {{ .Appid }}?",
+          "success": "Cache edge svuotata correttamente"
+        }
+      }
+    },
+    "database": {
+      "list": {
+        "empty": "Non hai nessun database."
+      },
+      "create": {
+        "success": "Database {{ .Name }} ({{ .Id }}) creato correttamente",
+        "password_warning": "Salva subito la password: viene mostrata una sola volta e non può essere recuperata."
+      },
+      "update": {
+        "success": "Database aggiornato correttamente"
+      },
+      "delete": {
+        "confirm": "Eliminare il database {{ .Id }}? Questa azione è irreversibile",
+        "success": "Il tuo database è stato eliminato correttamente"
+      },
+      "signal": {
+        "success": "Segnale {{ .Signal }} inviato correttamente al tuo database."
+      },
+      "credentials": {
+        "reset": {
+          "invalid_type": "Tipo di reimpostazione non valido \"{{ .Type }}\": usa password o certificate.",
+          "confirm": "Reimpostare la credenziale ({{ .Type }}) del database {{ .Id }}? Quella attuale smette di funzionare immediatamente",
+          "success": "Credenziale reimpostata correttamente"
+        }
+      }
+    },
+    "workspace": {
+      "list": {
+        "empty": "Non hai nessuno spazio di lavoro."
+      },
+      "create": {
+        "success": "Spazio di lavoro {{ .Name }} ({{ .Id }}) creato correttamente"
+      },
+      "info": {
+        "members": "Membri:",
+        "applications": "Applicazioni:"
+      },
+      "delete": {
+        "confirm": "Eliminare lo spazio di lavoro {{ .Id }}? Questa azione è irreversibile",
+        "success": "Spazio di lavoro eliminato correttamente"
+      },
+      "leave": {
+        "confirm": "Uscire dallo spazio di lavoro {{ .Id }}?",
+        "success": "Hai lasciato lo spazio di lavoro"
+      },
+      "app": {
+        "add": {
+          "success": "Applicazione condivisa correttamente con lo spazio di lavoro"
+        },
+        "remove": {
+          "success": "Applicazione rimossa correttamente dallo spazio di lavoro"
+        }
+      },
+      "member": {
+        "add": {
+          "success": "Membro aggiunto correttamente allo spazio di lavoro"
+        },
+        "update": {
+          "success": "Permessi del membro aggiornati correttamente"
+        },
+        "remove": {
+          "confirm": "Rimuovere il membro {{ .Id }} dallo spazio di lavoro?",
+          "success": "Membro rimosso correttamente dallo spazio di lavoro"
+        },
+        "invite_code": {
+          "success": "Il tuo codice di invito (monouso, valido per 5 minuti):"
+        }
+      }
+    },
+    "auth": {
+      "login": {
+        "error": "Nessun account Square Cloud usa questa chiave API.",
+        "success": {
+          "0": "Chiave API salvata. Hai effettuato l'accesso come {{.User}}.",
+          "1": "Da grandi poteri derivano grandi responsabilità!"
+        },
+        "warnings": {
+          "no_plan": "Sembra che al momento tu non abbia nessun piano attivo; scegli un piano su {{ .Link }}."
+        },
+        "device": {
+          "instructions": "Apri questa pagina nel browser e inserisci il codice:",
+          "waiting": "In attesa dell'approvazione · scade tra {{ .Remaining }} · Ctrl+C per annullare",
+          "cancelled": "Accesso annullato.",
+          "expired": "Il codice di accesso è scaduto o è già stato usato. Esegui di nuovo squarecloud auth login.",
+          "key_limit": "Il tuo account ha raggiunto il limite di chiavi API. Revoca una chiave su {{ .Link }} e l'accesso proseguirà da solo.",
+          "rate_limited": "Troppi tentativi da questa rete. Attendo un minuto prima di riprovare...",
+          "success": "Accesso effettuato come {{ .Email }}."
+        },
+        "key_expires": "Questa chiave API scade il {{ .Date }}.",
+        "no_tty": "Nessun terminale interattivo. Usa --with-token per leggere una chiave API da stdin, oppure imposta SQUARECLOUD_API_KEY.",
+        "empty_token": "Nessuna chiave API ricevuta su stdin.",
+        "env_override": "Nota: SQUARECLOUD_API_KEY è impostata e ha la precedenza sulla chiave salvata.",
+        "ci": "Ambiente CI rilevato (CI=true). L'accesso tramite browser crea una chiave che scade dopo 90 giorni e che solo una persona può rinnovare. Crea una chiave API su {{ .Link }} e impostala in SQUARECLOUD_API_KEY.",
+        "switch_account": "Su questo computer è già connesso un altro account Square Cloud. Sostituirlo con {{ .Email }}?"
+      },
+      "logout": {
+        "success": "Disconnessione dal tuo account Square Cloud completata.",
+        "none": "Nessun account connesso su questo computer."
+      },
+      "whoami": {
+        "logged": {
+          "plan": "Hai effettuato l'accesso come {{.User.Name}} con il piano {{ .User.Plan }}.",
+          "remaining": "{{ if lt .User.PlanRemaining 1 }}Mancano poche ore{{ else if eq .User.PlanRemaining 1 }}Manca 1 giorno{{ else }}Mancano {{ .User.PlanRemaining }} giorni{{ end }} alla scadenza del tuo piano.",
+          "expired": "Il tuo piano è scaduto o non hai un piano attivo; scegli un piano su {{ .Link }}."
+        },
+        "key": {
+          "expires": "La tua chiave API scade il {{ .Date }}.",
+          "scopes": "Permessi: {{ .Scopes }}",
+          "env": "Viene usata la chiave API di SQUARECLOUD_API_KEY."
+        }
+      }
+    },
+    "zip": {
+      "failed": "Impossibile comprimere la tua applicazione.",
+      "success": "Il tuo progetto è stato compresso in {{.Zip}}",
+      "legacy_ignore": "Lettura di {{ .File }}. Rinominalo in squarecloud.ignore, il nome condiviso dalla CLI e dall'estensione VS Code.",
+      "skipped_link": "{{ .Path }} saltato: è un link a una cartella o un link interrotto.",
+      "exists": "{{ .File }} esiste già e non è stato possibile eliminarlo: {{ .Error }}"
+    },
+    "signal": {
+      "already_running": "È già in esecuzione.",
+      "already_stopped": "Non è in esecuzione."
+    }
+  }
+}

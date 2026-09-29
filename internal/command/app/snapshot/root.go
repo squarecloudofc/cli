@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
-	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {

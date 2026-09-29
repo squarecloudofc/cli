@@ -6,79 +6,103 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
+
+	"github.com/squarecloudofc/cli/pkg/squareignore"
 )
 
-var DefaultIgnoredFiles = []string{"node_modules", ".git/", ".gitignore", ".squareignore", ".squarecloudignore", "square.ignore", ".vscode", ".github"}
-
-func shouldIgnoreFile(info os.FileInfo, ignoreEntries []string) bool {
-	ignoreEntries = append(ignoreEntries, DefaultIgnoredFiles...)
-
-	for _, pattern := range ignoreEntries {
-		match, _ := filepath.Match(pattern, info.Name())
-		if match {
-			return true
-		}
-
-		if strings.HasSuffix(info.Name(), pattern) {
-			return true
-		}
-
-		if strings.Contains(pattern, "/") && info.IsDir() && strings.HasSuffix(info.Name(), strings.ReplaceAll(pattern, "/", "")) {
-			return true
-		}
-	}
-
-	return false
-}
-
-func ZipFolder(folder string, ignoreFiles []string) (*os.File, error) {
-	destination, err := os.CreateTemp("", "*.zip")
+// ZipFolder zips folder into a temp file, rewound for reading. The caller
+// closes and removes it.
+func ZipFolder(folder string, ignore *squareignore.Matcher, skipped func(rel string)) (*os.File, error) {
+	destination, err := os.CreateTemp("", "squarecloud-*.zip")
 	if err != nil {
 		return nil, err
 	}
 
-	err = ZipFolderW(destination, folder, ignoreFiles)
+	err = ZipFolderW(destination, folder, ignore, skipped)
+	if err == nil {
+		_, err = destination.Seek(0, io.SeekStart)
+	}
 	if err != nil {
+		destination.Close() // Windows cannot remove an open file
 		os.Remove(destination.Name())
 		return nil, err
 	}
-	return destination, err
+	return destination, nil
 }
 
-func ZipFolderW(writer io.Writer, folder string, ignoreFiles []string) error {
+// ZipFolderW writes folder as a zip to writer, leaving out what ignore
+// matches. A symbolic link to a file is stored as that file; a link to a
+// folder or a broken link is left out and reported to skipped (optional)
+// with its slash-separated path.
+func ZipFolderW(writer io.Writer, folder string, ignore *squareignore.Matcher, skipped func(rel string)) error {
 	w := zip.NewWriter(writer)
-	defer w.Close()
 
-	baseLen := len(folder) + 1
-
-	return filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(folder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("error walking path %s: %w", path, err)
 		}
 
-		if shouldIgnoreFile(info, ignoreFiles) {
+		// The folder itself is never matched: "dist" would otherwise skip a
+		// project folder named "api-dist" and produce an empty zip.
+		if path == folder {
+			return nil
+		}
+
+		rel, err := filepath.Rel(folder, path)
+		if err != nil {
+			return fmt.Errorf("error resolving %s: %w", path, err)
+		}
+		rel = filepath.ToSlash(rel)
+
+		// Symlinks, and Windows junctions (irregular, not a dir, for Lstat).
+		link := !info.IsDir() && info.Mode()&(os.ModeSymlink|os.ModeIrregular) != 0
+		isDir, broken := info.IsDir(), false
+		if link {
+			target, err := os.Stat(path)
+			broken = err != nil
+			isDir = err == nil && target.IsDir()
+		}
+
+		if ignore.Match(rel, isDir) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
 			return nil
 		}
 
-		if !info.IsDir() {
-			if err := addFileToZip(w, path, info, baseLen); err != nil {
+		switch {
+		case link && (broken || isDir):
+			if skipped != nil {
+				skipped(rel)
+			}
+		case !info.IsDir():
+			if err := addFileToZip(w, path, rel); err != nil {
 				return fmt.Errorf("error adding file %s to zip: %w", path, err)
 			}
 		}
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	// Close writes the central directory; a failure leaves an unreadable zip.
+	return w.Close()
 }
 
-func addFileToZip(w *zip.Writer, path string, info os.FileInfo, baseLen int) error {
+func addFileToZip(w *zip.Writer, path, name string) error {
 	file, err := os.Open(path)
 	if err != nil {
 		return fmt.Errorf("error opening file %s: %w", path, err)
 	}
 	defer file.Close()
+
+	// Stat the opened file, not the walked entry: a symlink is stored as the
+	// file it points to, not as a link entry whose "target" is that content.
+	info, err := file.Stat()
+	if err != nil {
+		return fmt.Errorf("error reading file info for %s: %w", path, err)
+	}
 
 	header, err := zip.FileInfoHeader(info)
 	if err != nil {
@@ -86,7 +110,7 @@ func addFileToZip(w *zip.Writer, path string, info os.FileInfo, baseLen int) err
 	}
 
 	header.Method = zip.Deflate
-	header.Name = filepath.ToSlash(path[baseLen:])
+	header.Name = name
 
 	writer, err := w.CreateHeader(header)
 	if err != nil {

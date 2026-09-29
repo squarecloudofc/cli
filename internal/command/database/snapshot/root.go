@@ -8,7 +8,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 func NewCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -37,14 +37,19 @@ func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.database.snapshot.create.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			result, err := squareCli.Rest().CreateDatabaseSnapshot(dbID)
+			result, err := squareCli.API().Databases.Snapshots.Create(cmd.Context(), dbID)
 			if err != nil {
 				return err
+			}
+
+			if result.Pending {
+				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.snapshot.create.pending"))
+				return nil
 			}
 
 			if !download {
@@ -56,8 +61,8 @@ func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 			fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.snapshot.create.downloading"))
 
 			filename := fmt.Sprintf("Square Cloud - DB Snapshot %s.zip", time.Now().Format("2006-01-02 15-04-05"))
-			if err := cmdutil.DownloadFile(filename, result.URL); err != nil {
-				fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.snapshot.create.error"))
+			if err := cmdutil.DownloadSnapshot(cmd.Context(), squareCli.API(), filename, result.URL); err != nil {
+				fmt.Fprintf(squareCli.Err(), "%s %s\n", ui.XMark, squareCli.I18n().T("commands.snapshot.create.error"))
 				return err
 			}
 
@@ -66,7 +71,7 @@ func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVar(&download, "download", false, squareCli.I18n().T("metadata.commands.snapshot.create.flags.download"))
+	cmd.Flags().BoolVar(&download, "download", false, squareCli.I18n().T("metadata.flags.download"))
 	return cmd
 }
 
@@ -81,11 +86,11 @@ func newRestoreCommand(squareCli cli.SquareCLI) *cobra.Command {
 			dbID, snapshotID, versionID := args[0], args[1], args[2]
 
 			message := squareCli.I18n().T("commands.snapshot.restore.confirm", map[string]any{"Id": dbID})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().RestoreDatabaseSnapshot(dbID, snapshotID, versionID); err != nil {
+			if err := squareCli.API().Databases.Snapshots.Restore(cmd.Context(), dbID, snapshotID, versionID); err != nil {
 				return err
 			}
 
@@ -94,6 +99,6 @@ func newRestoreCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
 }

@@ -4,12 +4,14 @@ import (
 	"embed"
 	"encoding/json"
 	"fmt"
+	"os"
+	"slices"
 	"strings"
 
 	"github.com/Xuanwo/go-locale"
 )
 
-var SupportedLanguages = []string{"en", "pt", "es", "zh"}
+var SupportedLanguages = []string{"en", "pt", "es", "zh", "de", "fr", "it", "ja"}
 
 //go:embed resources/*.json
 var localeData embed.FS
@@ -41,18 +43,38 @@ func init() {
 	}
 }
 
+// DetectSystemLanguage picks the language of the CLI's messages: the locale
+// variables when set, else the OS display language. On Windows go-locale
+// would fall back to the regional format, which only says how dates and
+// numbers look: English Windows with Brazilian formats is still English.
 func DetectSystemLanguage() string {
-	result, err := locale.Detect()
+	for _, env := range []string{"LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"} {
+		if os.Getenv(env) != "" {
+			return detectViaLocale()
+		}
+	}
+	if langs := uiLanguages(); len(langs) > 0 {
+		return matchLanguage(langs)
+	}
+	return detectViaLocale()
+}
+
+func detectViaLocale() string {
+	tag, err := locale.Detect()
 	if err != nil {
 		return "en"
 	}
+	return matchLanguage([]string{tag.String()})
+}
 
-	value, _ := result.Base()
-	for _, lang := range SupportedLanguages {
-		if value.String() == lang {
-			return lang
+// matchLanguage returns the first supported language among tags such as
+// "pt-BR" or "zh-Hans-CN", in the user's order of preference.
+func matchLanguage(tags []string) string {
+	for _, tag := range tags {
+		base, _, _ := strings.Cut(strings.ReplaceAll(tag, "_", "-"), "-")
+		if slices.Contains(SupportedLanguages, strings.ToLower(base)) {
+			return strings.ToLower(base)
 		}
 	}
-
 	return "en"
 }

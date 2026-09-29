@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -16,14 +15,15 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 	var raw bool
 
 	cmd := &cobra.Command{
-		Use:   "status [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.status.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "status [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.status.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rest := squareCli.Rest()
+			api := squareCli.API()
 
 			if all {
-				list, err := rest.GetApplicationListStatus()
+				list, err := api.Apps.StatusAll(cmd.Context(), "")
 				if err != nil {
 					return err
 				}
@@ -32,10 +32,11 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 					return cmdutil.PrintJSON(squareCli.Out(), list)
 				}
 
-				w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+				w := cmdutil.NewTableWriter(squareCli.Out())
 				defer w.Flush()
 
-				fmt.Fprintln(w, strings.Join([]string{"APP ID", "RUNNING", "CPU", "MEM"}, " \t "))
+				t := squareCli.I18n()
+				fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.app_id"), t.T("ui.table.running"), "CPU", t.T("ui.table.mem")}, " \t "))
 				for _, item := range list {
 					fmt.Fprintf(w, "%s \t %t \t %s \t %s \t\n", item.ID, item.Running, item.CPU, item.RAM)
 				}
@@ -43,13 +44,13 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
 			if raw {
-				data, err := rest.GetApplicationStatusRaw(appID)
+				data, err := api.Apps.StatusRaw(cmd.Context(), appID)
 				if err != nil {
 					return err
 				}
@@ -57,7 +58,7 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmdutil.PrintJSON(squareCli.Out(), data)
 			}
 
-			data, err := rest.GetApplicationStatus(appID)
+			data, err := api.Apps.Status(cmd.Context(), appID)
 			if err != nil {
 				return err
 			}
@@ -66,10 +67,11 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmdutil.PrintJSON(squareCli.Out(), data)
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"APP ID", "CPU %", "MEM", "DISK", "STATUS", "UPTIME"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.app_id"), "CPU %", t.T("ui.table.mem"), t.T("ui.table.disk"), t.T("ui.table.status"), t.T("ui.table.uptime")}, " \t "))
 			fmt.Fprintf(w, "%s \t %s \t %s \t %s \t %s \t %s \t\n",
 				appID, data.CPU, data.RAM, data.Storage, data.Status, formatUptime(data.Uptime))
 
@@ -77,8 +79,8 @@ func NewStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVar(&all, "all", false, "Show the status of every application")
-	cmd.Flags().BoolVar(&raw, "raw", false, "Print raw numeric stats as JSON")
+	cmd.Flags().BoolVar(&all, "all", false, squareCli.I18n().T("metadata.flags.status_all_apps"))
+	cmd.Flags().BoolVar(&raw, "raw", false, squareCli.I18n().T("metadata.flags.raw"))
 	return cmd
 }
 

@@ -1,32 +1,34 @@
 package cmdutil
 
 import (
+	"context"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"os"
+	"slices"
 	"sort"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
-	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 // NewSnapshotListCommand builds the shared `snapshot list` command used by
 // both `app snapshot list` and `db snapshot list` — only the scope differs.
 func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotScope) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list [id]",
-		Short: squareCli.I18n().T("metadata.commands.snapshot.list.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "list [id]",
+		Short:       squareCli.I18n().T("metadata.commands.snapshot.list.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			snapshots, err := squareCli.Rest().UserSnapshots(scope)
+			snapshots, err := squareCli.API().Account.Snapshots(cmd.Context(), scope)
 			if err != nil {
 				return err
+			}
+			if len(args) > 0 { // the JSON output honours the ID too
+				snapshots = slices.DeleteFunc(snapshots, func(s squarecloud.Snapshot) bool { return s.Name != args[0] })
 			}
 
 			if WantsJSON(cmd) {
@@ -38,7 +40,7 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
 			// With an ID filter: one row per snapshot version.
@@ -47,28 +49,13 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 
 				headers := []string{
 					"ID",
-					"VERSION ID",
-					squareCli.I18n().T("commands.snapshot.list.table.size"),
-					squareCli.I18n().T("commands.snapshot.list.table.last_update"),
+					squareCli.I18n().T("ui.table.version_id"),
+					squareCli.I18n().T("ui.table.size"),
+					squareCli.I18n().T("ui.table.last_update"),
 				}
 				fmt.Fprintln(w, strings.Join(headers, " \t "))
 
-				for _, snap := range snapshots {
-					if snap.Name != id {
-						continue
-					}
-
-					var versionID string
-					if values, err := url.ParseQuery(snap.Key); err == nil {
-						versionID = values.Get("versionId")
-					}
-
-					row := []string{
-						snap.Name,
-						versionID,
-						FormatBytes(int64(snap.Size)),
-						snap.Modified.Format(time.DateTime),
-					}
+				for _, row := range versionRows(snapshots, id) {
 					fmt.Fprintln(w, strings.Join(row, " \t "))
 				}
 
@@ -92,7 +79,7 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 				}
 
 				s.count++
-				s.totalBytes += int64(snap.Size)
+				s.totalBytes += snap.Size
 				if snap.Modified.After(s.lastUpdate) {
 					s.lastUpdate = snap.Modified
 				}
@@ -106,9 +93,9 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 
 			headers := []string{
 				"ID",
-				squareCli.I18n().T("commands.snapshot.list.table.quantity"),
-				squareCli.I18n().T("commands.snapshot.list.table.size"),
-				squareCli.I18n().T("commands.snapshot.list.table.last_update"),
+				squareCli.I18n().T("ui.table.quantity"),
+				squareCli.I18n().T("ui.table.size"),
+				squareCli.I18n().T("ui.table.last_update"),
 			}
 			fmt.Fprintln(w, strings.Join(headers, " \t "))
 
@@ -127,25 +114,39 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 	}
 }
 
-// DownloadFile fetches fileURL into destination — used by `snapshot create
-// --download`.
-func DownloadFile(destination, fileURL string) error {
-	resp, err := http.Get(fileURL)
+// versionRows renders one row per version of the snapshots named id. The
+// version ID is the one `snapshot restore` takes.
+func versionRows(snapshots []squarecloud.Snapshot, id string) [][]string {
+	var rows [][]string
+	for _, snap := range snapshots {
+		if snap.Name != id {
+			continue
+		}
+		rows = append(rows, []string{
+			snap.Name,
+			snap.VersionID,
+			FormatBytes(snap.Size),
+			snap.Modified.Format(time.DateTime),
+		})
+	}
+	return rows
+}
+
+// DownloadSnapshot saves a snapshot archive (a signed URL) to destination,
+// used by `snapshot create --download`. A partial file is removed.
+func DownloadSnapshot(ctx context.Context, api *squarecloud.Client, destination, link string) error {
+	// 0600: snapshots carry an app's environment variables or a database's data.
+	out, err := os.OpenFile(destination, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("download failed with HTTP %d", resp.StatusCode)
+	err = api.DownloadSnapshot(ctx, link, out)
+	if closeErr := out.Close(); err == nil {
+		err = closeErr
 	}
-
-	out, err := os.Create(destination)
 	if err != nil {
-		return err
+		os.Remove(destination)
 	}
-	defer out.Close()
-
-	_, err = io.Copy(out, resp.Body)
 	return err
 }

@@ -2,7 +2,7 @@ package i18n
 
 import (
 	"bytes"
-	"html/template"
+	"text/template"
 )
 
 type Localizer interface {

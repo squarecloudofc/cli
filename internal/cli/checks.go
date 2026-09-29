@@ -8,13 +8,20 @@ import (
 )
 
 func CheckAuth(squareCli SquareCLI) bool {
-	return squareCli.Config().AuthToken != ""
+	return APIKey(squareCli.Config()) != ""
 }
 
 // thank you https://github.com/cli/cli/blob/trunk/pkg/cmdutil/auth_check.go#L41
 func ShouldCheckAuth(squareCli SquareCLI, cmd *cobra.Command) bool {
 	switch cmd.Name() {
 	case "help", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd:
+		return false
+	}
+
+	// A bare group (squarecloud app, auth, db...) only prints its help. Not
+	// an annotation: those are inherited, and would skip the check for every
+	// subcommand.
+	if cmd.HasSubCommands() {
 		return false
 	}
 

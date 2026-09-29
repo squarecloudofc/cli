@@ -1,10 +1,10 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -12,18 +12,20 @@ import (
 	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/command/app"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: squareCli.I18n().T("metadata.commands.database.list.short"),
+		Use:         "list",
+		Short:       squareCli.I18n().T("metadata.commands.database.list.short"),
+		Annotations: map[string]string{"json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			databases, err := squareCli.Rest().GetDatabases()
+			me, err := squareCli.API().Account.Me(cmd.Context())
 			if err != nil {
 				return err
 			}
+			databases := me.Databases
 
 			if cmdutil.WantsJSON(cmd) {
 				return cmdutil.PrintJSON(squareCli.Out(), databases)
@@ -34,10 +36,11 @@ func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"NAME", "DB ID", "TYPE", "MEMORY", "CLUSTER"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.name"), t.T("ui.table.db_id"), t.T("ui.table.type"), t.T("ui.table.memory"), t.T("ui.table.cluster")}, " \t "))
 			for _, db := range databases {
 				fmt.Fprintf(w, "%s \t %s \t %s \t %s \t %s \t\n",
 					db.Name, db.ID, db.Type, strconv.Itoa(db.RAM)+"MB", db.Cluster)
@@ -49,17 +52,18 @@ func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
 }
 
 func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
-	var options squarecloud.DatabaseCreateOptions
+	var options squarecloud.DatabaseCreate
 
 	cmd := &cobra.Command{
-		Use:   "create",
-		Short: squareCli.I18n().T("metadata.commands.database.create.short"),
+		Use:         "create",
+		Short:       squareCli.I18n().T("metadata.commands.database.create.short"),
+		Annotations: map[string]string{"json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if options.Name == "" || options.Memory == 0 || options.Type == "" || options.Version == "" {
 				return cmd.Help()
 			}
 
-			created, err := squareCli.Rest().CreateDatabase(options)
+			created, err := squareCli.API().Databases.Create(cmd.Context(), options)
 			if err != nil {
 				return err
 			}
@@ -70,31 +74,32 @@ func newCreateCommand(squareCli cli.SquareCLI) *cobra.Command {
 
 			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.database.create.success", map[string]any{"Name": created.Name, "Id": created.ID}))
 			fmt.Fprintln(squareCli.Out(), ui.TextYellow.SetString(squareCli.I18n().T("commands.database.create.password_warning")))
-			fmt.Fprintf(squareCli.Out(), "  PASSWORD: %s\n", created.Password)
-			fmt.Fprintf(squareCli.Out(), "  URL: %s\n", created.ConnectionURL)
+			fmt.Fprintf(squareCli.Out(), "  %s %s\n", squareCli.I18n().T("ui.field.password"), created.Password)
+			fmt.Fprintf(squareCli.Out(), "  %s %s\n", squareCli.I18n().T("ui.field.url"), created.ConnectionURL)
 			return nil
 		},
 	}
 
-	cmd.Flags().StringVar(&options.Name, "name", "", "Database name (1-32 chars)")
-	cmd.Flags().IntVar(&options.Memory, "memory", 0, "Allocated memory in MB")
-	cmd.Flags().StringVar((*string)(&options.Type), "type", "", "Engine: mongo, mysql, redis or postgres")
-	cmd.Flags().StringVar(&options.Version, "version", "", "Engine version")
+	cmd.Flags().StringVar(&options.Name, "name", "", squareCli.I18n().T("metadata.flags.db_name"))
+	cmd.Flags().IntVar(&options.Memory, "memory", 0, squareCli.I18n().T("metadata.flags.db_memory"))
+	cmd.Flags().StringVar((*string)(&options.Type), "type", "", squareCli.I18n().T("metadata.flags.db_type"))
+	cmd.Flags().StringVar(&options.Version, "version", "", squareCli.I18n().T("metadata.flags.db_version"))
 	return cmd
 }
 
 func newInfoCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "info [db id]",
-		Short: squareCli.I18n().T("metadata.commands.database.info.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "info [db id]",
+		Short:       squareCli.I18n().T("metadata.commands.database.info.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			db, err := squareCli.Rest().GetDatabase(dbID)
+			db, err := squareCli.API().Databases.Get(cmd.Context(), dbID)
 			if err != nil {
 				return err
 			}
@@ -103,22 +108,24 @@ func newInfoCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmdutil.PrintJSON(squareCli.Out(), db)
 			}
 
+			t := squareCli.I18n()
 			rows := [][2]string{
-				{"ID", db.ID},
-				{"Name", db.Name},
-				{"Type", string(db.Type)},
-				{"Memory", strconv.Itoa(db.RAM) + "MB"},
-				{"Port", strconv.Itoa(db.Port)},
-				{"Cluster", db.Cluster},
-				{"Owner", db.Owner},
-				{"Created at", db.CreatedAt.Format(time.DateTime)},
+				{t.T("ui.field.id"), db.ID},
+				{t.T("ui.field.name"), db.Name},
+				{t.T("ui.field.type"), string(db.Type)},
+				{t.T("ui.field.memory"), strconv.Itoa(db.RAM) + "MB"},
+				{t.T("ui.field.port"), strconv.Itoa(db.Port)},
+				{t.T("ui.field.cluster"), db.Cluster},
+				{t.T("ui.field.owner"), db.Owner},
+				{t.T("ui.field.created_at"), db.CreatedAt.Format(time.DateTime)},
 			}
 
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			for _, row := range rows {
-				fmt.Fprintf(squareCli.Out(), "%-12s %s\n", row[0]+":", row[1])
+				fmt.Fprintf(w, "%s\t%s\n", row[0], row[1])
 			}
 
-			return nil
+			return w.Flush()
 		},
 	}
 }
@@ -136,13 +143,13 @@ func newUpdateCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmd.Help()
 			}
 
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			options := squarecloud.DatabaseUpdateOptions{Name: name, RAM: memory}
-			if err := squareCli.Rest().UpdateDatabase(dbID, options); err != nil {
+			options := squarecloud.DatabaseUpdate{Name: name, RAM: memory}
+			if err := squareCli.API().Databases.Update(cmd.Context(), dbID, options); err != nil {
 				return err
 			}
 
@@ -151,8 +158,8 @@ func newUpdateCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVar(&name, "name", "", "New database name")
-	cmd.Flags().IntVar(&memory, "memory", 0, "New allocated memory in MB")
+	cmd.Flags().StringVar(&name, "name", "", squareCli.I18n().T("metadata.flags.db_new_name"))
+	cmd.Flags().IntVar(&memory, "memory", 0, squareCli.I18n().T("metadata.flags.db_new_memory"))
 	return cmd
 }
 
@@ -164,17 +171,17 @@ func newDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.database.delete.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
 			message := squareCli.I18n().T("commands.database.delete.confirm", map[string]any{"Id": dbID})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			if err := squareCli.Rest().DeleteDatabase(dbID); err != nil {
+			if err := squareCli.API().Databases.Delete(cmd.Context(), dbID); err != nil {
 				return err
 			}
 
@@ -183,7 +190,7 @@ func newDeleteCommand(squareCli cli.SquareCLI) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	cmd.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 	return cmd
 }
 
@@ -193,12 +200,15 @@ func newStartCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.database.start.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			if err := squareCli.Rest().StartDatabase(dbID); err != nil {
+			if err := squareCli.API().Databases.Start(cmd.Context(), dbID); err != nil {
+				if cmdutil.AlreadyInState(squareCli, err) {
+					return nil
+				}
 				return err
 			}
 
@@ -214,12 +224,15 @@ func newStopCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.database.stop.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			if err := squareCli.Rest().StopDatabase(dbID); err != nil {
+			if err := squareCli.API().Databases.Stop(cmd.Context(), dbID); err != nil {
+				if cmdutil.AlreadyInState(squareCli, err) {
+					return nil
+				}
 				return err
 			}
 
@@ -234,14 +247,15 @@ func newStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 	var raw bool
 
 	cmd := &cobra.Command{
-		Use:   "status [db id]",
-		Short: squareCli.I18n().T("metadata.commands.database.status.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "status [db id]",
+		Short:       squareCli.I18n().T("metadata.commands.database.status.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			rest := squareCli.Rest()
+			api := squareCli.API()
 
 			if all {
-				list, err := rest.GetDatabaseListStatus()
+				list, err := api.Databases.StatusAll(cmd.Context())
 				if err != nil {
 					return err
 				}
@@ -250,10 +264,11 @@ func newStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 					return cmdutil.PrintJSON(squareCli.Out(), list)
 				}
 
-				w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+				w := cmdutil.NewTableWriter(squareCli.Out())
 				defer w.Flush()
 
-				fmt.Fprintln(w, strings.Join([]string{"DB ID", "RUNNING", "CPU", "MEM"}, " \t "))
+				t := squareCli.I18n()
+				fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.db_id"), t.T("ui.table.running"), "CPU", t.T("ui.table.mem")}, " \t "))
 				for _, item := range list {
 					fmt.Fprintf(w, "%s \t %t \t %s \t %s \t\n", item.ID, item.Running, item.CPU, item.RAM)
 				}
@@ -261,13 +276,13 @@ func newStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
 			if raw {
-				data, err := rest.GetDatabaseStatusRaw(dbID)
+				data, err := api.Databases.StatusRaw(cmd.Context(), dbID)
 				if err != nil {
 					return err
 				}
@@ -275,7 +290,7 @@ func newStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmdutil.PrintJSON(squareCli.Out(), data)
 			}
 
-			data, err := rest.GetDatabaseStatus(dbID)
+			data, err := api.Databases.Status(cmd.Context(), dbID)
 			if err != nil {
 				return err
 			}
@@ -284,33 +299,35 @@ func newStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return cmdutil.PrintJSON(squareCli.Out(), data)
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"DB ID", "CPU %", "MEM", "DISK", "STATUS"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.db_id"), "CPU %", t.T("ui.table.mem"), t.T("ui.table.disk"), t.T("ui.table.status")}, " \t "))
 			fmt.Fprintf(w, "%s \t %s \t %s \t %s \t %s \t\n", dbID, data.CPU, data.RAM, data.Storage, data.Status)
 
 			return nil
 		},
 	}
 
-	cmd.Flags().BoolVar(&all, "all", false, "Show the status of every database")
-	cmd.Flags().BoolVar(&raw, "raw", false, "Print raw numeric stats as JSON")
+	cmd.Flags().BoolVar(&all, "all", false, squareCli.I18n().T("metadata.flags.status_all_databases"))
+	cmd.Flags().BoolVar(&raw, "raw", false, squareCli.I18n().T("metadata.flags.raw"))
 	return cmd
 }
 
 func newMetricsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "metrics [db id]",
-		Short: squareCli.I18n().T("metadata.commands.database.metrics.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "metrics [db id]",
+		Short:       squareCli.I18n().T("metadata.commands.database.metrics.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			metrics, err := squareCli.Rest().GetDatabaseMetrics(dbID)
+			metrics, err := squareCli.API().Databases.Metrics(cmd.Context(), dbID)
 			if err != nil {
 				return err
 			}
@@ -334,17 +351,17 @@ func newCredentialsCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.database.credentials.certificate.short"),
 		Args:  cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args)
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			result, err := squareCli.Rest().GetDatabaseCertificate(dbID)
+			result, err := squareCli.API().Databases.Certificate(cmd.Context(), dbID)
 			if err != nil {
 				return err
 			}
 
-			fmt.Fprintln(squareCli.Out(), result.Certificate)
+			fmt.Fprintln(squareCli.Out(), result)
 			return nil
 		},
 	}
@@ -355,36 +372,36 @@ func newCredentialsCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Short: squareCli.I18n().T("metadata.commands.database.credentials.reset.short"),
 		Args:  cobra.RangeArgs(1, 2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			resetType := squarecloud.DatabaseResetType(args[0])
-			if resetType != squarecloud.DatabaseResetPassword && resetType != squarecloud.DatabaseResetCertificate {
-				return fmt.Errorf("invalid reset type %q, expected password or certificate", args[0])
+			resetType := squarecloud.DatabaseReset(args[0])
+			if resetType != squarecloud.ResetPassword && resetType != squarecloud.ResetCertificate {
+				return errors.New(squareCli.I18n().T("commands.database.credentials.reset.invalid_type", map[string]any{"Type": args[0]}))
 			}
 
-			dbID, err := cmdutil.ResolveDatabaseID(squareCli, args[1:])
+			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args[1:])
 			if err != nil {
 				return err
 			}
 
 			message := squareCli.I18n().T("commands.database.credentials.reset.confirm", map[string]any{"Type": string(resetType), "Id": dbID})
-			if !cmdutil.Confirm(squareCli, message, yes) {
-				return nil
+			if err := cmdutil.Confirm(squareCli, message, yes); err != nil {
+				return err
 			}
 
-			result, err := squareCli.Rest().ResetDatabaseCredentials(dbID, resetType)
+			password, err := squareCli.API().Databases.ResetCredentials(cmd.Context(), dbID, resetType)
 			if err != nil {
 				return err
 			}
 
 			fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.database.credentials.reset.success"))
-			if result.Password != "" {
+			if password != "" {
 				fmt.Fprintln(squareCli.Out(), ui.TextYellow.SetString(squareCli.I18n().T("commands.database.create.password_warning")))
-				fmt.Fprintf(squareCli.Out(), "  PASSWORD: %s\n", result.Password)
+				fmt.Fprintf(squareCli.Out(), "  %s %s\n", squareCli.I18n().T("ui.field.password"), password)
 			}
 
 			return nil
 		},
 	}
-	reset.Flags().BoolVarP(&yes, "yes", "y", false, "Skip the confirmation prompt")
+	reset.Flags().BoolVarP(&yes, "yes", "y", false, squareCli.I18n().T("metadata.flags.yes"))
 
 	cmd.AddCommand(certificate, reset)
 	return cmd

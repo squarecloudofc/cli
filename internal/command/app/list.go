@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	"text/tabwriter"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
@@ -13,13 +12,15 @@ import (
 
 func NewListCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "list",
-		Short: squareCli.I18n().T("metadata.commands.app.list.short"),
+		Use:         "list",
+		Short:       squareCli.I18n().T("metadata.commands.app.list.short"),
+		Annotations: map[string]string{"json": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			applications, err := squareCli.Rest().GetApplications()
+			me, err := squareCli.API().Account.Me(cmd.Context())
 			if err != nil {
 				return err
 			}
+			applications := me.Applications
 
 			if cmdutil.WantsJSON(cmd) {
 				return cmdutil.PrintJSON(squareCli.Out(), applications)
@@ -30,10 +31,11 @@ func NewListCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return nil
 			}
 
-			w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+			w := cmdutil.NewTableWriter(squareCli.Out())
 			defer w.Flush()
 
-			fmt.Fprintln(w, strings.Join([]string{"NAME", "APP ID", "MEMORY", "CLUSTER", "LANG", "DOMAIN"}, " \t "))
+			t := squareCli.I18n()
+			fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.name"), t.T("ui.table.app_id"), t.T("ui.table.memory"), t.T("ui.table.cluster"), t.T("ui.table.lang"), t.T("ui.table.domain")}, " \t "))
 
 			for _, app := range applications {
 				domain := "-"

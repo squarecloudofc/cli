@@ -3,27 +3,27 @@ package app
 import (
 	"fmt"
 	"strings"
-	"text/tabwriter"
 	"time"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
-	"github.com/squarecloudofc/sdk-api-go/v2/squarecloud"
+	"github.com/squarecloudofc/sdk-api-go/v3"
 )
 
 func NewMetricsCommand(squareCli cli.SquareCLI) *cobra.Command {
 	return &cobra.Command{
-		Use:   "metrics [app id]",
-		Short: squareCli.I18n().T("metadata.commands.app.metrics.short"),
-		Args:  cobra.MaximumNArgs(1),
+		Use:         "metrics [app id]",
+		Short:       squareCli.I18n().T("metadata.commands.app.metrics.short"),
+		Annotations: map[string]string{"json": "true"},
+		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			appID, err := cmdutil.ResolveAppID(squareCli, args)
+			appID, err := cmdutil.ResolveAppID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			metrics, err := squareCli.Rest().GetApplicationMetrics(appID)
+			metrics, err := squareCli.API().Apps.Metrics(cmd.Context(), appID)
 			if err != nil {
 				return err
 			}
@@ -44,10 +44,11 @@ func PrintMetrics(squareCli cli.SquareCLI, cmd *cobra.Command, metrics []squarec
 		return nil
 	}
 
-	w := tabwriter.NewWriter(squareCli.Out(), 0, 0, 2, ' ', tabwriter.TabIndent)
+	w := cmdutil.NewTableWriter(squareCli.Out())
 	defer w.Flush()
 
-	fmt.Fprintln(w, strings.Join([]string{"DATE", "CPU %", "RAM MB", "NET"}, " \t "))
+	t := squareCli.I18n()
+	fmt.Fprintln(w, strings.Join([]string{t.T("ui.table.date"), "CPU %", "RAM MB", t.T("ui.table.net")}, " \t "))
 	for _, point := range metrics {
 		net := make([]string, len(point.Net))
 		for i, n := range point.Net {

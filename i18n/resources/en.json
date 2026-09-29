@@ -1,28 +1,104 @@
 {
   "errors": {
     "common": {
-      "not_logged": "You need to be authenticated to execute this command; please log in with squarecloud auth login."
+      "not_logged": "You need to be logged in to run this command. Log in with squarecloud auth login.",
+      "json_unsupported": "{{ .Command }} has no JSON output; run it without --json.",
+      "not_a_command": "{{ .Command }} is not a command. See 'squarecloud --help'.",
+      "selection_canceled": "Selection canceled."
+    },
+    "api": {
+      "unauthorized": "Your session expired or the API key was revoked. Run squarecloud auth login to sign in again.",
+      "rate_limited": "Too many requests. Please wait a moment and try again."
+    },
+    "confirm": {
+      "no_tty": "Can't ask for confirmation: this isn't an interactive terminal. Run the command again with --yes (-y) to confirm, or run it in a terminal.",
+      "declined": "Canceled. Nothing was changed. Use --yes (-y) to skip this question."
+    },
+    "config": {
+      "no_dir": "Can't find a folder for the CLI config: set HOME (APPDATA on Windows) to save a login, or use SQUARECLOUD_API_KEY.",
+      "load": "Couldn't load the config file: {{ .Error }}"
     }
   },
   "ui": {
     "select": {
       "application": "Select an application",
       "database": "Select a database"
+    },
+    "update": {
+      "outdated": "You're using an old version of Square Cloud CLI: {{ .Version }}",
+      "hint": "Please update to {{ .Version }}"
+    },
+    "table": {
+      "name": "NAME",
+      "type": "TYPE",
+      "status": "STATUS",
+      "size": "SIZE",
+      "memory": "MEMORY",
+      "cluster": "CLUSTER",
+      "domain": "DOMAIN",
+      "hostname": "HOSTNAME",
+      "lang": "LANG",
+      "app_id": "APP ID",
+      "app_name": "APP NAME",
+      "apps": "APPS",
+      "db_id": "DB ID",
+      "workspace_id": "WORKSPACE ID",
+      "member_id": "MEMBER ID",
+      "members": "MEMBERS",
+      "group": "GROUP",
+      "joined": "JOINED",
+      "created": "CREATED",
+      "modified": "MODIFIED",
+      "last_update": "LAST UPDATED",
+      "quantity": "QUANTITY",
+      "version_id": "VERSION ID",
+      "date": "DATE",
+      "time": "TIME",
+      "commit": "COMMIT",
+      "state": "STATE",
+      "branch": "BRANCH",
+      "running": "RUNNING",
+      "mem": "MEM",
+      "disk": "DISK",
+      "net": "NET",
+      "uptime": "UPTIME",
+      "value": "VALUE",
+      "country": "COUNTRY",
+      "requests": "REQUESTS",
+      "visits": "VISITS",
+      "path": "PATH",
+      "slowest_path": "SLOWEST PATH",
+      "method": "METHOD",
+      "errors": "ERRORS"
+    },
+    "field": {
+      "id": "ID:",
+      "name": "Name:",
+      "description": "Description:",
+      "type": "Type:",
+      "language": "Language:",
+      "memory": "Memory:",
+      "port": "Port:",
+      "cluster": "Cluster:",
+      "owner": "Owner:",
+      "domain": "Domain:",
+      "custom_domain": "Custom domain:",
+      "created_at": "Created at:",
+      "password": "PASSWORD:",
+      "url": "URL:"
     }
   },
   "metadata": {
     "commands": {
+      "root": {
+        "short": "A command line application to manage your Square Cloud applications"
+      },
       "status": {
         "short": "Check the Square Cloud platform health"
       },
       "snapshot": {
         "list": {
           "short": "List all snapshots from your account"
-        },
-        "create": {
-          "flags": {
-            "download": "Automatically download the created snapshot"
-          }
         }
       },
       "app": {
@@ -280,7 +356,7 @@
           "short": "Manage your Square Cloud login with these commands"
         },
         "login": {
-          "short": "Log in to Square Cloud, required to run some CLI commands."
+          "short": "Log in to Square Cloud, required to run some CLI commands"
         },
         "logout": {
           "short": "End the current session"
@@ -292,6 +368,51 @@
       "zip": {
         "short": "Zip the current folder"
       }
+    },
+    "flags": {
+      "version": "Print the CLI version",
+      "json": "Output raw JSON",
+      "app": "Application ID",
+      "yes": "Skip the confirmation prompt",
+      "file": "File to upload instead of the current folder",
+      "restart": "Restart the application after the commit",
+      "path": "Destination folder inside the application",
+      "status_all_apps": "Show the status of every application",
+      "status_all_databases": "Show the status of every database",
+      "raw": "Print raw numeric stats as JSON",
+      "from_file": "Read variables from a .env style file",
+      "remove_all_envs": "Remove every environment variable",
+      "output": "Write the content to a local file",
+      "download": "Automatically download the created snapshot",
+      "from": "Read the content from a local file (default: stdin)",
+      "remove_webhook": "Remove the configured webhook",
+      "start": "Start of the window (RFC 3339, default: 24h ago)",
+      "end": "End of the window (RFC 3339, default: now)",
+      "filter": "Filter analytics by {{ .Name }}",
+      "include_4xx": "Include 4xx responses (default: 5xx only)",
+      "token": "Log in with an existing Square Cloud API key",
+      "with_token": "Read the API key from stdin",
+      "no_browser": "Do not open the browser; only print the URL",
+      "yes_switch_account": "Replace a saved key of another account without asking",
+      "db_name": "Database name (1-32 characters)",
+      "db_memory": "Allocated memory in MB",
+      "db_type": "Engine: mongo, mysql, redis or postgres",
+      "db_version": "Engine version",
+      "db_new_name": "New database name",
+      "db_new_memory": "New allocated memory in MB"
+    },
+    "help": {
+      "flag": "Show help for this command",
+      "command": "Help about any command",
+      "usage": "Usage:",
+      "aliases": "Aliases:",
+      "examples": "Examples:",
+      "available_commands": "Available Commands:",
+      "additional_commands": "Additional Commands:",
+      "flags": "Flags:",
+      "global_flags": "Global Flags:",
+      "additional_topics": "Additional help topics:",
+      "more_info": "Use \"{{ .Command }} [command] --help\" for more information about a command."
     }
   },
   "commands": {
@@ -300,20 +421,16 @@
     },
     "snapshot": {
       "list": {
-        "empty": "No snapshots found for your account",
-        "table": {
-          "quantity": "Quantity",
-          "size": "Size",
-          "last_update": "Last Update"
-        }
+        "empty": "No snapshots found for your account"
       },
       "create": {
         "downloading": "Saving your snapshot...",
-        "error": "Unable to download your snapshot, please try again later...",
+        "error": "Couldn't download your snapshot. Try again later.",
         "success": {
           "downloaded": "Your snapshot was successfully saved to {{ .File }}",
-          "link": "Your snapshot was successfully created, you can access it at:"
-        }
+          "link": "Your snapshot was created. Download it at:"
+        },
+        "pending": "Your snapshot is being generated. It will show up in the snapshot list in a few minutes."
       },
       "restore": {
         "confirm": "Restore {{ .Id }} from this snapshot? Current data will be replaced",
@@ -323,33 +440,33 @@
     "app": {
       "commit": {
         "arguments": {
-          "missing": "You not specified your application ID in command arguments",
-          "missing_2": "You can also specify an ID parameter in your squarecloud.app"
+          "missing": "You didn't pass an application ID.",
+          "missing_2": "You can also set it with an ID= line in your squarecloud.app file."
         },
         "states": {
           "loading_file": "Loading the file {{ .Filename }}",
           "compressing": "Compressing the current directory.",
-          "uploading": "Commiting updates to your application ({{.Appid}})"
+          "uploading": "Committing to your application ({{.Appid}})..."
         },
-        "success": "Successfully commited to your application"
+        "success": "Committed to your application."
       },
       "upload": {
-        "error": "Unable to send application to Square Cloud due to: {{ .Error }}",
+        "error": "Couldn't upload the application to Square Cloud: {{ .Error }}",
         "states": {
           "loading_file": "File provided, skipping compression.",
           "compressing": "Compressing the current directory.",
           "uploading": "Uploading the zip file to Square Cloud."
         },
         "success": "Application uploaded to Square Cloud!",
-        "access": "You can access via {{.Link}}"
+        "access": "Open it at {{.Link}}"
       },
       "delete": {
         "confirm": "Delete the application {{ .Appid }}? This action is irreversible",
         "failed": "Failed to delete your application",
-        "success": "Your application has been successfuly deleted"
+        "success": "Your application has been deleted."
       },
       "list": {
-        "empty": "You don't have any application active"
+        "empty": "You don't have any applications."
       },
       "info": {},
       "metrics": {
@@ -363,25 +480,30 @@
       },
       "load_balancers": {
         "empty": "No load balancers configured (attach a custom domain to more than one app)",
-        "limit": "Plan limit: up to {{ .Limit }} applications per domain"
+        "limit": "Applications per domain allowed by your plan: {{ .Limit }}"
       },
       "signal": {
         "failed": "Failed to send the signal to your application",
         "success": "Signal {{.Signal}} has been successfully sent to your application."
       },
       "env": {
+        "invalid": "Invalid variable \"{{ .Variable }}\": expected KEY=VALUE.",
         "list": {
           "empty": "No environment variables set for this application"
         },
         "set": {
-          "success": "{{ .Count }} environment variable(s) set successfully"
+          "success": "Environment variables set: {{ .Count }}"
         },
         "replace": {
           "confirm": "Replace ALL environment variables of {{ .Appid }}? Existing ones will be removed",
-          "success": "Environment variables replaced successfully"
+          "success": "Environment variables replaced successfully",
+          "empty": "Nothing to replace the variables with. Pass KEY=VALUE pairs or --from-file with at least one variable. To remove every variable, run squarecloud app env remove --all."
         },
         "remove": {
-          "success": "{{ .Count }} environment variable(s) removed successfully"
+          "success": "Environment variables removed: {{ .Count }}",
+          "usage": "Pass the names of the variables to remove, or --all to remove every variable (not both).",
+          "confirm_all": "Remove ALL environment variables of {{ .Appid }}?",
+          "success_all": "All environment variables were removed"
         }
       },
       "file": {
@@ -389,10 +511,10 @@
           "empty": "No files found in this directory"
         },
         "read": {
-          "saved": "File content saved to {{ .File }}"
+          "saved": "File content saved to {{ .File }}",
+          "overwrite": "{{ .File }} already exists. Overwrite it?"
         },
         "write": {
-          "failed": "The API refused to write the file",
           "success": "File {{ .File }} written successfully"
         },
         "move": {
@@ -426,8 +548,9 @@
         }
       },
       "network": {
+        "invalid_time": "Invalid value for {{ .Flag }}: {{ .Value }}. Use an RFC 3339 time such as 2026-01-02T15:04:05Z.",
         "dns": {
-          "empty": "No DNS records — configure a custom domain first"
+          "empty": "No DNS records. Configure a custom domain first."
         },
         "domain": {
           "success": "Custom domain {{ .Domain }} configured successfully",
@@ -454,11 +577,11 @@
     },
     "database": {
       "list": {
-        "empty": "You don't have any database active"
+        "empty": "You don't have any databases."
       },
       "create": {
         "success": "Database {{ .Name }} ({{ .Id }}) created successfully",
-        "password_warning": "Save the password now — it is shown only once and cannot be recovered."
+        "password_warning": "Save the password now: it is shown only once and cannot be recovered."
       },
       "update": {
         "success": "Database updated successfully"
@@ -472,6 +595,7 @@
       },
       "credentials": {
         "reset": {
+          "invalid_type": "Invalid reset type \"{{ .Type }}\": use password or certificate.",
           "confirm": "Rotate the {{ .Type }} of database {{ .Id }}? The current one stops working immediately",
           "success": "Credential rotated successfully"
         }
@@ -479,7 +603,7 @@
     },
     "workspace": {
       "list": {
-        "empty": "You don't have any workspace"
+        "empty": "You don't have any workspaces."
       },
       "create": {
         "success": "Workspace {{ .Name }} ({{ .Id }}) created successfully"
@@ -522,33 +646,57 @@
     },
     "auth": {
       "login": {
-        "input": {
-          "label": "Your API Token:",
-          "placeholder": "Insert your Square Cloud API token"
-        },
-        "error": "No user associated for this Square Cloud Token",
+        "error": "No Square Cloud account uses this API key.",
         "success": {
-          "0": "Your API Token has successfuly changed! You are now logged in a {{.User}}",
+          "0": "API key saved. You are now logged in as {{.User}}.",
           "1": "With great power comes great responsibility!"
         },
         "warnings": {
-          "no_plan": "It looks like you don’t have any active plan at the moment; get a plan at {{ .Link }}."
-        }
+          "no_plan": "It looks like you don't have any active plan at the moment; get a plan at {{ .Link }}."
+        },
+        "device": {
+          "instructions": "Open this page in your browser and enter the code:",
+          "waiting": "Waiting for approval · expires in {{ .Remaining }} · Ctrl+C to cancel",
+          "cancelled": "Login canceled.",
+          "expired": "The login code expired or was already used. Run squarecloud auth login again.",
+          "key_limit": "Your account has reached its API key limit. Revoke a key at {{ .Link }} and the login will continue on its own.",
+          "rate_limited": "Too many attempts from this network. Waiting a minute before trying again...",
+          "success": "Logged in as {{ .Email }}."
+        },
+        "key_expires": "This API key expires on {{ .Date }}.",
+        "no_tty": "No interactive terminal. Use --with-token to read an API key from stdin, or set SQUARECLOUD_API_KEY.",
+        "empty_token": "No API key received on stdin.",
+        "env_override": "Note: SQUARECLOUD_API_KEY is set and takes precedence over the saved key.",
+        "ci": "CI detected (CI=true). The browser login makes a key that expires in 90 days and only a person can renew it. Create an API key at {{ .Link }} and set it in SQUARECLOUD_API_KEY.",
+        "switch_account": "This machine is logged in to another Square Cloud account. Replace it with {{ .Email }}?"
       },
       "logout": {
-        "success": "You have successfully logged out of your Square Cloud account."
+        "success": "You have successfully logged out of your Square Cloud account.",
+        "none": "No account is connected on this machine."
       },
       "whoami": {
         "logged": {
           "plan": "You are currently logged in as {{.User.Name}} on the {{ .User.Plan }} plan.",
-          "remaining": "You have {{ if lt .User.PlanRemaining 1 }}a few hours{{ else }}{{ .User.PlanRemaining }} days{{ end }} left before your plan expires.",
+          "remaining": "You have {{ if lt .User.PlanRemaining 1 }}a few hours{{ else if eq .User.PlanRemaining 1 }}1 day{{ else }}{{ .User.PlanRemaining }} days{{ end }} left before your plan expires.",
           "expired": "Your plan has expired or you do not have an active plan; get a plan at {{ .Link }}."
+        },
+        "key": {
+          "expires": "Your API key expires on {{ .Date }}.",
+          "scopes": "Scopes: {{ .Scopes }}",
+          "env": "Using the API key from SQUARECLOUD_API_KEY."
         }
       }
     },
     "zip": {
-      "failed": "It was not possible to make the zip of your application",
-      "success": "Your source has successfuly zipped to {{.Zip}}"
+      "failed": "Couldn't zip your application.",
+      "success": "Your project was zipped to {{.Zip}}",
+      "legacy_ignore": "Reading {{ .File }}. Rename it to squarecloud.ignore, the name the CLI and the VS Code extension share.",
+      "skipped_link": "Skipped {{ .Path }}: it is a link to a folder or a broken link.",
+      "exists": "{{ .File }} already exists and couldn't be deleted: {{ .Error }}"
+    },
+    "signal": {
+      "already_running": "It is already running.",
+      "already_stopped": "It is already stopped."
     }
   }
 }
