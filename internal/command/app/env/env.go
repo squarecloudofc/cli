@@ -7,6 +7,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"unicode"
 
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
@@ -230,7 +231,57 @@ func collectEnvs(squareCli cli.SquareCLI, args []string, fromFile string) (squar
 		envs[key] = value
 	}
 
+	for key, value := range envs {
+		envs[key] = shellQuote(value)
+	}
+
 	return envs, nil
+}
+
+// The app loads its variables through a shell, which cuts a value at a space
+// and expands $, & or ; in it. shellQuote wraps such a value so the app reads
+// it back exactly as given: in single quotes, or in double quotes when it has
+// a single quote. A value already in one pair of quotes is left as the user
+// wrote it, e.g. "${HOST}:3000" to refer to another variable.
+func shellQuote(value string) string {
+	if isShellQuoted(value) || !strings.ContainsFunc(value, needsQuote) {
+		return value
+	}
+	if !strings.Contains(value, "'") {
+		return "'" + value + "'"
+	}
+	return `"` + doubleQuoteEscaper.Replace(value) + `"`
+}
+
+var doubleQuoteEscaper = strings.NewReplacer(`\`, `\\`, `"`, `\"`, "$", `\$`, "`", "\\`")
+
+func needsQuote(r rune) bool {
+	return !unicode.IsLetter(r) && !unicode.IsDigit(r) && !strings.ContainsRune("_@%+=:,./-", r)
+}
+
+func isShellQuoted(value string) bool {
+	if len(value) < 2 || value[0] != value[len(value)-1] {
+		return false
+	}
+	inner := value[1 : len(value)-1]
+	switch value[0] {
+	case '\'':
+		return !strings.Contains(inner, "'")
+	case '"':
+		for i := 0; i < len(inner); i++ {
+			switch inner[i] {
+			case '\\':
+				if i == len(inner)-1 {
+					return false // it escapes the closing quote
+				}
+				i++
+			case '"':
+				return false
+			}
+		}
+		return true
+	}
+	return false
 }
 
 // parseDotEnv adds the KEY=VALUE lines of a .env file to envs. Blank lines,

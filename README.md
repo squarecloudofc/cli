@@ -149,6 +149,13 @@ exits with code 1 and changes nothing. `snapshot list <id>` prints the
 version IDs that `snapshot restore` takes. Starting a running app or database (or stopping a stopped one) is
 reported as such, not as an error.
 
+`app env set` and `replace` make the application receive each value exactly as
+typed. The application reads its variables through a shell, so a value with
+spaces or characters such as `$`, `&`, `;` or `|` is sent in quotes: single
+quotes, or double quotes when the value has a single quote. A value already in
+one pair of quotes is kept as written, so `'URL="${HOST}:3000"'` still refers
+to another variable.
+
 ## Language
 
 Messages, help and flag descriptions follow your system language, detected on
