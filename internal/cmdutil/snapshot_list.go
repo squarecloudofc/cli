@@ -28,7 +28,7 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 				return err
 			}
 			if len(args) > 0 { // the JSON output honours the ID too
-				snapshots = slices.DeleteFunc(snapshots, func(s squarecloud.Snapshot) bool { return s.Name != args[0] })
+				snapshots = slices.DeleteFunc(snapshots, func(s squarecloud.Snapshot) bool { return snapshotOwner(s.Name) != args[0] })
 			}
 
 			if WantsJSON(cmd) {
@@ -72,10 +72,11 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 
 			groups := map[string]*summary{}
 			for _, snap := range snapshots {
-				s, ok := groups[snap.Name]
+				id := snapshotOwner(snap.Name)
+				s, ok := groups[id]
 				if !ok {
-					s = &summary{id: snap.Name}
-					groups[snap.Name] = s
+					s = &summary{id: id}
+					groups[id] = s
 				}
 
 				s.count++
@@ -114,12 +115,20 @@ func NewSnapshotListCommand(squareCli cli.SquareCLI, scope squarecloud.SnapshotS
 	}
 }
 
-// versionRows renders one row per version of the snapshots named id. The
-// version ID is the one `snapshot restore` takes.
+// snapshotOwner returns the app/database ID a snapshot name belongs to:
+// "<id>_<runtime>_<origin>", or just "<id>" for legacy snapshots. IDs are hex,
+// so they never contain "_".
+func snapshotOwner(name string) string {
+	id, _, _ := strings.Cut(name, "_")
+	return id
+}
+
+// versionRows renders one row per version of the snapshots of resource id. The
+// snapshot name and version ID are the ones `snapshot restore` takes.
 func versionRows(snapshots []squarecloud.Snapshot, id string) [][]string {
 	var rows [][]string
 	for _, snap := range snapshots {
-		if snap.Name != id {
+		if snapshotOwner(snap.Name) != id {
 			continue
 		}
 		rows = append(rows, []string{
