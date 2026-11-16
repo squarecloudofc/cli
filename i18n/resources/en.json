@@ -8,7 +8,13 @@
     },
     "api": {
       "unauthorized": "Your session expired or the API key was revoked. Run squarecloud auth login to sign in again.",
-      "rate_limited": "Too many requests. Please wait a moment and try again."
+      "rate_limited": "Too many requests. Please wait a moment and try again.",
+      "restore_in_progress": "A snapshot restore is running on this resource. Wait for it to finish, then try again.",
+      "snapshot_in_progress": "A snapshot of this resource is being created. Wait for it to finish, then try again.",
+      "env_busy": "Another change to the environment variables is in progress. Try again in a moment.",
+      "snapshots_unavailable": "Snapshots are temporarily unavailable. Try again in about 30 seconds.",
+      "cluster_maintenance": "The server that hosts this resource is under maintenance. Try again in a few minutes.",
+      "missing_scope": "Your API key doesn't have the permission this command needs. Run squarecloud auth login to get a new key that has it."
     },
     "confirm": {
       "no_tty": "Can't ask for confirmation: this isn't an interactive terminal. Run the command again with --yes (-y) to confirm, or run it in a terminal.",
@@ -16,7 +22,8 @@
     },
     "config": {
       "no_dir": "Can't find a folder for the CLI config: set HOME (APPDATA on Windows) to save a login, or use SQUARECLOUD_API_KEY.",
-      "load": "Couldn't load the config file: {{ .Error }}"
+      "load": "Couldn't load the config file: {{ .Error }}",
+      "invalid_profile": "{{ .Profile }} is not a valid profile name: use 1 to 32 letters, digits, - or _, starting with a letter or digit."
     }
   },
   "ui": {
@@ -26,7 +33,7 @@
     },
     "update": {
       "outdated": "You're using an old version of Square Cloud CLI: {{ .Version }}",
-      "hint": "Please update to {{ .Version }}"
+      "hint": "Update to {{ .Version }} with squarecloud upgrade"
     },
     "table": {
       "name": "NAME",
@@ -69,7 +76,10 @@
       "path": "PATH",
       "slowest_path": "SLOWEST PATH",
       "method": "METHOD",
-      "errors": "ERRORS"
+      "errors": "ERRORS",
+      "disk_io": "DISK I/O",
+      "storage": "STORAGE",
+      "url": "URL"
     },
     "field": {
       "id": "ID:",
@@ -118,7 +128,7 @@
           "short": "View the most recent logs of your application"
         },
         "metrics": {
-          "short": "View the last 24h of CPU/RAM/network metrics"
+          "short": "View CPU, RAM, network and disk metrics (24h or 7d)"
         },
         "realtime": {
           "short": "Stream realtime events of your application (SSE)"
@@ -278,7 +288,7 @@
           "short": "View the status of your database"
         },
         "metrics": {
-          "short": "View the last 24h of database metrics"
+          "short": "View database metrics (24h or 7d)"
         },
         "credentials": {
           "root": {
@@ -367,6 +377,43 @@
       },
       "zip": {
         "short": "Zip the current folder"
+      },
+      "init": {
+        "short": "Create a squarecloud.app for the project in the current folder"
+      },
+      "upgrade": {
+        "short": "Update the CLI to the latest release"
+      },
+      "blob": {
+        "root": {
+          "short": "Manage your files in Square Cloud Blob"
+        },
+        "list": {
+          "short": "List your stored files, optionally under a prefix"
+        },
+        "upload": {
+          "short": "Upload a file (above 90 MiB it goes up in parts)"
+        },
+        "delete": {
+          "short": "Delete a stored file for good"
+        },
+        "url": {
+          "short": "Print a download link for a stored file"
+        },
+        "stats": {
+          "short": "Show how much Blob storage you use"
+        }
+      },
+      "integration": {
+        "root": {
+          "short": "Add Square Cloud to the Windows Explorer menu"
+        },
+        "install": {
+          "short": "Add \"Send to Square Cloud\" to the menu of folders and .zip files"
+        },
+        "uninstall": {
+          "short": "Remove the Explorer menu entry and every key it added"
+        }
       }
     },
     "flags": {
@@ -399,7 +446,17 @@
       "db_type": "Engine: mongo, mysql, redis or postgres",
       "db_version": "Engine version",
       "db_new_name": "New database name",
-      "db_new_memory": "New allocated memory in MB"
+      "db_new_memory": "New allocated memory in MB",
+      "no_wait": "Don't wait for a restore that keeps running in the background",
+      "range": "Time range: 24h, or 7d on Pro and Enterprise plans",
+      "follow": "Keep printing new log lines as they arrive (Ctrl+C to stop)",
+      "yes_init": "Use the detected values without asking",
+      "force_init": "Overwrite an existing squarecloud.app",
+      "check": "Only check whether a new version is available",
+      "profile": "Use the login saved under this profile (default: SQUARECLOUD_PROFILE, or default)",
+      "blob_name": "Object name, without the extension (default: the file name)",
+      "blob_private": "Store the file as private, reachable only through temporary links",
+      "dry_run": "Show what would change without changing anything"
     },
     "help": {
       "flag": "Show help for this command",
@@ -428,13 +485,18 @@
         "error": "Couldn't download your snapshot. Try again later.",
         "success": {
           "downloaded": "Your snapshot was successfully saved to {{ .File }}",
-          "link": "Your snapshot was created. Download it at:"
+          "link": "Your snapshot was created. Download it within 1 hour at:"
         },
         "pending": "Your snapshot is being generated. It will show up in the snapshot list in a few minutes."
       },
       "restore": {
         "confirm": "Restore {{ .Id }} from this snapshot? Current data will be replaced",
-        "success": "Restore started successfully"
+        "success": "Snapshot restored successfully",
+        "following": "The restore is taking a while and keeps running on the server. Following its progress (Ctrl+C stops watching, not the restore)...",
+        "step": "Step: {{ .Step }}",
+        "background": "The restore keeps running in the background and may take a few more minutes.",
+        "failed": "The restore failed: {{ .Code }}",
+        "lost": "The platform no longer reports this restore, so its result is unknown. Check the status of the application or database."
       }
     },
     "app": {
@@ -470,10 +532,14 @@
       },
       "info": {},
       "metrics": {
-        "empty": "No metrics available for this application"
+        "empty": "No metrics available for this application",
+        "invalid_range": "Invalid range \"{{ .Range }}\": use 24h or 7d.",
+        "only_24h": "7-day metrics need a Pro or Enterprise plan (and 512 MB or more for applications). Showing the last 24 hours."
       },
       "realtime": {
-        "connected": "Connected to the realtime stream of {{ .Appid }} (Ctrl+C to exit)"
+        "connected": "Connected to the realtime stream of {{ .Appid }} (Ctrl+C to exit)",
+        "reconnecting": "The stream ended; reconnecting...",
+        "no_events": "The stream ended {{ .Count }} times in a row without logs or status, so it was stopped. Check the application's status and try again."
       },
       "domains": {
         "empty": "No domains configured across your applications"
@@ -668,7 +734,9 @@
         "empty_token": "No API key received on stdin.",
         "env_override": "Note: SQUARECLOUD_API_KEY is set and takes precedence over the saved key.",
         "ci": "CI detected (CI=true). The browser login makes a key that expires in 90 days and only a person can renew it. Create an API key at {{ .Link }} and set it in SQUARECLOUD_API_KEY.",
-        "switch_account": "This machine is logged in to another Square Cloud account. Replace it with {{ .Email }}?"
+        "switch_account": "This machine is logged in to another Square Cloud account. Replace it with {{ .Email }}?",
+        "key_in_file": "No system keychain is available, so the key was saved in {{ .Path }}, readable only by your user.",
+        "profile": "Saved under the profile {{ .Profile }}. Pass --profile {{ .Profile }}, or set SQUARECLOUD_PROFILE={{ .Profile }}, to use it."
       },
       "logout": {
         "success": "You have successfully logged out of your Square Cloud account.",
@@ -683,7 +751,8 @@
         "key": {
           "expires": "Your API key expires on {{ .Date }}.",
           "scopes": "Scopes: {{ .Scopes }}",
-          "env": "Using the API key from SQUARECLOUD_API_KEY."
+          "env": "Using the API key from SQUARECLOUD_API_KEY.",
+          "profile": "Profile: {{ .Profile }}"
         }
       }
     },
@@ -697,6 +766,83 @@
     "signal": {
       "already_running": "It is already running.",
       "already_stopped": "It is already stopped."
+    },
+    "status": {
+      "unknown": "Couldn't check the platform status right now. This doesn't mean it is down.",
+      "incidents": "Incidents:",
+      "started": "Started: {{ .Date }}",
+      "ends": "Expected end: {{ .Date }}",
+      "components": "Affected components:"
+    },
+    "init": {
+      "exists": "{{ .File }} already exists. Use --force to overwrite it.",
+      "no_main": "Couldn't find the main file of this project. Run squarecloud init without --yes to choose it.",
+      "created": "{{ .File }} created",
+      "next": "Upload your project with squarecloud upload.",
+      "ask": {
+        "main": "Main file",
+        "name": "Display name",
+        "site": "Is it a website or an API?",
+        "memory": "Memory in MB (at least {{ .Min }})",
+        "subdomain": "Subdomain",
+        "start": "Custom start command (optional)",
+        "autorestart": "Restart automatically if it stops?",
+        "ignore": "Create a {{ .File }} too?"
+      },
+      "invalid": {
+        "main": "Pick a file inside this folder.",
+        "name": "Use 1 to 32 characters.",
+        "memory": "Use a whole number of MB, at least {{ .Min }}.",
+        "subdomain": "Use only letters, numbers and hyphens (up to 63)."
+      }
+    },
+    "upgrade": {
+      "check_failed": "Couldn't check for a new version: {{ .Error }}",
+      "up_to_date": "No update needed: your version is {{ .Version }} and the latest is {{ .Latest }}.",
+      "available": "Version {{ .Latest }} is available (yours is {{ .Version }}).",
+      "run": "Run squarecloud upgrade to install it.",
+      "npm": "This CLI was installed with npm. Update it with: npm i -g @squarecloud/cli@latest",
+      "downloading": "Downloading {{ .Latest }}...",
+      "replace_failed": "Couldn't replace {{ .Path }}: {{ .Error }}. Check that you can write to that folder.",
+      "success": "Square Cloud CLI updated to {{ .Latest }}.",
+      "package_deb": "This CLI was installed from a .deb package. Download the new one at {{ .Link }} and install it with: sudo apt install ./<file>.deb",
+      "package_rpm": "This CLI was installed from an .rpm package. Download the new one at {{ .Link }} and install it with: sudo dnf install ./<file>.rpm"
+    },
+    "blob": {
+      "list": {
+        "empty": "No files found."
+      },
+      "private": "(private)",
+      "upload": {
+        "is_dir": "{{ .Path }} is a folder. Upload a file, or zip the folder first with squarecloud zip.",
+        "uploading": "Uploading {{ .File }} ({{ .Size }})...",
+        "parts": "Sent part {{ .Done }} of {{ .Total }}",
+        "success": "Uploaded as {{ .ID }}",
+        "private_hint": "Private file: get a temporary link with squarecloud blob url {{ .ID }}"
+      },
+      "delete": {
+        "confirm": "Delete {{ .ID }} for good? There is no trash",
+        "success": "Deleted {{ .ID }}"
+      },
+      "url": {
+        "expires": "Temporary link, valid until {{ .Date }}."
+      },
+      "stats": {
+        "objects": "Files: {{ .Count }}",
+        "storage": "Storage: {{ .Used }} used of the {{ .Included }} in your plan"
+      }
+    },
+    "integration": {
+      "unsupported": "The Explorer integration is only available on Windows. On macOS and Linux, the README shows how to add a Finder or file manager shortcut that runs squarecloud upload.",
+      "menu_label": "Send to Square Cloud",
+      "dry_run": {
+        "install": "These registry values would be written (nothing was changed):",
+        "uninstall": "These registry keys would be deleted (nothing was changed):"
+      },
+      "installed": "Added \"Send to Square Cloud\" to the Explorer menu of folders and .zip files. On Windows 11, look under Show more options.",
+      "uninstalled": "Removed \"Send to Square Cloud\" from the Explorer menu.",
+      "sent": "{{ .Name }} was sent to Square Cloud.",
+      "send_failed": "Couldn't send {{ .Name }}"
     }
   }
 }

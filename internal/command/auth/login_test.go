@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -14,8 +15,16 @@ import (
 	"github.com/squarecloudofc/cli/i18n"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
+	"github.com/zalando/go-keyring"
 )
+
+// TestMain swaps the OS keychain for go-keyring's in-memory fake: no test
+// may read or write the real one.
+func TestMain(m *testing.M) {
+	keyring.MockInit()
+	os.Exit(m.Run())
+}
 
 type fakeCLI struct {
 	cfg      *config.Config
@@ -148,6 +157,33 @@ func TestLogoutWhenLoggedOut(t *testing.T) {
 		t.Fatalf("logout = %v, want nil", err)
 	}
 	if want := f.I18n().T("commands.auth.logout.none"); !strings.Contains(f.out.String(), want) {
+		t.Fatalf("stdout = %q, want %q", f.out.String(), want)
+	}
+}
+
+// A login for a profile lands in that profile's keychain entry, not in the
+// file, and says how to use the profile.
+func TestLoginToAProfile(t *testing.T) {
+	fakeAPI(t)
+	dir := t.TempDir()
+	t.Setenv("APPDATA", dir)
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	cfg, err := config.Load("work")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	f, err := runLogin(t, cfg, "--token", "key-b")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := keyring.Get(config.KeychainService, "work"); got != "key-b" {
+		t.Fatalf("keychain[work] = %q, want key-b", got)
+	}
+	if data, _ := os.ReadFile(cfg.Path()); strings.Contains(string(data), "key-b") {
+		t.Fatalf("the key reached the file: %s", data)
+	}
+	if want := f.I18n().T("commands.auth.login.profile", map[string]any{"Profile": "work"}); !strings.Contains(f.out.String(), want) {
 		t.Fatalf("stdout = %q, want %q", f.out.String(), want)
 	}
 }

@@ -3,6 +3,7 @@ package updater
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -12,8 +13,9 @@ import (
 	"time"
 )
 
-// LatestReleaseURL is the GitHub API route of the newest release.
-const LatestReleaseURL = "https://api.github.com/repos/squarecloudofc/cli/releases/latest"
+// LatestReleaseURL is the GitHub API route of the newest release. A variable
+// so tests use a fake.
+var LatestReleaseURL = "https://api.github.com/repos/squarecloudofc/cli/releases/latest"
 
 // CacheFileName holds the last check, next to the CLI config.
 const CacheFileName = "update-check.json"
@@ -39,7 +41,9 @@ func Latest(ctx context.Context, url, cacheFile string, now time.Time) string {
 		}
 	}
 
-	if tag := fetch(ctx, url); tag != "" {
+	fetchCtx, cancel := context.WithTimeout(ctx, 3*time.Second)
+	defer cancel()
+	if tag, err := FetchLatest(fetchCtx, url); err == nil {
 		c.Latest = tag
 	}
 	c.CheckedAt = now
@@ -49,33 +53,33 @@ func Latest(ctx context.Context, url, cacheFile string, now time.Time) string {
 	return c.Latest
 }
 
-func fetch(ctx context.Context, url string) string {
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
+// FetchLatest asks url (LatestReleaseURL) for the newest release tag.
+func FetchLatest(ctx context.Context, url string) (string, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return ""
+		return "", err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return ""
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return ""
+		return "", fmt.Errorf("GET %s: %s", url, resp.Status)
 	}
 
 	var release struct {
 		TagName string `json:"tag_name"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
-		return ""
+		return "", err
 	}
-
-	return release.TagName
+	if release.TagName == "" {
+		return "", fmt.Errorf("GET %s: no tag_name", url)
+	}
+	return release.TagName, nil
 }
 
 // IsOutdated reports whether current is an older release than latest. Both

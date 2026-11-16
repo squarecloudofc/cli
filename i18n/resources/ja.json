@@ -8,7 +8,13 @@
     },
     "api": {
       "unauthorized": "セッションの有効期限が切れたか、API キーが失効しました。squarecloud auth login を実行して、もう一度ログインしてください。",
-      "rate_limited": "リクエストが多すぎます。しばらく待ってから、もう一度お試しください。"
+      "rate_limited": "リクエストが多すぎます。しばらく待ってから、もう一度お試しください。",
+      "restore_in_progress": "このリソースでスナップショットの復元が進行中です。完了してから、もう一度お試しください。",
+      "snapshot_in_progress": "このリソースのスナップショットを作成中です。完了してから、もう一度お試しください。",
+      "env_busy": "環境変数に対する別の変更が進行中です。しばらくしてから、もう一度お試しください。",
+      "snapshots_unavailable": "スナップショットは一時的に利用できません。30 秒ほど待ってから、もう一度お試しください。",
+      "cluster_maintenance": "このリソースをホストしているサーバーはメンテナンス中です。数分後にもう一度お試しください。",
+      "missing_scope": "この API キーには、このコマンドに必要な権限がありません。squarecloud auth login を実行して、その権限を持つ新しいキーを取得してください。"
     },
     "confirm": {
       "no_tty": "対話型のターミナルではないため、確認できません。確認するには --yes（-y）を付けてコマンドをもう一度実行するか、ターミナルで実行してください。",
@@ -16,7 +22,8 @@
     },
     "config": {
       "no_dir": "CLI の設定を保存するフォルダが見つかりません。ログイン情報を保存するには HOME（Windows では APPDATA）を設定するか、SQUARECLOUD_API_KEY を使用してください。",
-      "load": "設定ファイルを読み込めませんでした：{{ .Error }}"
+      "load": "設定ファイルを読み込めませんでした：{{ .Error }}",
+      "invalid_profile": "{{ .Profile }} は有効なプロファイル名ではありません。英字、数字、-、_ を 1～32 文字で、先頭は英字か数字にしてください。"
     }
   },
   "ui": {
@@ -26,7 +33,7 @@
     },
     "update": {
       "outdated": "古いバージョンの Square Cloud CLI を使用しています：{{ .Version }}",
-      "hint": "{{ .Version }} に更新してください"
+      "hint": "squarecloud upgrade で {{ .Version }} に更新してください"
     },
     "table": {
       "name": "名前",
@@ -69,7 +76,10 @@
       "path": "パス",
       "slowest_path": "最も遅いパス",
       "method": "メソッド",
-      "errors": "エラー数"
+      "errors": "エラー数",
+      "disk_io": "ディスク I/O",
+      "storage": "ストレージ",
+      "url": "URL"
     },
     "field": {
       "id": "ID：",
@@ -118,7 +128,7 @@
           "short": "アプリケーションの最新のログを表示します"
         },
         "metrics": {
-          "short": "過去 24 時間の CPU、RAM、ネットワークのメトリクスを表示します"
+          "short": "CPU、RAM、ネットワーク、ディスクのメトリクスを表示します（24h または 7d）"
         },
         "realtime": {
           "short": "アプリケーションのリアルタイムイベントをストリーミングします（SSE）"
@@ -278,7 +288,7 @@
           "short": "データベースのステータスを表示します"
         },
         "metrics": {
-          "short": "過去 24 時間のデータベースのメトリクスを表示します"
+          "short": "データベースのメトリクスを表示します（24h または 7d）"
         },
         "credentials": {
           "root": {
@@ -367,6 +377,43 @@
       },
       "zip": {
         "short": "現在のフォルダを ZIP に圧縮します"
+      },
+      "init": {
+        "short": "現在のフォルダのプロジェクト用に squarecloud.app を作成します"
+      },
+      "upgrade": {
+        "short": "CLI を最新のリリースに更新します"
+      },
+      "blob": {
+        "root": {
+          "short": "Square Cloud Blob のファイルを管理します"
+        },
+        "list": {
+          "short": "保存されたファイルを一覧表示します（プレフィックスで絞り込み可能）"
+        },
+        "upload": {
+          "short": "ファイルをアップロードします（90 MiB を超える場合は分割して送信）"
+        },
+        "delete": {
+          "short": "保存されたファイルを完全に削除します"
+        },
+        "url": {
+          "short": "保存されたファイルのダウンロードリンクを表示します"
+        },
+        "stats": {
+          "short": "Blob ストレージの使用量を表示します"
+        }
+      },
+      "integration": {
+        "root": {
+          "short": "Windows エクスプローラーのメニューに Square Cloud を追加します"
+        },
+        "install": {
+          "short": "フォルダーと .zip ファイルのメニューに「Square Cloud に送信」を追加します"
+        },
+        "uninstall": {
+          "short": "エクスプローラーのメニュー項目と、追加したすべてのキーを削除します"
+        }
       }
     },
     "flags": {
@@ -399,7 +446,17 @@
       "db_type": "エンジン：mongo、mysql、redis、postgres のいずれか",
       "db_version": "エンジンのバージョン",
       "db_new_name": "新しいデータベース名",
-      "db_new_memory": "新しく割り当てるメモリ（MB）"
+      "db_new_memory": "新しく割り当てるメモリ（MB）",
+      "no_wait": "バックグラウンドで続く復元の完了を待ちません",
+      "range": "期間：24h、または Pro と Enterprise プランでは 7d",
+      "follow": "新しいログ行を届くたびに表示し続けます（Ctrl+C で停止）",
+      "yes_init": "検出した値を確認なしで使用します",
+      "force_init": "既存の squarecloud.app を上書きします",
+      "check": "新しいバージョンがあるかどうかだけを確認します",
+      "profile": "このプロファイルに保存されたログインを使用します（既定値：SQUARECLOUD_PROFILE、または default）",
+      "blob_name": "オブジェクト名（拡張子なし、既定値はファイル名）",
+      "blob_private": "ファイルを非公開で保存します（一時リンクからのみアクセス可能）",
+      "dry_run": "何も変更せずに、変更される内容を表示します"
     },
     "help": {
       "flag": "このコマンドのヘルプを表示します",
@@ -428,13 +485,18 @@
         "error": "スナップショットをダウンロードできませんでした。しばらくしてからもう一度お試しください。",
         "success": {
           "downloaded": "スナップショットを {{ .File }} に保存しました",
-          "link": "スナップショットを作成しました。ダウンロードはこちら："
+          "link": "スナップショットを作成しました。1 時間以内にこちらからダウンロードしてください："
         },
         "pending": "スナップショットを生成しています。数分後にスナップショットの一覧に表示されます。"
       },
       "restore": {
         "confirm": "現在のデータは置き換えられます。{{ .Id }} をこのスナップショットから復元しますか？",
-        "success": "復元を開始しました"
+        "success": "スナップショットを復元しました",
+        "following": "復元に時間がかかっており、サーバー上で続行しています。進行状況を表示します（Ctrl+C で表示を止めても、復元は止まりません）...",
+        "step": "ステップ：{{ .Step }}",
+        "background": "復元はバックグラウンドで続行しており、完了までさらに数分かかることがあります。",
+        "failed": "復元に失敗しました：{{ .Code }}",
+        "lost": "プラットフォームがこの復元を報告しなくなったため、結果はわかりません。アプリケーションまたはデータベースのステータスを確認してください。"
       }
     },
     "app": {
@@ -470,10 +532,14 @@
       },
       "info": {},
       "metrics": {
-        "empty": "このアプリケーションで利用できるメトリクスはありません"
+        "empty": "このアプリケーションで利用できるメトリクスはありません",
+        "invalid_range": "期間「{{ .Range }}」は無効です。24h または 7d を指定してください。",
+        "only_24h": "7 日間のメトリクスには Pro または Enterprise プランが必要です（アプリケーションは 512 MB 以上も必要）。過去 24 時間を表示します。"
       },
       "realtime": {
-        "connected": "{{ .Appid }} のリアルタイムストリームに接続しました（Ctrl+C で終了）"
+        "connected": "{{ .Appid }} のリアルタイムストリームに接続しました（Ctrl+C で終了）",
+        "reconnecting": "ストリームが終了しました。再接続しています...",
+        "no_events": "ストリームがログやステータスを送らずに {{ .Count }} 回続けて終了したため、停止しました。アプリケーションのステータスを確認して、もう一度お試しください。"
       },
       "domains": {
         "empty": "どのアプリケーションにもドメインが設定されていません"
@@ -668,7 +734,9 @@
         "empty_token": "stdin から API キーを受け取れませんでした。",
         "env_override": "注意：SQUARECLOUD_API_KEY が設定されているため、保存済みのキーよりも優先されます。",
         "ci": "CI 環境を検出しました（CI=true）。ブラウザでのログインで作成されるキーは 90 日で有効期限が切れ、更新には人による操作が必要です。{{ .Link }} で API キーを作成し、SQUARECLOUD_API_KEY に設定してください。",
-        "switch_account": "このマシンは別の Square Cloud アカウントでログインしています。{{ .Email }} に置き換えますか？"
+        "switch_account": "このマシンは別の Square Cloud アカウントでログインしています。{{ .Email }} に置き換えますか？",
+        "key_in_file": "システムのキーチェーンが利用できないため、キーは {{ .Path }} に保存されました（あなたのユーザーだけが読み取れます）。",
+        "profile": "プロファイル {{ .Profile }} に保存しました。使用するには --profile {{ .Profile }} を指定するか、SQUARECLOUD_PROFILE={{ .Profile }} を設定してください。"
       },
       "logout": {
         "success": "Square Cloud アカウントからログアウトしました。",
@@ -683,7 +751,8 @@
         "key": {
           "expires": "API キーの有効期限は {{ .Date }} です。",
           "scopes": "スコープ：{{ .Scopes }}",
-          "env": "SQUARECLOUD_API_KEY の API キーを使用しています。"
+          "env": "SQUARECLOUD_API_KEY の API キーを使用しています。",
+          "profile": "プロファイル：{{ .Profile }}"
         }
       }
     },
@@ -697,6 +766,83 @@
     "signal": {
       "already_running": "すでに稼働中です。",
       "already_stopped": "すでに停止しています。"
+    },
+    "status": {
+      "unknown": "現在、プラットフォームのステータスを確認できません。停止しているという意味ではありません。",
+      "incidents": "インシデント：",
+      "started": "開始：{{ .Date }}",
+      "ends": "終了予定：{{ .Date }}",
+      "components": "影響を受けているコンポーネント："
+    },
+    "init": {
+      "exists": "{{ .File }} はすでに存在します。上書きするには --force を使用してください。",
+      "no_main": "このプロジェクトのメインファイルが見つかりませんでした。--yes を付けずに squarecloud init を実行して選択してください。",
+      "created": "{{ .File }} を作成しました",
+      "next": "squarecloud upload でプロジェクトをアップロードしてください。",
+      "ask": {
+        "main": "メインファイル",
+        "name": "表示名",
+        "site": "Web サイトまたは API ですか？",
+        "memory": "メモリ（MB、{{ .Min }} 以上）",
+        "subdomain": "サブドメイン",
+        "start": "カスタムの起動コマンド（任意）",
+        "autorestart": "停止したときに自動で再起動しますか？",
+        "ignore": "{{ .File }} も作成しますか？"
+      },
+      "invalid": {
+        "main": "このフォルダ内のファイルを選択してください。",
+        "name": "1 から 32 文字で入力してください。",
+        "memory": "{{ .Min }} 以上の整数（MB）を入力してください。",
+        "subdomain": "英字、数字、ハイフンのみを使用してください（63 文字まで）。"
+      }
+    },
+    "upgrade": {
+      "check_failed": "新しいバージョンを確認できませんでした：{{ .Error }}",
+      "up_to_date": "更新は不要です。現在のバージョンは {{ .Version }}、最新は {{ .Latest }} です。",
+      "available": "バージョン {{ .Latest }} が利用可能です（現在は {{ .Version }}）。",
+      "run": "インストールするには squarecloud upgrade を実行してください。",
+      "npm": "この CLI は npm でインストールされています。次のコマンドで更新してください：npm i -g @squarecloud/cli@latest",
+      "downloading": "{{ .Latest }} をダウンロードしています...",
+      "replace_failed": "{{ .Path }} を置き換えられませんでした：{{ .Error }}。そのフォルダへの書き込み権限を確認してください。",
+      "success": "Square Cloud CLI を {{ .Latest }} に更新しました。",
+      "package_deb": "この CLI は .deb パッケージでインストールされています。{{ .Link }} から新しいパッケージをダウンロードし、次のコマンドでインストールしてください：sudo apt install ./<ファイル>.deb",
+      "package_rpm": "この CLI は .rpm パッケージでインストールされています。{{ .Link }} から新しいパッケージをダウンロードし、次のコマンドでインストールしてください：sudo dnf install ./<ファイル>.rpm"
+    },
+    "blob": {
+      "list": {
+        "empty": "ファイルが見つかりません。"
+      },
+      "private": "（非公開）",
+      "upload": {
+        "is_dir": "{{ .Path }} はフォルダーです。ファイルをアップロードするか、先に squarecloud zip でフォルダーを圧縮してください。",
+        "uploading": "{{ .File }}（{{ .Size }}）をアップロードしています...",
+        "parts": "パートを送信しました（{{ .Done }}/{{ .Total }}）",
+        "success": "{{ .ID }} としてアップロードしました",
+        "private_hint": "非公開ファイルです。一時リンクは squarecloud blob url {{ .ID }} で取得できます"
+      },
+      "delete": {
+        "confirm": "ゴミ箱はありません。{{ .ID }} を完全に削除しますか？",
+        "success": "{{ .ID }} を削除しました"
+      },
+      "url": {
+        "expires": "一時リンクです（{{ .Date }} まで有効）。"
+      },
+      "stats": {
+        "objects": "ファイル数：{{ .Count }}",
+        "storage": "ストレージ：プランの {{ .Included }} のうち {{ .Used }} を使用中"
+      }
+    },
+    "integration": {
+      "unsupported": "エクスプローラーとの統合は Windows でのみ利用できます。macOS と Linux では、squarecloud upload を実行する Finder やファイルマネージャーのショートカットの作り方を README で確認してください。",
+      "menu_label": "Square Cloud に送信",
+      "dry_run": {
+        "install": "次のレジストリ値が書き込まれます（変更はまだ行っていません）：",
+        "uninstall": "次のレジストリキーが削除されます（変更はまだ行っていません）："
+      },
+      "installed": "エクスプローラーのフォルダーと .zip ファイルのメニューに「Square Cloud に送信」を追加しました。Windows 11 では「その他のオプションを確認」の中にあります。",
+      "uninstalled": "エクスプローラーのメニューから「Square Cloud に送信」を削除しました。",
+      "sent": "{{ .Name }} を Square Cloud に送信しました。",
+      "send_failed": "{{ .Name }} を送信できませんでした"
     }
   }
 }

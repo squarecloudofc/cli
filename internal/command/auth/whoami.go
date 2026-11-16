@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
+	configpkg "github.com/squarecloudofc/cli/internal/config"
 	"github.com/squarecloudofc/cli/internal/ui"
 )
 
@@ -55,6 +56,9 @@ func NewWhoamiCommand(squareCli cli.SquareCLI) *cobra.Command {
 			}
 
 			config := squareCli.Config()
+			if profile := config.Profile(); profile != "" && profile != configpkg.DefaultProfile {
+				fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.key.profile", map[string]any{"Profile": profile}))
+			}
 			if config.KeyExpiresAt != nil {
 				fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.whoami.key.expires", map[string]any{
 					"Date": config.KeyExpiresAt.Local().Format(time.DateOnly),

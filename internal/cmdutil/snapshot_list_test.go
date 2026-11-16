@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
 // runSnapshotList runs `snapshot list args...` against a listing with three

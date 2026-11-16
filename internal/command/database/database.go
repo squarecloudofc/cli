@@ -12,7 +12,7 @@ import (
 	"github.com/squarecloudofc/cli/internal/cmdutil"
 	"github.com/squarecloudofc/cli/internal/command/app"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
 func newListCommand(squareCli cli.SquareCLI) *cobra.Command {
@@ -316,25 +316,34 @@ func newStatusCommand(squareCli cli.SquareCLI) *cobra.Command {
 }
 
 func newMetricsCommand(squareCli cli.SquareCLI) *cobra.Command {
-	return &cobra.Command{
+	var rng string
+
+	cmd := &cobra.Command{
 		Use:         "metrics [db id]",
 		Short:       squareCli.I18n().T("metadata.commands.database.metrics.short"),
 		Annotations: map[string]string{"json": "true"},
 		Args:        cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := app.CheckMetricsRange(squareCli, rng); err != nil {
+				return err
+			}
+
 			dbID, err := cmdutil.ResolveDatabaseID(cmd.Context(), squareCli, args)
 			if err != nil {
 				return err
 			}
 
-			metrics, err := squareCli.API().Databases.Metrics(cmd.Context(), dbID)
+			metrics, err := squareCli.API().Databases.Metrics(cmd.Context(), dbID, rng)
 			if err != nil {
 				return err
 			}
 
-			return app.PrintMetrics(squareCli, cmd, metrics)
+			return app.PrintMetrics(squareCli, cmd, metrics, rng)
 		},
 	}
+
+	app.AddMetricsRangeFlag(squareCli, cmd, &rng)
+	return cmd
 }
 
 func newCredentialsCommand(squareCli cli.SquareCLI) *cobra.Command {

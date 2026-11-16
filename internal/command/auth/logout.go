@@ -14,12 +14,12 @@ func NewLogoutCommand(squareCli cli.SquareCLI) *cobra.Command {
 		Annotations: map[string]string{"skipAuthCheck": "true"},
 		RunE: func(cmd *cobra.Command, args []string) error {
 			configuration := squareCli.Config()
-			if configuration.AuthToken == "" { // already logged out: not an error
+			if configuration.Key() == "" { // already logged out: not an error
 				fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.logout.none"))
 				return nil
 			}
 
-			configuration.SetKey("", "", nil, nil)
+			configuration.SetKey("", "", nil, nil) // Save removes it from the keychain too
 			if err := configuration.Save(); err != nil {
 				return err
 			}

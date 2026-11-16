@@ -18,9 +18,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/cmdutil"
+	"github.com/squarecloudofc/cli/internal/config"
 	"github.com/squarecloudofc/cli/internal/deviceauth"
 	"github.com/squarecloudofc/cli/internal/ui"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 	"golang.org/x/term"
 )
 
@@ -93,6 +94,7 @@ func loginWithToken(ctx context.Context, squareCli cli.SquareCLI, token string, 
 	}
 
 	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.success.0", map[string]any{"User": me.User.Name}))
+	printKeyStorage(squareCli)
 	fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.success.1"))
 	printLoginNotes(squareCli, me.User.Plan.Name)
 	return nil
@@ -156,6 +158,7 @@ func loginWithBrowser(ctx context.Context, squareCli cli.SquareCLI, noBrowser, y
 	}
 
 	fmt.Fprintf(squareCli.Out(), "%s %s\n", ui.CheckMark, squareCli.I18n().T("commands.auth.login.device.success", map[string]any{"Email": res.Account.Email}))
+	printKeyStorage(squareCli)
 	if res.ExpiresAt != nil {
 		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.key_expires", map[string]any{"Date": res.ExpiresAt.Local().Format(time.DateOnly)}))
 	}
@@ -174,7 +177,7 @@ func loginWithBrowser(ctx context.Context, squareCli cli.SquareCLI, noBrowser, y
 // from; a silent switch would send this machine's deploys to that account.
 func confirmAccountSwitch(ctx context.Context, squareCli cli.SquareCLI, accountID, email string, yes bool) error {
 	saved := squareCli.Config()
-	if saved.AuthToken == "" {
+	if saved.Key() == "" {
 		return nil
 	}
 
@@ -182,7 +185,7 @@ func confirmAccountSwitch(ctx context.Context, squareCli cli.SquareCLI, accountI
 	if savedID == "" {
 		// Saved before the CLI recorded the account: ask the API. A key it
 		// rejects (expired, revoked) has nothing left to protect.
-		me, err := cli.NewClient(saved.AuthToken).Account.Me(ctx)
+		me, err := cli.NewClient(saved.Key()).Account.Me(ctx)
 		if err != nil {
 			return nil
 		}
@@ -193,6 +196,18 @@ func confirmAccountSwitch(ctx context.Context, squareCli cli.SquareCLI, accountI
 	}
 
 	return cmdutil.Confirm(squareCli, squareCli.I18n().T("commands.auth.login.switch_account", map[string]any{"Email": email}), yes)
+}
+
+// printKeyStorage says where a key just saved went when it is not the OS
+// keychain, and which profile holds it when it is not the default one.
+func printKeyStorage(squareCli cli.SquareCLI) {
+	configuration := squareCli.Config()
+	if configuration.KeyInFile() {
+		fmt.Fprintln(squareCli.Out(), ui.TextYellow.Render(squareCli.I18n().T("commands.auth.login.key_in_file", map[string]any{"Path": configuration.Path()})))
+	}
+	if profile := configuration.Profile(); profile != "" && profile != config.DefaultProfile {
+		fmt.Fprintln(squareCli.Out(), squareCli.I18n().T("commands.auth.login.profile", map[string]any{"Profile": profile}))
+	}
 }
 
 func printLoginNotes(squareCli cli.SquareCLI, plan string) {

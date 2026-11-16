@@ -105,3 +105,13 @@ func runUploadCommand(ctx context.Context, squareCli cli.SquareCLI, options *Upl
 
 	return nil
 }
+
+// Upload uploads file (a zip), or the current folder when file is "", as a
+// new application, like `squarecloud upload`.
+func Upload(ctx context.Context, squareCli cli.SquareCLI, file string) error {
+	config, err := squareconfig.Load()
+	if err != nil {
+		return err
+	}
+	return runUploadCommand(ctx, squareCli, &UploadOptions{ConfigFile: config, File: file}, false)
+}

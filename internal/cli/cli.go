@@ -12,11 +12,14 @@ import (
 	"github.com/squarecloudofc/cli/i18n"
 	"github.com/squarecloudofc/cli/internal/build"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
-// APIKeyEnv, when set, overrides the key stored in the config file (CI).
+// APIKeyEnv, when set, overrides the saved key of every profile (CI).
 const APIKeyEnv = "SQUARECLOUD_API_KEY"
+
+// ProfileEnv picks the saved login to use when --profile is not given.
+const ProfileEnv = "SQUARECLOUD_PROFILE"
 
 var _ SquareCLI = (*squarecliImpl)(nil)
 
@@ -40,31 +43,42 @@ type squarecliImpl struct {
 	out io.Writer
 }
 
-func NewSquareCli() (SquareCLI, error) {
-	localizer := i18n.NewLocalizer(i18n.DetectSystemLanguage())
-	config, err := config.Load()
-	if err != nil {
-		return nil, errors.New(localizer.T("errors.config.load", map[string]any{"Error": err.Error()}))
-	}
-
+// NewSquareCli builds the CLI without a profile: the root command applies
+// --profile or SQUARECLOUD_PROFILE with UseProfile once flags are parsed, so
+// the flag wins and a bad value of either only fails the commands that use
+// it.
+func NewSquareCli() SquareCLI {
 	return &squarecliImpl{
-		config: config,
-		api:    NewClient(APIKey(config)),
-		i18n:   localizer,
+		i18n: i18n.NewLocalizer(i18n.DetectSystemLanguage()),
 
 		err: os.Stderr,
 		in:  os.Stdin,
 		out: os.Stdout,
-	}, nil
+	}
+}
+
+// UseProfile switches to the saved login of profile ("" is the default one).
+func (squareCli *squarecliImpl) UseProfile(profile string) error {
+	cfg, err := config.Load(strings.TrimSpace(profile))
+	if errors.Is(err, config.ErrInvalidProfile) {
+		return errors.New(squareCli.i18n.T("errors.config.invalid_profile", map[string]any{"Profile": profile}))
+	}
+	if err != nil {
+		return errors.New(squareCli.i18n.T("errors.config.load", map[string]any{"Error": err.Error()}))
+	}
+	squareCli.config = cfg
+	squareCli.api = nil // built on first use, with this profile's key
+	return nil
 }
 
 // APIKey is the key the CLI authenticates with: SQUARECLOUD_API_KEY when set,
-// otherwise the one saved by `auth login`.
+// otherwise the one `auth login` saved for the profile. The keychain is only
+// read when the variable is unset.
 func APIKey(cfg *config.Config) string {
 	if key := strings.TrimSpace(os.Getenv(APIKeyEnv)); key != "" {
 		return key
 	}
-	return cfg.AuthToken
+	return cfg.Key()
 }
 
 // UserAgent is sent on every request the CLI makes.
@@ -113,6 +127,9 @@ func (squareCli *squarecliImpl) Config() *config.Config {
 }
 
 func (squareCli *squarecliImpl) API() *squarecloud.Client {
+	if squareCli.api == nil {
+		squareCli.api = NewClient(APIKey(squareCli.config))
+	}
 	return squareCli.api
 }
 

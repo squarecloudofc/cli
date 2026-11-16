@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
 // fakeAPI serves /account/authorize/{device,claim}. claims answers the Nth

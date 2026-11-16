@@ -11,7 +11,7 @@ import (
 	"github.com/squarecloudofc/cli/i18n"
 	"github.com/squarecloudofc/cli/internal/config"
 	"github.com/squarecloudofc/cli/internal/ui/selector"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
 type fakeCLI struct{ err bytes.Buffer }
@@ -35,6 +35,12 @@ func TestPrintError(t *testing.T) {
 		{errors.New("plain"), "plain"},
 		{fmt.Errorf("save: %w", config.ErrNoConfigDir), en.T("errors.config.no_dir")},
 		{selector.ErrCanceled, en.T("errors.common.selection_canceled")},
+		{&squarecloud.APIError{Status: 409, Code: squarecloud.CodeRestoreInProgress}, en.T("errors.api.restore_in_progress")},
+		{&squarecloud.APIError{Status: 409, Code: squarecloud.CodeSnapshotInProgress}, en.T("errors.api.snapshot_in_progress")},
+		{&squarecloud.APIError{Status: 409, Code: squarecloud.CodeEnvBusy}, en.T("errors.api.env_busy")},
+		{&squarecloud.APIError{Status: 503, Code: squarecloud.CodeSnapshotsUnavailable}, en.T("errors.api.snapshots_unavailable")},
+		{&squarecloud.APIError{Status: 503, Code: squarecloud.CodeClusterMaintenanceTryLater}, en.T("errors.api.cluster_maintenance")},
+		{&squarecloud.APIError{Status: 403, Code: squarecloud.CodeMissingScope}, en.T("errors.api.missing_scope")},
 	}
 
 	for _, c := range cases {

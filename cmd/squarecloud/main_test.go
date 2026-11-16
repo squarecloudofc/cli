@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -14,8 +15,16 @@ import (
 	"github.com/squarecloudofc/cli/i18n"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
+	"github.com/zalando/go-keyring"
 )
+
+// TestMain swaps the OS keychain for go-keyring's in-memory fake: no test
+// may read or write the real one.
+func TestMain(m *testing.M) {
+	keyring.MockInit()
+	os.Exit(m.Run())
+}
 
 type fakeCLI struct {
 	cfg      *config.Config
@@ -56,7 +65,7 @@ func runIn(t *testing.T, lang string, args ...string) (*fakeCLI, error) {
 }
 
 func TestBareGroupsShowHelpLoggedOut(t *testing.T) {
-	for _, group := range []string{"app", "auth", "db", "workspace"} {
+	for _, group := range []string{"app", "auth", "db", "workspace", "blob", "integration"} {
 		f, err := run(t, group)
 		if err != nil {
 			t.Errorf("squarecloud %s = %v, want its help", group, err)
@@ -82,7 +91,7 @@ func TestLogoutLoggedOut(t *testing.T) {
 func TestWantsUpdateCheck(t *testing.T) {
 	for _, args := range [][]string{
 		{"__complete", "app", ""}, {"__completeNoDesc", "a"}, {"completion", "bash"},
-		{"--version"}, {"-v"}, {"help"}, {"app", "--help"}, {"app", "list", "-h"},
+		{"--version"}, {"-v"}, {"help"}, {"app", "--help"}, {"app", "list", "-h"}, {"upgrade"},
 	} {
 		if wantsUpdateCheck(args) {
 			t.Errorf("wantsUpdateCheck(%q) = true, want false", args)
@@ -144,5 +153,46 @@ func TestHelpIsTranslated(t *testing.T) {
 	f, _ := runIn(t, "pt", "app", "--help")
 	if want := pt.T("metadata.help.more_info", map[string]any{"Command": "squarecloud app"}); !strings.Contains(f.out.String(), want) {
 		t.Errorf("app --help: missing %q in\n%s", want, f.out.String())
+	}
+}
+
+// TestProfileFlagWinsOverEnv: only the profile used is checked, once flags
+// are parsed. --profile replaces SQUARECLOUD_PROFILE, and help or --version
+// never fail over a bad value.
+func TestProfileFlagWinsOverEnv(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("APPDATA", dir)
+	t.Setenv("XDG_CONFIG_HOME", dir)
+	t.Setenv("LANGUAGE", "en") // the language comes from the env, not the registry
+	t.Setenv(cli.APIKeyEnv, "")
+	t.Setenv(cli.ProfileEnv, "../bad")
+
+	execute := func(args ...string) (cli.SquareCLI, error) {
+		squareCli := cli.NewSquareCli()
+		cmd := newSquareCloudCommand(squareCli)
+		cmd.SetOut(io.Discard)
+		cmd.SetErr(io.Discard)
+		cmd.SetArgs(args)
+		return squareCli, cmd.Execute()
+	}
+
+	for _, args := range [][]string{{"--version"}, {"--help"}, {"app", "--help"}, {"help"}, {"completion", "bash"}} {
+		if _, err := execute(args...); err != nil {
+			t.Errorf("%v with a bad %s = %v", args, cli.ProfileEnv, err)
+		}
+	}
+	if squareCli, err := execute("--profile", "work"); err != nil || squareCli.Config().Profile() != "work" {
+		t.Errorf("--profile work over a bad %s = %v", cli.ProfileEnv, err)
+	}
+	if _, err := execute(); err == nil || !strings.Contains(err.Error(), "../bad") {
+		t.Errorf("a bad %s used = %v, want the invalid profile error", cli.ProfileEnv, err)
+	}
+
+	t.Setenv(cli.ProfileEnv, "work")
+	if squareCli, err := execute(); err != nil || squareCli.Config().Profile() != "work" {
+		t.Errorf("%s=work = %v", cli.ProfileEnv, err)
+	}
+	if _, err := execute("--profile", "../x"); err == nil || !strings.Contains(err.Error(), "../x") {
+		t.Errorf("--profile ../x = %v, want the invalid profile error", err)
 	}
 }

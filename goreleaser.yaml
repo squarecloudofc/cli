@@ -28,15 +28,46 @@ archives:
       - goos: windows
         formats: [zip]
     files:
-      - completions/*
+      # `make completions` writes them to bin/completions; they ship as completions/ in the archive.
+      - src: bin/completions/*
+        dst: completions
+        strip_parent: true
       - LICENSE
       - README.md
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-preview"
+  version_template: "{{ incpatch .Version }}-preview"
 
 checksum:
   name_template: "checksums.txt"
+
+# .deb and .rpm, attached to the release (no apt or dnf repository).
+nfpms:
+  - package_name: squarecloud
+    file_name_template: "{{ .ConventionalFileName }}"
+    vendor: Square Cloud
+    homepage: https://squarecloud.app
+    maintainer: Square Cloud <support@squarecloud.app>
+    description: A command line application to manage your Square Cloud applications, databases and workspaces.
+    license: AGPL-3.0
+    formats: [deb, rpm]
+    # upgrade tells a packaged copy by this path (updater.PackagedBy).
+    bindir: /usr/bin
+    contents:
+      - src: bin/completions/completions-bash.bash
+        dst: /usr/share/bash-completion/completions/squarecloud
+      - src: bin/completions/completions-zsh.zsh
+        dst: /usr/share/zsh/vendor-completions/_squarecloud
+      - src: bin/completions/completions-fish.fish
+        dst: /usr/share/fish/vendor_completions.d/squarecloud.fish
+
+# Keyless signature of checksums.txt, which covers every artifact: cosign
+# signs with the release workflow's GitHub OIDC identity (id-token: write).
+signs:
+  - cmd: cosign
+    artifacts: checksum
+    signature: "${artifact}.sigstore.json"
+    args: ["sign-blob", "--bundle=${signature}", "${artifact}", "--yes"]
 
 changelog:
   sort: asc

@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
 // ClientID identifies the CLI to the authorize routes.
@@ -43,6 +43,8 @@ var Scopes = []string{
 	"databases:write",
 	"databases:credentials",
 	"workspaces:manage",
+	"blob:read",
+	"blob:write",
 }
 
 // Codes of the authorize routes that Wait reacts to.

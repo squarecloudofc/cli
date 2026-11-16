@@ -8,6 +8,9 @@ import (
 var (
 	CheckMark = lipgloss.NewStyle().Foreground(lipgloss.Color("42")).SetString("✓")
 	XMark     = lipgloss.NewStyle().Foreground(lipgloss.Color("9")).SetString("X")
+	WarnMark  = lipgloss.NewStyle().Foreground(lipgloss.Color("11")).SetString("⚠")
+	// UnknownMark is for a state that couldn't be checked, which is not a failure.
+	UnknownMark = lipgloss.NewStyle().Foreground(lipgloss.Color("7")).SetString("?")
 
 	TextGreen  = lipgloss.NewStyle().Foreground(lipgloss.Color("42"))
 	TextBlue   = lipgloss.NewStyle().Foreground(lipgloss.Color("12"))

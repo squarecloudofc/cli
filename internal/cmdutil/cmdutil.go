@@ -21,7 +21,7 @@ import (
 	"github.com/squarecloudofc/cli/pkg/squareconfig"
 	"github.com/squarecloudofc/cli/pkg/squareignore"
 	"github.com/squarecloudofc/cli/pkg/zipper"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 	"golang.org/x/term"
 )
 
@@ -162,6 +162,10 @@ var isTerminal = func(r io.Reader) bool {
 	f, ok := r.(*os.File)
 	return ok && term.IsTerminal(int(f.Fd()))
 }
+
+// IsTerminal reports whether r is an interactive terminal, so a command can
+// ask questions.
+func IsTerminal(r io.Reader) bool { return isTerminal(r) }
 
 // Confirm asks a y/N question on stderr unless assumeYes is set. Anything
 // but a yes is an error, so a skipped action never exits 0: an answered no

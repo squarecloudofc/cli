@@ -100,3 +100,8 @@ func runCommitCommand(ctx context.Context, squareCli cli.SquareCLI, options *Com
 func openCommitFile(filename string) (*os.File, error) {
 	return os.Open(filename) // relative to the cwd; absolute paths too
 }
+
+// Commit sends the current folder to appID, like `squarecloud commit`.
+func Commit(ctx context.Context, squareCli cli.SquareCLI, appID string) error {
+	return runCommitCommand(ctx, squareCli, &CommitOptions{ApplicationID: appID})
+}

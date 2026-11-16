@@ -8,7 +8,13 @@
     },
     "api": {
       "unauthorized": "您的会话已过期或 API 密钥已被撤销。请运行 squarecloud auth login 重新登录。",
-      "rate_limited": "请求过多。请稍候再试。"
+      "rate_limited": "请求过多。请稍候再试。",
+      "restore_in_progress": "此资源正在进行快照恢复。请等待完成后再试。",
+      "snapshot_in_progress": "正在为此资源创建快照。请等待完成后再试。",
+      "env_busy": "环境变量正在被另一个请求修改。请稍后再试。",
+      "snapshots_unavailable": "快照暂时不可用。请约 30 秒后再试。",
+      "cluster_maintenance": "托管此资源的服务器正在维护。请几分钟后再试。",
+      "missing_scope": "你的 API 密钥缺少此命令所需的权限。请运行 squarecloud auth login，获取具有该权限的新密钥。"
     },
     "confirm": {
       "no_tty": "无法请求确认：当前不是交互式终端。请加上 --yes (-y) 重新运行该命令以确认，或在终端中运行。",
@@ -16,7 +22,8 @@
     },
     "config": {
       "no_dir": "找不到用于保存 CLI 配置的文件夹：请设置 HOME（Windows 上为 APPDATA）以保存登录信息，或使用 SQUARECLOUD_API_KEY。",
-      "load": "无法加载配置文件：{{ .Error }}"
+      "load": "无法加载配置文件：{{ .Error }}",
+      "invalid_profile": "{{ .Profile }} 不是有效的配置文件名称：请使用 1 到 32 个字母、数字、- 或 _，并以字母或数字开头。"
     }
   },
   "metadata": {
@@ -72,7 +79,7 @@
           "short": "查看您应用的详细信息"
         },
         "metrics": {
-          "short": "查看最近 24 小时的 CPU/内存/网络指标"
+          "short": "查看 CPU、内存、网络和磁盘指标（24h 或 7d）"
         },
         "realtime": {
           "short": "流式查看您应用的实时事件（SSE）"
@@ -212,7 +219,7 @@
           "short": "查看您数据库的状态"
         },
         "metrics": {
-          "short": "查看最近 24 小时的数据库指标"
+          "short": "查看数据库指标（24h 或 7d）"
         },
         "credentials": {
           "root": {
@@ -298,6 +305,43 @@
             "short": "生成您的一次性邀请代码（5 分钟内有效）"
           }
         }
+      },
+      "init": {
+        "short": "为当前文件夹中的项目创建 squarecloud.app"
+      },
+      "upgrade": {
+        "short": "将 CLI 更新到最新版本"
+      },
+      "blob": {
+        "root": {
+          "short": "管理你在 Square Cloud Blob 中的文件"
+        },
+        "list": {
+          "short": "列出已存储的文件，可按前缀筛选"
+        },
+        "upload": {
+          "short": "上传文件（超过 90 MiB 时分块上传）"
+        },
+        "delete": {
+          "short": "永久删除已存储的文件"
+        },
+        "url": {
+          "short": "输出已存储文件的下载链接"
+        },
+        "stats": {
+          "short": "显示你使用了多少 Blob 存储空间"
+        }
+      },
+      "integration": {
+        "root": {
+          "short": "将 Square Cloud 添加到 Windows 资源管理器菜单"
+        },
+        "install": {
+          "short": "在文件夹和 .zip 文件的菜单中添加“发送到 Square Cloud”"
+        },
+        "uninstall": {
+          "short": "移除资源管理器菜单项及其添加的所有注册表项"
+        }
       }
     },
     "flags": {
@@ -330,7 +374,17 @@
       "db_type": "引擎：mongo、mysql、redis 或 postgres",
       "db_version": "引擎版本",
       "db_new_name": "新的数据库名称",
-      "db_new_memory": "新的分配内存（MB）"
+      "db_new_memory": "新的分配内存（MB）",
+      "no_wait": "不等待在后台继续进行的恢复",
+      "range": "时间范围：24h，Pro 和 Enterprise 套餐可用 7d",
+      "follow": "持续显示新到达的日志行（按 Ctrl+C 停止）",
+      "yes_init": "直接使用检测到的值，不再询问",
+      "force_init": "覆盖已有的 squarecloud.app",
+      "check": "仅检查是否有新版本",
+      "profile": "使用此配置文件下保存的登录信息（默认：SQUARECLOUD_PROFILE，或 default）",
+      "blob_name": "对象名称，不含扩展名（默认：文件名）",
+      "blob_private": "将文件存储为私有，只能通过临时链接访问",
+      "dry_run": "显示将要更改的内容，但不做任何更改"
     },
     "help": {
       "flag": "显示此命令的帮助",
@@ -384,10 +438,14 @@
       },
       "info": {},
       "metrics": {
-        "empty": "此应用暂无可用指标"
+        "empty": "此应用暂无可用指标",
+        "invalid_range": "无效的时间范围 \"{{ .Range }}\"：请使用 24h 或 7d。",
+        "only_24h": "7 天的指标需要 Pro 或 Enterprise 套餐（应用还需 512 MB 或以上）。正在显示最近 24 小时。"
       },
       "realtime": {
-        "connected": "已连接到 {{ .Appid }} 的实时流（按 Ctrl+C 退出）"
+        "connected": "已连接到 {{ .Appid }} 的实时流（按 Ctrl+C 退出）",
+        "reconnecting": "流已结束，正在重新连接...",
+        "no_events": "流连续 {{ .Count }} 次在没有日志或状态的情况下结束，因此已停止。请检查应用的状态后重试。"
       },
       "domains": {
         "empty": "您的应用中没有配置任何域名"
@@ -535,7 +593,9 @@
         "empty_token": "未从 stdin 收到 API 密钥。",
         "env_override": "注意：已设置 SQUARECLOUD_API_KEY，它优先于已保存的密钥。",
         "ci": "检测到 CI 环境（CI=true）。浏览器登录生成的密钥会在 90 天后过期，且只能由人工续期。请在 {{ .Link }} 创建 API 密钥，并将其设置到 SQUARECLOUD_API_KEY。",
-        "switch_account": "此设备已登录另一个 Square Cloud 账户。要替换为 {{ .Email }} 吗？"
+        "switch_account": "此设备已登录另一个 Square Cloud 账户。要替换为 {{ .Email }} 吗？",
+        "key_in_file": "没有可用的系统密钥链，因此密钥已保存在 {{ .Path }} 中，只有你的用户可以读取。",
+        "profile": "已保存到配置文件 {{ .Profile }}。要使用它，请传入 --profile {{ .Profile }}，或设置 SQUARECLOUD_PROFILE={{ .Profile }}。"
       },
       "logout": {
         "success": "您已成功退出 Square Cloud 账户。",
@@ -550,7 +610,8 @@
         "key": {
           "expires": "您的 API 密钥将于 {{ .Date }} 过期。",
           "scopes": "权限范围：{{ .Scopes }}",
-          "env": "正在使用 SQUARECLOUD_API_KEY 中的 API 密钥。"
+          "env": "正在使用 SQUARECLOUD_API_KEY 中的 API 密钥。",
+          "profile": "配置文件：{{ .Profile }}"
         }
       }
     },
@@ -573,13 +634,18 @@
         "error": "无法下载您的快照。请稍后重试。",
         "success": {
           "downloaded": "您的快照已成功保存到 {{ .File }}",
-          "link": "您的快照已创建。下载地址："
+          "link": "您的快照已创建。请在 1 小时内通过以下地址下载："
         },
         "pending": "您的快照正在生成中，几分钟后将出现在快照列表中。"
       },
       "restore": {
         "confirm": "要从此快照恢复 {{ .Id }} 吗？当前数据将被替换",
-        "success": "已成功开始恢复"
+        "success": "快照已成功恢复",
+        "following": "恢复需要较长时间，正在服务器上继续进行。正在跟踪进度（按 Ctrl+C 只会停止跟踪，不会停止恢复）...",
+        "step": "步骤：{{ .Step }}",
+        "background": "恢复正在后台继续进行，可能还需要几分钟。",
+        "failed": "恢复失败：{{ .Code }}",
+        "lost": "平台已不再报告此次恢复，因此结果未知。请检查应用或数据库的状态。"
       }
     },
     "workspace": {
@@ -628,6 +694,83 @@
     "signal": {
       "already_running": "它已经在运行中。",
       "already_stopped": "它已经停止。"
+    },
+    "status": {
+      "unknown": "目前无法检查平台状态。这并不表示平台已停止服务。",
+      "incidents": "事件：",
+      "started": "开始：{{ .Date }}",
+      "ends": "预计结束：{{ .Date }}",
+      "components": "受影响的组件："
+    },
+    "init": {
+      "exists": "{{ .File }} 已存在。使用 --force 覆盖它。",
+      "no_main": "找不到此项目的主文件。请不带 --yes 运行 squarecloud init 进行选择。",
+      "created": "已创建 {{ .File }}",
+      "next": "使用 squarecloud upload 上传您的项目。",
+      "ask": {
+        "main": "主文件",
+        "name": "显示名称",
+        "site": "这是网站或 API 吗？",
+        "memory": "内存（MB，至少 {{ .Min }}）",
+        "subdomain": "子域名",
+        "start": "自定义启动命令（可选）",
+        "autorestart": "停止时自动重启吗？",
+        "ignore": "同时创建 {{ .File }} 吗？"
+      },
+      "invalid": {
+        "main": "请选择此文件夹中的文件。",
+        "name": "请使用 1 到 32 个字符。",
+        "memory": "请输入以 MB 为单位的整数，至少 {{ .Min }}。",
+        "subdomain": "只能使用字母、数字和连字符（最多 63 个）。"
+      }
+    },
+    "upgrade": {
+      "check_failed": "无法检查新版本：{{ .Error }}",
+      "up_to_date": "无需更新：您的版本是 {{ .Version }}，最新版本是 {{ .Latest }}。",
+      "available": "版本 {{ .Latest }} 可用（您的版本是 {{ .Version }}）。",
+      "run": "运行 squarecloud upgrade 进行安装。",
+      "npm": "此 CLI 是通过 npm 安装的。请使用以下命令更新：npm i -g @squarecloud/cli@latest",
+      "downloading": "正在下载 {{ .Latest }}...",
+      "replace_failed": "无法替换 {{ .Path }}：{{ .Error }}。请检查您是否有该文件夹的写入权限。",
+      "success": "Square Cloud CLI 已更新到 {{ .Latest }}。",
+      "package_deb": "此 CLI 是通过 .deb 软件包安装的。请从 {{ .Link }} 下载新的软件包，并使用以下命令安装：sudo apt install ./<文件>.deb",
+      "package_rpm": "此 CLI 是通过 .rpm 软件包安装的。请从 {{ .Link }} 下载新的软件包，并使用以下命令安装：sudo dnf install ./<文件>.rpm"
+    },
+    "blob": {
+      "list": {
+        "empty": "未找到文件。"
+      },
+      "private": "（私有）",
+      "upload": {
+        "is_dir": "{{ .Path }} 是一个文件夹。请上传文件，或先用 squarecloud zip 压缩该文件夹。",
+        "uploading": "正在上传 {{ .File }}（{{ .Size }}）...",
+        "parts": "已发送第 {{ .Done }} 块，共 {{ .Total }} 块",
+        "success": "已上传为 {{ .ID }}",
+        "private_hint": "私有文件：使用 squarecloud blob url {{ .ID }} 获取临时链接"
+      },
+      "delete": {
+        "confirm": "要永久删除 {{ .ID }} 吗？没有回收站",
+        "success": "已删除 {{ .ID }}"
+      },
+      "url": {
+        "expires": "临时链接，有效期至 {{ .Date }}。"
+      },
+      "stats": {
+        "objects": "文件数：{{ .Count }}",
+        "storage": "存储空间：已使用 {{ .Used }}，套餐包含 {{ .Included }}"
+      }
+    },
+    "integration": {
+      "unsupported": "资源管理器集成仅适用于 Windows。在 macOS 和 Linux 上，请参阅 README，了解如何在 Finder 或文件管理器中添加运行 squarecloud upload 的快捷方式。",
+      "menu_label": "发送到 Square Cloud",
+      "dry_run": {
+        "install": "将写入以下注册表值（尚未做任何更改）：",
+        "uninstall": "将删除以下注册表项（尚未做任何更改）："
+      },
+      "installed": "已在资源管理器中文件夹和 .zip 文件的菜单里添加“发送到 Square Cloud”。在 Windows 11 中，请在“显示更多选项”中查找。",
+      "uninstalled": "已从资源管理器菜单中移除“发送到 Square Cloud”。",
+      "sent": "{{ .Name }} 已发送到 Square Cloud。",
+      "send_failed": "无法发送 {{ .Name }}"
     }
   },
   "ui": {
@@ -637,7 +780,7 @@
     },
     "update": {
       "outdated": "您正在使用旧版本的 Square Cloud CLI：{{ .Version }}",
-      "hint": "请更新到 {{ .Version }}"
+      "hint": "请使用 squarecloud upgrade 更新到 {{ .Version }}"
     },
     "table": {
       "name": "名称",
@@ -680,7 +823,10 @@
       "path": "路径",
       "slowest_path": "最慢路径",
       "method": "方法",
-      "errors": "错误数"
+      "errors": "错误数",
+      "disk_io": "磁盘 I/O",
+      "storage": "存储",
+      "url": "URL"
     },
     "field": {
       "id": "ID：",

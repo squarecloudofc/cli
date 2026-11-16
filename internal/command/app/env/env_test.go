@@ -16,7 +16,7 @@ import (
 	"github.com/squarecloudofc/cli/i18n"
 	"github.com/squarecloudofc/cli/internal/cli"
 	"github.com/squarecloudofc/cli/internal/config"
-	"github.com/squarecloudofc/sdk-api-go/v3"
+	"github.com/squarecloudofc/sdk-api-go/v4"
 )
 
 type fakeCLI struct{ out, err bytes.Buffer }

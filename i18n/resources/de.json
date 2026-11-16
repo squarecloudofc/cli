@@ -8,7 +8,13 @@
     },
     "api": {
       "unauthorized": "Ihre Sitzung ist abgelaufen oder der API-Schlüssel wurde widerrufen. Führen Sie squarecloud auth login aus, um sich erneut anzumelden.",
-      "rate_limited": "Zu viele Anfragen. Warten Sie einen Moment und versuchen Sie es erneut."
+      "rate_limited": "Zu viele Anfragen. Warten Sie einen Moment und versuchen Sie es erneut.",
+      "restore_in_progress": "Für diese Ressource läuft gerade eine Snapshot-Wiederherstellung. Warten Sie, bis sie fertig ist, und versuchen Sie es dann erneut.",
+      "snapshot_in_progress": "Von dieser Ressource wird gerade ein Snapshot erstellt. Warten Sie, bis er fertig ist, und versuchen Sie es dann erneut.",
+      "env_busy": "Die Umgebungsvariablen werden gerade von einer anderen Anfrage geändert. Versuchen Sie es gleich noch einmal.",
+      "snapshots_unavailable": "Snapshots sind vorübergehend nicht verfügbar. Versuchen Sie es in etwa 30 Sekunden erneut.",
+      "cluster_maintenance": "Der Server dieser Ressource wird gerade gewartet. Versuchen Sie es in ein paar Minuten erneut.",
+      "missing_scope": "Ihrem API-Schlüssel fehlt die Berechtigung, die dieser Befehl braucht. Führen Sie squarecloud auth login aus, um einen neuen Schlüssel mit dieser Berechtigung zu erhalten."
     },
     "confirm": {
       "no_tty": "Bestätigung nicht möglich: Dies ist kein interaktives Terminal. Führen Sie den Befehl erneut mit --yes (-y) aus, um zu bestätigen, oder führen Sie ihn in einem Terminal aus.",
@@ -16,7 +22,8 @@
     },
     "config": {
       "no_dir": "Kein Ordner für die CLI-Konfiguration gefunden: Setzen Sie HOME (unter Windows APPDATA), um eine Anmeldung zu speichern, oder verwenden Sie SQUARECLOUD_API_KEY.",
-      "load": "Die Konfigurationsdatei konnte nicht geladen werden: {{ .Error }}"
+      "load": "Die Konfigurationsdatei konnte nicht geladen werden: {{ .Error }}",
+      "invalid_profile": "{{ .Profile }} ist kein gültiger Profilname: Verwenden Sie 1 bis 32 Buchstaben, Ziffern, - oder _, beginnend mit einem Buchstaben oder einer Ziffer."
     }
   },
   "ui": {
@@ -26,7 +33,7 @@
     },
     "update": {
       "outdated": "Sie verwenden eine veraltete Version der Square Cloud CLI: {{ .Version }}",
-      "hint": "Aktualisieren Sie auf {{ .Version }}"
+      "hint": "Aktualisieren Sie mit squarecloud upgrade auf {{ .Version }}"
     },
     "table": {
       "name": "NAME",
@@ -69,7 +76,10 @@
       "path": "PFAD",
       "slowest_path": "LANGSAMSTER PFAD",
       "method": "METHODE",
-      "errors": "FEHLER"
+      "errors": "FEHLER",
+      "disk_io": "DATENTRÄGER-I/O",
+      "storage": "SPEICHERPLATZ",
+      "url": "URL"
     },
     "field": {
       "id": "ID:",
@@ -118,7 +128,7 @@
           "short": "Die neuesten Logs Ihrer Anwendung anzeigen"
         },
         "metrics": {
-          "short": "CPU-, RAM- und Netzwerkmetriken der letzten 24 Stunden anzeigen"
+          "short": "CPU-, RAM-, Netzwerk- und Datenträgermetriken anzeigen (24h oder 7d)"
         },
         "realtime": {
           "short": "Echtzeit-Ereignisse Ihrer Anwendung streamen (SSE)"
@@ -278,7 +288,7 @@
           "short": "Den Status Ihrer Datenbank anzeigen"
         },
         "metrics": {
-          "short": "Datenbankmetriken der letzten 24 Stunden anzeigen"
+          "short": "Datenbankmetriken anzeigen (24h oder 7d)"
         },
         "credentials": {
           "root": {
@@ -367,6 +377,43 @@
       },
       "zip": {
         "short": "Den aktuellen Ordner als ZIP packen"
+      },
+      "init": {
+        "short": "Eine squarecloud.app für das Projekt im aktuellen Ordner erstellen"
+      },
+      "upgrade": {
+        "short": "Die CLI auf die neueste Version aktualisieren"
+      },
+      "blob": {
+        "root": {
+          "short": "Ihre Dateien in Square Cloud Blob verwalten"
+        },
+        "list": {
+          "short": "Gespeicherte Dateien auflisten, optional unter einem Präfix"
+        },
+        "upload": {
+          "short": "Eine Datei hochladen (über 90 MiB in Teilen)"
+        },
+        "delete": {
+          "short": "Eine gespeicherte Datei endgültig löschen"
+        },
+        "url": {
+          "short": "Einen Download-Link für eine gespeicherte Datei ausgeben"
+        },
+        "stats": {
+          "short": "Anzeigen, wie viel Blob-Speicher Sie nutzen"
+        }
+      },
+      "integration": {
+        "root": {
+          "short": "Square Cloud zum Menü des Windows-Explorers hinzufügen"
+        },
+        "install": {
+          "short": "\"An Square Cloud senden\" zum Menü von Ordnern und .zip-Dateien hinzufügen"
+        },
+        "uninstall": {
+          "short": "Den Explorer-Menüeintrag und alle angelegten Schlüssel entfernen"
+        }
       }
     },
     "flags": {
@@ -399,7 +446,17 @@
       "db_type": "Engine: mongo, mysql, redis oder postgres",
       "db_version": "Engine-Version",
       "db_new_name": "Neuer Datenbankname",
-      "db_new_memory": "Neuer zugewiesener Arbeitsspeicher in MB"
+      "db_new_memory": "Neuer zugewiesener Arbeitsspeicher in MB",
+      "no_wait": "Nicht auf eine Wiederherstellung warten, die im Hintergrund weiterläuft",
+      "range": "Zeitraum: 24h, oder 7d mit den Plänen Pro und Enterprise",
+      "follow": "Neue Logzeilen weiter anzeigen, sobald sie eintreffen (Strg+C zum Beenden)",
+      "yes_init": "Die erkannten Werte ohne Nachfrage übernehmen",
+      "force_init": "Eine vorhandene squarecloud.app überschreiben",
+      "check": "Nur prüfen, ob eine neue Version verfügbar ist",
+      "profile": "Die unter diesem Profil gespeicherte Anmeldung verwenden (Standard: SQUARECLOUD_PROFILE oder default)",
+      "blob_name": "Objektname ohne Dateiendung (Standard: der Dateiname)",
+      "blob_private": "Datei privat speichern, nur über temporäre Links erreichbar",
+      "dry_run": "Anzeigen, was sich ändern würde, ohne etwas zu ändern"
     },
     "help": {
       "flag": "Hilfe zu diesem Befehl anzeigen",
@@ -428,13 +485,18 @@
         "error": "Ihr Snapshot konnte nicht heruntergeladen werden. Versuchen Sie es später erneut.",
         "success": {
           "downloaded": "Ihr Snapshot wurde erfolgreich unter {{ .File }} gespeichert",
-          "link": "Ihr Snapshot wurde erstellt. Laden Sie ihn hier herunter:"
+          "link": "Ihr Snapshot wurde erstellt. Laden Sie ihn innerhalb von 1 Stunde hier herunter:"
         },
         "pending": "Ihr Snapshot wird erstellt. In ein paar Minuten erscheint er in der Snapshot-Liste."
       },
       "restore": {
         "confirm": "{{ .Id }} aus diesem Snapshot wiederherstellen? Die aktuellen Daten werden ersetzt",
-        "success": "Wiederherstellung erfolgreich gestartet"
+        "success": "Snapshot erfolgreich wiederhergestellt",
+        "following": "Die Wiederherstellung dauert länger und läuft auf dem Server weiter. Der Fortschritt wird verfolgt (Strg+C beendet nur das Verfolgen, nicht die Wiederherstellung)...",
+        "step": "Schritt: {{ .Step }}",
+        "background": "Die Wiederherstellung läuft im Hintergrund weiter und kann noch einige Minuten dauern.",
+        "failed": "Die Wiederherstellung ist fehlgeschlagen: {{ .Code }}",
+        "lost": "Die Plattform meldet diese Wiederherstellung nicht mehr, daher ist das Ergebnis unbekannt. Prüfen Sie den Status der Anwendung oder Datenbank."
       }
     },
     "app": {
@@ -470,10 +532,14 @@
       },
       "info": {},
       "metrics": {
-        "empty": "Für diese Anwendung sind keine Metriken verfügbar"
+        "empty": "Für diese Anwendung sind keine Metriken verfügbar",
+        "invalid_range": "Ungültiger Zeitraum \"{{ .Range }}\": Verwenden Sie 24h oder 7d.",
+        "only_24h": "7-Tage-Metriken erfordern einen Pro- oder Enterprise-Plan (und bei Anwendungen mindestens 512 MB). Es werden die letzten 24 Stunden angezeigt."
       },
       "realtime": {
-        "connected": "Mit dem Echtzeit-Stream von {{ .Appid }} verbunden (Strg+C zum Beenden)"
+        "connected": "Mit dem Echtzeit-Stream von {{ .Appid }} verbunden (Strg+C zum Beenden)",
+        "reconnecting": "Der Stream wurde beendet; neue Verbindung wird aufgebaut...",
+        "no_events": "Der Stream wurde {{ .Count }}-mal hintereinander ohne Logs oder Status beendet und daher gestoppt. Prüfen Sie den Status der Anwendung und versuchen Sie es erneut."
       },
       "domains": {
         "empty": "In Ihren Anwendungen sind keine Domains konfiguriert"
@@ -668,7 +734,9 @@
         "empty_token": "Kein API-Schlüssel über stdin empfangen.",
         "env_override": "Hinweis: SQUARECLOUD_API_KEY ist gesetzt und hat Vorrang vor dem gespeicherten Schlüssel.",
         "ci": "CI erkannt (CI=true). Die Anmeldung über den Browser erzeugt einen Schlüssel, der nach 90 Tagen abläuft und nur von einer Person erneuert werden kann. Erstellen Sie unter {{ .Link }} einen API-Schlüssel und setzen Sie ihn in SQUARECLOUD_API_KEY.",
-        "switch_account": "Dieser Rechner ist bei einem anderen Square-Cloud-Konto angemeldet. Durch {{ .Email }} ersetzen?"
+        "switch_account": "Dieser Rechner ist bei einem anderen Square-Cloud-Konto angemeldet. Durch {{ .Email }} ersetzen?",
+        "key_in_file": "Es ist kein Schlüsselbund des Systems verfügbar, daher wurde der Schlüssel in {{ .Path }} gespeichert, lesbar nur für Ihren Benutzer.",
+        "profile": "Unter dem Profil {{ .Profile }} gespeichert. Verwenden Sie es mit --profile {{ .Profile }} oder SQUARECLOUD_PROFILE={{ .Profile }}."
       },
       "logout": {
         "success": "Sie wurden erfolgreich von Ihrem Square-Cloud-Konto abgemeldet.",
@@ -683,7 +751,8 @@
         "key": {
           "expires": "Ihr API-Schlüssel läuft am {{ .Date }} ab.",
           "scopes": "Berechtigungen: {{ .Scopes }}",
-          "env": "Es wird der API-Schlüssel aus SQUARECLOUD_API_KEY verwendet."
+          "env": "Es wird der API-Schlüssel aus SQUARECLOUD_API_KEY verwendet.",
+          "profile": "Profil: {{ .Profile }}"
         }
       }
     },
@@ -697,6 +766,83 @@
     "signal": {
       "already_running": "Läuft bereits.",
       "already_stopped": "Ist bereits gestoppt."
+    },
+    "status": {
+      "unknown": "Der Status der Plattform konnte gerade nicht geprüft werden. Das heißt nicht, dass sie ausgefallen ist.",
+      "incidents": "Vorfälle:",
+      "started": "Beginn: {{ .Date }}",
+      "ends": "Voraussichtliches Ende: {{ .Date }}",
+      "components": "Betroffene Komponenten:"
+    },
+    "init": {
+      "exists": "{{ .File }} existiert bereits. Verwenden Sie --force, um die Datei zu überschreiben.",
+      "no_main": "Die Hauptdatei dieses Projekts wurde nicht gefunden. Führen Sie squarecloud init ohne --yes aus, um sie auszuwählen.",
+      "created": "{{ .File }} erstellt",
+      "next": "Laden Sie Ihr Projekt mit squarecloud upload hoch.",
+      "ask": {
+        "main": "Hauptdatei",
+        "name": "Anzeigename",
+        "site": "Ist es eine Website oder eine API?",
+        "memory": "Arbeitsspeicher in MB (mindestens {{ .Min }})",
+        "subdomain": "Subdomain",
+        "start": "Eigener Startbefehl (optional)",
+        "autorestart": "Automatisch neu starten, wenn sie stoppt?",
+        "ignore": "Auch eine {{ .File }} erstellen?"
+      },
+      "invalid": {
+        "main": "Wählen Sie eine Datei in diesem Ordner.",
+        "name": "Verwenden Sie 1 bis 32 Zeichen.",
+        "memory": "Verwenden Sie eine ganze Zahl in MB, mindestens {{ .Min }}.",
+        "subdomain": "Verwenden Sie nur Buchstaben, Ziffern und Bindestriche (bis zu 63)."
+      }
+    },
+    "upgrade": {
+      "check_failed": "Es konnte nicht geprüft werden, ob eine neue Version verfügbar ist: {{ .Error }}",
+      "up_to_date": "Kein Update nötig: Ihre Version ist {{ .Version }}, die neueste ist {{ .Latest }}.",
+      "available": "Version {{ .Latest }} ist verfügbar (Ihre Version: {{ .Version }}).",
+      "run": "Führen Sie squarecloud upgrade aus, um sie zu installieren.",
+      "npm": "Diese CLI wurde mit npm installiert. Aktualisieren Sie sie mit: npm i -g @squarecloud/cli@latest",
+      "downloading": "{{ .Latest }} wird heruntergeladen...",
+      "replace_failed": "{{ .Path }} konnte nicht ersetzt werden: {{ .Error }}. Prüfen Sie, ob Sie in diesen Ordner schreiben dürfen.",
+      "success": "Square Cloud CLI auf {{ .Latest }} aktualisiert.",
+      "package_deb": "Diese CLI wurde aus einem .deb-Paket installiert. Laden Sie das neue unter {{ .Link }} herunter und installieren Sie es mit: sudo apt install ./<datei>.deb",
+      "package_rpm": "Diese CLI wurde aus einem .rpm-Paket installiert. Laden Sie das neue unter {{ .Link }} herunter und installieren Sie es mit: sudo dnf install ./<datei>.rpm"
+    },
+    "blob": {
+      "list": {
+        "empty": "Keine Dateien gefunden."
+      },
+      "private": "(privat)",
+      "upload": {
+        "is_dir": "{{ .Path }} ist ein Ordner. Laden Sie eine Datei hoch oder packen Sie den Ordner zuerst mit squarecloud zip.",
+        "uploading": "{{ .File }} wird hochgeladen ({{ .Size }})...",
+        "parts": "Teil {{ .Done }} von {{ .Total }} gesendet",
+        "success": "Hochgeladen als {{ .ID }}",
+        "private_hint": "Private Datei: Einen temporären Link erhalten Sie mit squarecloud blob url {{ .ID }}"
+      },
+      "delete": {
+        "confirm": "{{ .ID }} endgültig löschen? Es gibt keinen Papierkorb",
+        "success": "{{ .ID }} gelöscht"
+      },
+      "url": {
+        "expires": "Temporärer Link, gültig bis {{ .Date }}."
+      },
+      "stats": {
+        "objects": "Dateien: {{ .Count }}",
+        "storage": "Speicher: {{ .Used }} von {{ .Included }} Ihres Plans belegt"
+      }
+    },
+    "integration": {
+      "unsupported": "Die Explorer-Integration gibt es nur unter Windows. Für macOS und Linux zeigt die README, wie Sie im Finder oder Dateimanager eine Verknüpfung anlegen, die squarecloud upload ausführt.",
+      "menu_label": "An Square Cloud senden",
+      "dry_run": {
+        "install": "Diese Registrierungswerte würden geschrieben (nichts wurde geändert):",
+        "uninstall": "Diese Registrierungsschlüssel würden gelöscht (nichts wurde geändert):"
+      },
+      "installed": "\"An Square Cloud senden\" wurde dem Explorer-Menü von Ordnern und .zip-Dateien hinzugefügt. Unter Windows 11 finden Sie es unter Weitere Optionen anzeigen.",
+      "uninstalled": "\"An Square Cloud senden\" wurde aus dem Explorer-Menü entfernt.",
+      "sent": "{{ .Name }} wurde an Square Cloud gesendet.",
+      "send_failed": "{{ .Name }} konnte nicht gesendet werden"
     }
   }
 }

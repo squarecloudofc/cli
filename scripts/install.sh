@@ -1,10 +1,16 @@
 #!/usr/bin/env sh
 set -u
 
+# Installs the Square Cloud CLI for the current user, without sudo, into
+# ~/.local/bin (or $SQUARECLOUD_INSTALL_DIR). The PATH is only changed if you
+# agree when asked.
+
 if [ "${OS:-}" = "Windows_NT" ]; then
-    echo 'error: If you are a Windows user, please install in WSL (Windows Subsystem for Linux).'
+    echo 'error: On Windows, run in PowerShell: irm https://raw.githubusercontent.com/squarecloudofc/cli/master/scripts/install.ps1 | iex'
     exit 1
 fi
+
+INSTALL_DIR="${SQUARECLOUD_INSTALL_DIR:-${HOME}/.local/bin}"
 
 BOLD="$(tput bold 2>/dev/null || printf '')"
 GREY="$(tput setaf 0 2>/dev/null || printf '')"
@@ -140,14 +146,57 @@ execute() {
   info "Unpacking ${filename}"
   untar "${tmpdir}/${filename}" "${tmpdir}/bin" || fail "Unable to unpack ${filename}"
 
-  sudo=""
-  if [ "$(id -u)" != "0" ]; then
-    sudo="sudo"
-  fi
-  ${sudo} cp -f "${tmpdir}/bin/squarecloud" "/usr/local/bin" || fail "Unable to copy squarecloud to /usr/local/bin"
-  completed "Successfully installed Square Cloud CLI $VERSION!"
+  # Copy next to the target, then rename over it: works while an old
+  # version is running and never leaves a half-written binary.
+  mkdir -p "${INSTALL_DIR}" || fail "Unable to create ${INSTALL_DIR}"
+  cp -f "${tmpdir}/bin/squarecloud" "${INSTALL_DIR}/.squarecloud.new" &&
+    chmod 755 "${INSTALL_DIR}/.squarecloud.new" &&
+    mv -f "${INSTALL_DIR}/.squarecloud.new" "${INSTALL_DIR}/squarecloud" || fail "Unable to copy squarecloud to ${INSTALL_DIR}"
+  completed "Installed Square Cloud CLI $VERSION in ${INSTALL_DIR}"
 
   rm -rf "${tmpdir}"
 }
 
+# can_ask: a terminal can answer, even when this script comes from curl | sh.
+can_ask() {
+  [ -t 1 ] && { : </dev/tty; } 2>/dev/null
+}
+
+setup_path() {
+  case ":${PATH}:" in
+    *":${INSTALL_DIR}:"*)
+      found="$(command -v squarecloud 2>/dev/null || true)"
+      if [ -n "${found}" ] && [ "${found}" != "${INSTALL_DIR}/squarecloud" ]; then
+        warn "${found} comes first in your PATH (an older install?). Remove it to use this version."
+      fi
+      return
+      ;;
+  esac
+
+  line="export PATH=\"${INSTALL_DIR}:\$PATH\""
+  case "${SHELL:-}" in
+    */zsh) rc="${HOME}/.zshrc" ;;
+    */bash) if [ "${PLATFORM}" = "darwin" ]; then rc="${HOME}/.bash_profile"; else rc="${HOME}/.bashrc"; fi ;;
+    */fish) rc="${HOME}/.config/fish/config.fish"; line="fish_add_path \"${INSTALL_DIR}\"" ;;
+    *) rc="${HOME}/.profile" ;;
+  esac
+
+  warn "${INSTALL_DIR} is not in your PATH."
+  if can_ask; then
+    printf '%s' "Add it to ${rc}? [y/N] " >/dev/tty
+    read -r answer </dev/tty || answer=""
+    case "${answer}" in
+      y | Y | yes | YES)
+        mkdir -p "$(dirname "${rc}")" &&
+          printf '\n# Square Cloud CLI\n%s\n' "${line}" >>"${rc}" || fail "Unable to write ${rc}"
+        completed "Added to ${rc}. Open a new terminal to use squarecloud."
+        return
+        ;;
+    esac
+  fi
+  info "To use squarecloud, add this line to ${rc} and open a new terminal:"
+  printf '  %s\n' "${line}"
+}
+
 execute
+setup_path

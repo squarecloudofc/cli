@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -48,6 +49,18 @@ func newSquareCloudCommand(squareCli cli.SquareCLI) *cobra.Command {
 				return errors.New(squareCli.I18n().T("errors.common.json_unsupported", map[string]any{"Command": cmd.CommandPath()}))
 			}
 
+			// --profile wins over SQUARECLOUD_PROFILE, and only the value
+			// used is checked, here. --version and --help end before this.
+			if p, ok := squareCli.(interface{ UseProfile(string) error }); ok && readsProfile(cmd) {
+				profile := os.Getenv(cli.ProfileEnv)
+				if flag := cmd.Flags().Lookup("profile"); flag != nil && flag.Changed {
+					profile = flag.Value.String()
+				}
+				if err := p.UseProfile(profile); err != nil {
+					return err
+				}
+			}
+
 			if cmd.Parent() != nil {
 				if cmd.Parent().Name() != "completion" && cli.ShouldCheckAuth(squareCli, cmd) && !cli.CheckAuth(squareCli) {
 					fmt.Fprintf(squareCli.Err(), "%s %s\n", ui.XMark, squareCli.I18n().T("errors.common.not_logged"))
@@ -67,6 +80,7 @@ func newSquareCloudCommand(squareCli cli.SquareCLI) *cobra.Command {
 	cmd.SetVersionTemplate("Square Cloud CLI version {{.Version}}\n")
 	cmd.Flags().BoolP("version", "v", false, squareCli.I18n().T("metadata.flags.version"))
 	cmd.PersistentFlags().Bool("json", false, squareCli.I18n().T("metadata.flags.json"))
+	cmd.PersistentFlags().String("profile", "", squareCli.I18n().T("metadata.flags.profile"))
 
 	// Cobra's help flag, help command and usage headings are English; these
 	// replace their text only. The help flag is cobra's (same name, shorthand
@@ -103,12 +117,22 @@ func translateUsage(t i18n.Localizer, template string) string {
 	).Replace(template)
 }
 
-func main() {
-	squareCli, err := cli.NewSquareCli()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+// readsProfile is false for help and shell completion, which never use the
+// login: a bad SQUARECLOUD_PROFILE can't break them.
+func readsProfile(cmd *cobra.Command) bool {
+	for c := cmd; c != nil; c = c.Parent() {
+		switch c.Name() {
+		case "help", "completion", cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd:
+			return false
+		}
 	}
+	return true
+}
+
+func main() {
+	squareCli := cli.NewSquareCli()
+
+	removeOldBinary()
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -144,12 +168,26 @@ func main() {
 	}
 }
 
+// removeOldBinary deletes the squarecloud.exe.old that upgrade leaves on
+// Windows, where the running binary can't be deleted. Best effort, silent.
+func removeOldBinary() {
+	if runtime.GOOS != "windows" {
+		return
+	}
+	if exe, err := os.Executable(); err == nil {
+		if exe, err = filepath.EvalSymlinks(exe); err == nil {
+			_ = os.Remove(exe + ".old")
+		}
+	}
+}
+
 // wantsUpdateCheck is false for runs where the banner is noise: shell
-// completion (it runs on every TAB), help and --version.
+// completion (it runs on every TAB), help, --version and upgrade, which
+// checks itself.
 func wantsUpdateCheck(args []string) bool {
 	for _, arg := range args {
 		switch arg {
-		case cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd, "completion", "help", "--help", "-h", "--version", "-v":
+		case cobra.ShellCompRequestCmd, cobra.ShellCompNoDescRequestCmd, "completion", "help", "--help", "-h", "--version", "-v", "upgrade":
 			return false
 		}
 	}

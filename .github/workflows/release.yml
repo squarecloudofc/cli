@@ -11,6 +11,9 @@ permissions:
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # cosign keyless signing of checksums.txt
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,6 +22,7 @@ jobs:
         with:
           go-version: ">=1.20.0"
           cache: true
+      - uses: sigstore/cosign-installer@v3
 
       - uses: goreleaser/goreleaser-action@v6
         with:
@@ -39,7 +43,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "24.x" # npm 11, for trusted publishing (OIDC)
           registry-url: "https://registry.npmjs.org"
 
       - name: Build NPM Package
